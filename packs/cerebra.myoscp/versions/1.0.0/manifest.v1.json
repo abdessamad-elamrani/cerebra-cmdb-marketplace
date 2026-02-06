@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "packId": "cerebra.myoscp",
+  "version": "1.0.0",
+  "minAppVersion": "0.1.0",
+  "profile": {
+    "file": "profile.json",
+    "sha256": "582e4816c12d6b4bff678bbeebec368ae8bfad08b04c957585981cd0c842b42c"
+  },
+  "assets": [
+    {
+      "file": "assets/0c2c9d93-e13a-4666-a104-1b6952879ae6.png",
+      "sha256": "aec680197f643a8f78cbb65a314767c49395befa1bcf5690d4c820e5c60d851d"
+    },
+    {
+      "file": "assets/31034011-50c6-49ef-9f33-6fe1dd0ee1be.png",
+      "sha256": "a5d476f0dfa0e270f02989d123e259fcbf14f30610c44fcd4372bd5c701e7a77"
+    },
+    {
+      "file": "assets/7a60a02d-91e2-4813-bf3d-6dcc698b54f0.png",
+      "sha256": "7f8b65113b9ccd19fd49b9ab864ef9ea0ad52ec6c10b9e0e59d5faf7ea186596"
+    },
+    {
+      "file": "assets/a2a99bae-d5e6-4b10-891c-3be0ef87d4b7.png",
+      "sha256": "a5d476f0dfa0e270f02989d123e259fcbf14f30610c44fcd4372bd5c701e7a77"
+    },
+    {
+      "file": "assets/c18c2bbf-efda-4e3a-9f6d-6c05072b9abf.png",
+      "sha256": "796fd37af7349bd7ceae8e9b2e0dab2f0ff864ca323d644ebd71031f45aa2862"
+    },
+    {
+      "file": "assets/cab6e7b0-37fd-454a-95d8-37a53f618a11.png",
+      "sha256": "65796072d441b599d860b8503cd14b7e036d3309080826022986e653c27dfe3f"
+    }
+  ],
+  "graphs": []
+}

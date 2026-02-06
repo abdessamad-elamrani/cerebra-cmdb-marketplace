@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "packId": "cerebra.fortigate",
+  "version": "1.0.0",
+  "minAppVersion": "0.1.0",
+  "profile": {
+    "file": "profile.json",
+    "sha256": "a63850f5475fbc0cadb9bc9e9dd659ac6f1324cdcfabe78e0400629e41230d1a"
+  },
+  "assets": [],
+  "graphs": []
+}
