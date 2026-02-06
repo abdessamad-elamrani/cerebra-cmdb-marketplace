@@ -9,41 +9,40 @@ This repository is the public content layer for the CmDB marketplace:
 - pack/version metadata
 - global catalog index consumed by the app
 
+Important: Cerebra graph rendering uses JSON scenario files. It does not consume Mermaid diagrams.
+
 ## Contents
 1. [How It Works](#how-it-works)
 2. [Repository Structure](#repository-structure)
 3. [Pack Format Contract](#pack-format-contract)
-4. [Offensive Pack Example](#offensive-pack-example)
-5. [How To Create A New Profile Pack](#how-to-create-a-new-profile-pack)
-6. [How To Generate Graph JSON (Gemini/GPT)](#how-to-generate-graph-json-geminigpt)
-7. [How To Submit A Pack](#how-to-submit-a-pack)
-8. [Acceptance Criteria](#acceptance-criteria)
-9. [Versioning Rules](#versioning-rules)
-10. [Troubleshooting](#troubleshooting)
+4. [CmDB Graph Feature (In App)](#cmdb-graph-feature-in-app)
+5. [Graph JSON Syntax (Current)](#graph-json-syntax-current)
+6. [Graph JSON Example](#graph-json-example)
+7. [Rendered Example](#rendered-example)
+8. [Offensive Pack Example](#offensive-pack-example)
+9. [How To Create A New Profile Pack](#how-to-create-a-new-profile-pack)
+10. [How To Generate Graph JSON (Gemini/GPT)](#how-to-generate-graph-json-geminigpt)
+11. [How To Submit A Pack](#how-to-submit-a-pack)
+12. [Acceptance Criteria](#acceptance-criteria)
+13. [Versioning Rules](#versioning-rules)
+14. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## How It Works
-
-```mermaid
-flowchart LR
-    A[Cerebra App] --> B[catalog/index.v1.json]
-    B --> C[pack entry]
-    C --> D[manifest.v1.json]
-    D --> E[profile.json]
-    D --> F[assets/*]
-    D --> G[graphs/*]
-    E --> H[Installed Local Profile]
-    F --> H
-    G --> H
-```
 
 Runtime flow in app:
 1. App fetches `catalog/index.v1.json`.
 2. User picks a pack.
 3. App fetches pack `manifest.v1.json`.
 4. App downloads `profile.json`, `assets/`, `graphs/` and verifies SHA-256 hashes.
-5. Content is installed locally and appears in CmDB profile selector.
+5. Installed profile appears in CmDB profile selector.
+
+Content path at install time:
+- `catalog/index.v1.json` -> pack entry -> `manifest.v1.json`
+- `manifest.profile` -> `profile.json`
+- `manifest.assets[]` -> profile assets folder
+- `manifest.graphs[]` -> profile graph folder
 
 ---
 
@@ -65,7 +64,8 @@ cerebra-cmdb-marketplace/
 │               ├── profile.json
 │               ├── assets/
 │               └── graphs/
-├── scripts/
+├── docs/
+│   └── images/
 └── .github/workflows/
 ```
 
@@ -96,7 +96,146 @@ Important: `description` must be a string for every command. Missing description
 ### Graph mapping rule
 Graph files map by command id:
 - Command id in profile: `87cb075c-f935-4e66-be0f-ba74c3779dd3`
-- Graph file path: `graphs/87cb075c-f935-4e66-be0f-ba74c3779dd3.json`
+- Graph file path in pack: `graphs/87cb075c-f935-4e66-be0f-ba74c3779dd3.json`
+- Manifest entry must include matching `commandId` UUID.
+
+---
+
+## CmDB Graph Feature (In App)
+
+How users work with graphs inside CmDB:
+1. Open `CmdDB` and select a profile.
+2. Edit a command (pencil icon) and paste JSON in `Flow Graph JSON`.
+3. Save the command.
+4. Click the `Network` icon on the command tile to open `Flow Graph` modal.
+5. Use playback controls (reset/prev/play/next), step progress, and MITRE side panel.
+
+What this means for marketplace packs:
+- each command can have one graph JSON sidecar
+- graph filename must match command id
+- graph JSON should validate against Cerebra scenario schema
+
+---
+
+## Graph JSON Syntax (Current)
+
+This reflects the current app parser/schema in Cerebra.
+
+### Root object
+- Required: `title`, `version`, `entities`, `steps`
+- Optional: `description`, `shortDescription`, `tags`, `metadata`, `viewport`, `visibility`, `stepInfoPosition`, `stepInfoSize`
+- Recommended: `version: "3.0"`
+
+### `entities`
+Array of graph entities. Supported `type` values:
+- `node`
+- `container`
+- `text_box`
+
+Common fields:
+- `id` (string)
+- `label` (string)
+- `position` optional: `{ "x": number, "y": number }`
+- `icon` optional: icon key string (example `IconKali`, `IconServer`, `IconExploit`)
+
+Container-specific fields:
+- `members` (array of child entity ids)
+- optional `width`, `height`, `style`, `color`
+
+### `steps`
+Timeline array. Supported step `type` values:
+- `edge`
+- `show_text`
+
+`edge` step fields:
+- `id` (number, start at 1)
+- `name` (string)
+- `from` (entity id)
+- `to` (entity id)
+- optional `icon`, `description`, `tooltip`, `cli`, `mitre`
+
+`show_text` step fields:
+- `id` (number)
+- `name` (string)
+- `target_entity` (entity id)
+- `content` (string)
+- optional `style`, `mitre`
+
+### `visibility`
+Use entity-keyed visibility ranges:
+
+```json
+"visibility": {
+  "entity_id": { "start": 0, "end": 100 }
+}
+```
+
+Do not use step-keyed format like `"0": ["node1"]`.
+
+---
+
+## Graph JSON Example
+
+```json
+{
+  "title": "NTLM Relay Mini Scenario",
+  "version": "3.0",
+  "description": "Minimal valid JSON scenario for CmDB graph rendering.",
+  "entities": [
+    {
+      "id": "attacker_zone",
+      "type": "container",
+      "label": "Attacker Environment",
+      "icon": "IconKali",
+      "members": ["attacker_host"]
+    },
+    {
+      "id": "attacker_host",
+      "type": "node",
+      "label": "Kali Linux",
+      "icon": "IconKali"
+    },
+    {
+      "id": "target_server",
+      "type": "node",
+      "label": "Target SMB Server",
+      "icon": "IconServer"
+    }
+  ],
+  "visibility": {
+    "attacker_zone": { "start": 0, "end": 100 },
+    "attacker_host": { "start": 0, "end": 100 },
+    "target_server": { "start": 0, "end": 100 }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "type": "edge",
+      "name": "Probe SMB",
+      "from": "attacker_host",
+      "to": "target_server",
+      "cli": "nmap --script=smb2-security-mode.nse -p445 10.0.2.73",
+      "icon": "IconExploit",
+      "mitre": {
+        "id": "T1046",
+        "tactic": "Discovery",
+        "technique": "Network Service Scanning"
+      }
+    }
+  ]
+}
+```
+
+---
+
+## Rendered Example
+
+Rendered graph example from Cerebra graph engine:
+
+![Shai Hulud Rendered Graph](docs/images/shai-hulud-graph-rendered.png)
+
+Source image was taken from main project prompt assets:
+- `AI-Prompt-Graphs-CmDB/shai-hulud-graph-rendered`
 
 ---
 
@@ -109,23 +248,11 @@ Reference pack in this repo:
 - Manifest: [`packs/cerebra.offensive/versions/1.0.0/manifest.v1.json`](packs/cerebra.offensive/versions/1.0.0/manifest.v1.json)
 - Graph example: [`packs/cerebra.offensive/versions/1.0.0/graphs/87cb075c-f935-4e66-be0f-ba74c3779dd3.json`](packs/cerebra.offensive/versions/1.0.0/graphs/87cb075c-f935-4e66-be0f-ba74c3779dd3.json)
 
-### Visual examples from offensive pack
-
 Command screenshot asset examples:
 
 ![Offensive asset sample 1](packs/cerebra.offensive/versions/1.0.0/assets/4703cbef-61ef-4d4e-b831-a445b7673f9a.png)
 
 ![Offensive asset sample 2](packs/cerebra.offensive/versions/1.0.0/assets/f0458ba2-ab10-4519-a498-9afde429b84b.png)
-
-### Example graph concept
-
-```mermaid
-flowchart TD
-    A[Attacker Host] --> B[Domain User Enumeration]
-    B --> C[Domain Controller LDAP]
-    C --> D[User List + badpwdcount]
-    D --> E[Target Selection]
-```
 
 ---
 
@@ -168,7 +295,12 @@ packs/cerebra.examplepack/
 }
 ```
 
-### Step 4: Add `manifest.v1.json`
+### Step 4: Add command graphs
+1. For each command id in `profile.json`, add optional graph sidecar in `graphs/<command-id>.json`.
+2. Validate JSON syntax and scenario structure.
+3. Keep graph ids and references consistent (`steps.from/to`, `container.members`, `show_text.target_entity`).
+
+### Step 5: Add `manifest.v1.json`
 Include hash entries for:
 - `profile.json`
 - each file in `assets/`
@@ -182,7 +314,7 @@ shasum -a 256 assets/*.png
 shasum -a 256 graphs/*.json
 ```
 
-### Step 5: Update catalog index
+### Step 6: Update catalog index
 Add your pack entry in `catalog/index.v1.json` with:
 - `packId`
 - `displayName`
@@ -199,44 +331,40 @@ https://cdn.jsdelivr.net/gh/<owner>/cerebra-cmdb-marketplace@main/packs/<packId>
 
 ## How To Generate Graph JSON (Gemini/GPT)
 
-Graph generation is designed to be AI-assisted.
-
 Use your prompt kit from Cerebra main project (`AI-Prompt-Graphs-CmDB/`) and generate one JSON file per command id.
 
 ### Practical workflow
 1. Pick a command from `profile.json`.
-2. Provide command, objective, prerequisites, and environment to Gemini/GPT.
-3. Ask for strict JSON output only.
-4. Save output to:
-   - `graphs/<command-id>.json`
-5. Validate JSON parses correctly.
+2. Provide command intent, prerequisites, and expected attack path to Gemini/GPT.
+3. Ask for strict JSON output only (no markdown fences).
+4. Save output to `graphs/<command-id>.json`.
+5. Validate output before committing.
 
-### Recommended prompt constraints
+### Validation command
+From the Cerebra project:
+
+```bash
+node AI-Prompt-Graphs-CmDB/validate-output.cjs graphs/<command-id>.json
+```
+
+### Recommended constraints for prompts
 - Return valid JSON only.
-- Include clear attack flow entities and steps.
-- Include metadata useful for analyst explanation.
-- Use deterministic ids (stable references across steps).
-
-### Graph quality checklist
-1. Graph file name equals command `id`.
-2. JSON is parseable.
-3. Logical flow is clear and reproducible.
-4. No secrets, private infrastructure names, or internal IPs.
+- Use `version: "3.0"`.
+- Use only supported entity types (`node`, `container`, `text_box`).
+- Use only supported step types (`edge`, `show_text`).
+- Keep visibility entity-keyed.
 
 ---
 
 ## How To Submit A Pack
 
-### Contribution flow
-```mermaid
-flowchart LR
-    A[Fork Repo] --> B[Create Branch]
-    B --> C[Add/Update Pack Files]
-    C --> D[Run Self Checks]
-    D --> E[Open Pull Request]
-    E --> F[Maintainer Review]
-    F --> G[Merge to main]
-```
+Contribution flow:
+1. Fork the repo.
+2. Create a branch.
+3. Add/update pack files.
+4. Run checks locally.
+5. Open pull request.
+6. Maintainer review and merge.
 
 ### PR requirements
 1. One logical change per PR (new pack or single pack version update).
@@ -254,6 +382,7 @@ flowchart LR
 - [ ] all commands have string `description`
 - [ ] command ids are unique
 - [ ] graph filenames map to existing command ids
+- [ ] graph JSON is valid scenario syntax
 - [ ] manifest hashes match files
 - [ ] catalog entry points to correct manifest URL
 
@@ -267,12 +396,14 @@ Maintainers review packs against these gates:
 2. Data quality
    - commands are meaningful and executable
    - tags and descriptions are useful
-3. Safety and compliance
+3. Graph quality (if included)
+   - graph files match command ids
+   - graph JSON renders in CmDB graph viewer
+   - step references point to existing entities
+4. Safety and compliance
    - no secrets, private credentials, or illegal content
-4. Reusability
+5. Reusability
    - pack is broadly useful to practitioners
-5. Graph consistency (if included)
-   - graph files match command ids and provide coherent flows
 
 Packs may be accepted with requested changes (rename, metadata cleanup, version fix, hash fix).
 
@@ -298,24 +429,26 @@ Always:
 
 ## Troubleshooting
 
-### Install fails with schema errors
+### Install fails with profile schema errors
 Cause: profile has invalid command field types (usually missing `description`).
 
 Fix:
+
 ```bash
 jq 'map(.description = (.description // ""))' profile.json > profile.fixed.json
 ```
+
+### Graph is installed but not rendering in viewer
+1. Ensure graph filename exactly matches command id.
+2. Ensure `steps.from/to/target_entity` reference existing entity ids.
+3. Ensure JSON uses supported fields and types.
+4. Ensure graph file is listed in manifest with correct hash and `commandId`.
 
 ### Pack does not appear in app
 1. Verify `catalog/index.v1.json` has your pack entry.
 2. Verify `manifestUrl` is reachable in browser.
 3. Refresh marketplace in app.
 4. If using CDN URL, allow cache propagation or use raw GitHub URL override temporarily.
-
-### Graph not showing
-1. Ensure graph filename exactly matches command id.
-2. Ensure graph JSON is valid.
-3. Ensure command exists in same profile version.
 
 ---
 
