@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "packId": "community.offensive",
+  "version": "1.0.0",
+  "profile": {
+    "file": "profile.json",
+    "sha256": "a158fb2f65ee81a0a42dd4e8aad2c0335b9b95c1c339d47834caf7b7f8871efc"
+  },
+  "assets": [
+    {
+      "file": "assets/0cc71676-fc68-4b2a-920f-61f69415eb23.png",
+      "sha256": "a1a3f43752abd71c6c0331518499c3a7db3c170b0f7a0991db78fd9d077dc91e"
+    },
+    {
+      "file": "assets/150becb0-c547-44ec-bef9-982f6052c66f.png",
+      "sha256": "bed9b7473c2dfdccd26c1c330c2fb59d72cd1f642402780bb896f3a25aa844e6"
+    },
+    {
+      "file": "assets/1a430cfe-b94e-40f9-83d0-84e17d1cd6a7.png",
+      "sha256": "9d179aa853bfb8e93630bedb5f8d82df548636874a5acfa30a45b2fd4dea27f9"
+    },
+    {
+      "file": "assets/1eea5247-bdd9-42cc-b452-66b7acaf455b.png",
+      "sha256": "0541f70ad569a99c7d1db72609e3493df8c8319175e3d0f773caa82b4544dc07"
+    },
+    {
+      "file": "assets/30f99280-62a9-4ec6-878b-c79d571407a5.png",
+      "sha256": "53708ed6fa2acad5f1597f0b4e6f4e2fd35351544ecb64da236c6db60f9e5b5d"
+    },
+    {
+      "file": "assets/32a16d8c-b90b-49bd-9822-c456afd02999.png",
+      "sha256": "78c88e4fae83507b0ce3d4c26878b4c84d700f47a683227ee753108b1aba087f"
+    },
+    {
+      "file": "assets/44eed40a-9617-47a1-a95b-10c76f2a18ef.png",
+      "sha256": "b9e907be03f74ad43a415eb3ca0237daa73d9e4892a7df0c3349f7e03d8ce6dc"
+    },
+    {
+      "file": "assets/4703cbef-61ef-4d4e-b831-a445b7673f9a.png",
+      "sha256": "4d346d626985371503a8431449356773830cd3313704d7355b4f3e9dd54b4577"
+    },
+    {
+      "file": "assets/4c4284ee-743c-4016-aefe-b17aed0d354f.png",
+      "sha256": "f5c5a55f1173ae9f2ae6aeeace07f0b02c1069ede997fdadf2218c6144b8ee42"
+    },
+    {
+      "file": "assets/6ec33d5f-a551-4bf8-9333-7d2083e5f96e.png",
+      "sha256": "564efafed8b2ad74d98c4a87e7315d922bb57959989819c8f892ccaa9ab2abe6"
+    },
+    {
+      "file": "assets/751d859e-60e4-49f6-a21c-4562039b4174.png",
+      "sha256": "e26aff5cccc7266e64a98e2472d7bceb859aa34d310a29126a274335a868b5ce"
+    },
+    {
+      "file": "assets/9f1318e0-e72f-4a07-be3c-be7d27cb1d88.png",
+      "sha256": "b59ceed822dbbed56c9523c42a8b121b977e0c0318b3e19ebfe42323fa70685c"
+    },
+    {
+      "file": "assets/f0458ba2-ab10-4519-a498-9afde429b84b.png",
+      "sha256": "4a82828b309c839743bbb6bfdfe66b10d5a4dfdb5478bfbee64f046a83c7ac0b"
+    },
+    {
+      "file": "assets/screenshot-1767441002310.png",
+      "sha256": "96ed39ead2dc02065269cd81ab32b6716115212b078f4ac0cb146ad6875f87bc"
+    }
+  ],
+  "graphs": [
+    {
+      "commandId": "14fd4027-5df3-40a5-8c95-76e21adb7a01",
+      "file": "graphs/14fd4027-5df3-40a5-8c95-76e21adb7a01.json",
+      "sha256": "409c48941c968a5d24976aa3b899dc3900afd626d18f257da86c2273c7be76b9"
+    },
+    {
+      "commandId": "1d6a10a0-ae5e-4005-8037-c840128065de",
+      "file": "graphs/1d6a10a0-ae5e-4005-8037-c840128065de.json",
+      "sha256": "9093537a01d2edabd13fe100da8efbd5238bae176ef35694ed8781655f35b1cc"
+    },
+    {
+      "commandId": "2bc3ddd9-1406-4eb1-a845-a02c83b71081",
+      "file": "graphs/2bc3ddd9-1406-4eb1-a845-a02c83b71081.json",
+      "sha256": "dcef779c6a268b1946c160819ff793cb36cbf57bb5507cfc0dfb8db34650062a"
+    },
+    {
+      "commandId": "47776de2-cdd3-49dd-8660-6d387673164b",
+      "file": "graphs/47776de2-cdd3-49dd-8660-6d387673164b.json",
+      "sha256": "1fcad4b9bbc231de2522b07e0dc89444d70eb364d1feecb3616e7d7579c7b4dd"
+    },
+    {
+      "commandId": "4a696c60-541f-4649-9e77-12c922425fa1",
+      "file": "graphs/4a696c60-541f-4649-9e77-12c922425fa1.json",
+      "sha256": "19aa8b649a7845ceac6f0a5e0947bb1aff189a9ad79e577826587f6736db0944"
+    },
+    {
+      "commandId": "68243b8d-2329-4034-89f6-1c61b5e3e154",
+      "file": "graphs/68243b8d-2329-4034-89f6-1c61b5e3e154.json",
+      "sha256": "d68f102a689b554ec67f68b53489365721d2045cda3183e17ce7a2b843b5bc4c"
+    },
+    {
+      "commandId": "87cb075c-f935-4e66-be0f-ba74c3779dd3",
+      "file": "graphs/87cb075c-f935-4e66-be0f-ba74c3779dd3.json",
+      "sha256": "b04130daf2f59463a697f4daf1af2fb75f14d177d545b4015d5bbf46c4c432a9"
+    },
+    {
+      "commandId": "a1c8771a-3c54-43df-b0ce-57cc75e69a6c",
+      "file": "graphs/a1c8771a-3c54-43df-b0ce-57cc75e69a6c.json",
+      "sha256": "e4465d4a8ada95e1f594c3f724c1fef77535f94cfee82731cc15bca111299dd4"
+    },
+    {
+      "commandId": "dc0c193c-e0fe-4129-8f09-954df7e30b52",
+      "file": "graphs/dc0c193c-e0fe-4129-8f09-954df7e30b52.json",
+      "sha256": "4d66d58e45e651be47bf26d5c0921908814c236b48c38c8517ed271785b6c8c8"
+    },
+    {
+      "commandId": "f2aaae82-f409-4085-8b52-911563b222f1",
+      "file": "graphs/f2aaae82-f409-4085-8b52-911563b222f1.json",
+      "sha256": "0dd501b3e219596a7ca3431774017c8a86897b4b36ddbcbdd70f3329f82217bf"
+    },
+    {
+      "commandId": "faebf3d2-2c92-4ad0-9b90-f3094b2bb8f4",
+      "file": "graphs/faebf3d2-2c92-4ad0-9b90-f3094b2bb8f4.json",
+      "sha256": "ba90fa427ef9585c5d14127d2bcd4fbb27a41d35f74bdd3c51ea1d70f3593c53"
+    },
+    {
+      "commandId": "fb791f76-d4c0-4458-9028-992c01248f4b",
+      "file": "graphs/fb791f76-d4c0-4458-9028-992c01248f4b.json",
+      "sha256": "cf66012d598b0cc5306fedfa45addf6ee23ce37f94bc5e527f4d144410e69228"
+    }
+  ]
+}
