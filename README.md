@@ -11,18 +11,57 @@ This repository is the public content layer for the CmDB marketplace:
 
 Important: Cerebra graph rendering uses JSON scenario files. It does not consume Mermaid diagrams.
 
+## Share From Cerebra (Recommended)
+
+The recommended way to create and share CmDB packs is to work on your profile inside **Cerebra**, then export it to this repo format (and optionally open a PR) directly from the app UI.
+
+### Where this lives in the Cerebra UI
+- **Install packs**: `CmdDB` -> `Marketplace` (browse, Install/Update/Reinstall)
+- **Share packs**: `CmdDB` -> `Profile Settings` -> `Marketplace Export`
+
+### Step-by-step: share your profile
+1. Build or update your profile in Cerebra (`CmdDB`).
+2. (Optional) Add screenshots/assets:
+   - add images to command descriptions in Cerebra (exported into `assets/` automatically)
+   - **do not include secrets**, internal tokens, passwords, or private-only infrastructure
+3. (Optional) Add a flow graph for key commands:
+   - each command can have one graph JSON sidecar (see graph sections below)
+4. Open `CmdDB` -> `Profile Settings` -> `Marketplace Export`.
+5. Fill in:
+   - **Publisher** + **Slug**: pack identity is `packId = <publisher>.<slug>` (lowercase, no spaces)
+   - **Version**: use semver (`1.0.0`). If the pack already exists, Cerebra suggests the next version and blocks PRs that don’t bump.
+6. Choose one:
+   - **Export Pack**: writes pack files locally (useful if you want to inspect or submit manually)
+   - **Export + Submit PR**: exports and opens a PR against this repo
+
+### What Cerebra does for you
+When you use the in-app export flow, Cerebra generates the exact marketplace pack structure and metadata:
+- exports `profile.json` (and normalizes legacy fields like missing `description`)
+- bundles profile assets (screenshots/images) from your local profile assets folder
+- bundles per-command graph sidecars from your local profile graph folder
+- generates `manifest.v1.json` with SHA-256 hashes for every file
+- generates/updates `pack.json`
+- on PR submit: updates `catalog/index.v1.json` and opens a pull request
+
+### Screenshots and UI captures (recommended)
+You can make reviews much faster by including screenshots:
+- Command screenshots/images referenced by your profile (exported into `assets/` automatically).
+- UI screenshots showing what changed (optional): add to `docs/images/` and link them in your PR.
+
+If you are unsure what screenshots to include, open a PR without them and ask maintainers in the PR thread. We can request specific screenshots if needed.
+
 ## Contents
-1. [How It Works](#how-it-works)
-2. [Repository Structure](#repository-structure)
-3. [Pack Format Contract](#pack-format-contract)
-4. [CmDB Graph Feature (In App)](#cmdb-graph-feature-in-app)
-5. [Graph JSON Syntax (Current)](#graph-json-syntax-current)
-6. [Graph JSON Example](#graph-json-example)
-7. [Rendered Example](#rendered-example)
-8. [Offensive Pack Example](#offensive-pack-example)
-9. [How To Create A New Profile Pack](#how-to-create-a-new-profile-pack)
-10. [How To Generate Graph JSON (Gemini/GPT)](#how-to-generate-graph-json-geminigpt)
-11. [How To Submit A Pack](#how-to-submit-a-pack)
+1. [Share From Cerebra (Recommended)](#share-from-cerebra-recommended)
+2. [How It Works](#how-it-works)
+3. [Repository Structure](#repository-structure)
+4. [Pack Format Contract](#pack-format-contract)
+5. [CmDB Graph Feature (In App)](#cmdb-graph-feature-in-app)
+6. [Graph JSON Syntax (Current)](#graph-json-syntax-current)
+7. [Graph JSON Example](#graph-json-example)
+8. [Rendered Example](#rendered-example)
+9. [Offensive Pack Example](#offensive-pack-example)
+10. [Manual Submission (Advanced)](#manual-submission-advanced)
+11. [How To Generate Graph JSON (Gemini/GPT)](#how-to-generate-graph-json-geminigpt)
 12. [Acceptance Criteria](#acceptance-criteria)
 13. [Versioning Rules](#versioning-rules)
 14. [Troubleshooting](#troubleshooting)
@@ -256,76 +295,44 @@ Command screenshot asset examples:
 
 ---
 
-## How To Create A New Profile Pack
+## Manual Submission (Advanced)
 
-### Step 1: Prepare profile content
-1. Build and validate your profile in Cerebra locally.
-2. Export/copy profile JSON from local config folder.
-3. Ensure every command has a string `description`.
+Use this only if you can’t use the in-app PR submission.
 
-Quick normalization command if needed:
+### Option A: Export from Cerebra, submit PR manually
+1. Use `Export Pack` in Cerebra (Profile Settings -> Marketplace Export).
+2. Copy the exported files into your fork of this repo.
+3. Open a PR.
 
-```bash
-jq 'map(.description = (.description // ""))' profile.json > profile.fixed.json
-```
+This path is still “manual PR”, but avoids all the error-prone steps like hashing files and building manifests by hand.
 
-### Step 2: Create pack directory
+### Option B: Fully manual pack creation
+If you build packs by hand, follow the **Pack Format Contract** above:
+- keep directory layout correct under `packs/<packId>/versions/<version>/`
+- ensure every command in `profile.json` has a string `description`
+- ensure graph filenames match command ids
+- ensure every file hash in `manifest.v1.json` matches the file
+- update `catalog/index.v1.json` to point to the correct `manifestUrl`
 
-Example for `cerebra.examplepack` version `1.0.0`:
+### PR requirements
+1. One logical change per PR (new pack or single pack version update).
+2. Include clear summary:
+   - pack id
+   - version
+   - what changed
+3. Confirm data safety:
+   - no credentials
+   - no private/internal targets
+   - no proprietary or stolen content
 
-```text
-packs/cerebra.examplepack/
-├── pack.json
-└── versions/1.0.0/
-    ├── profile.json
-    ├── assets/
-    ├── graphs/
-    └── manifest.v1.json
-```
-
-### Step 3: Add `pack.json`
-
-```json
-{
-  "packId": "cerebra.examplepack",
-  "publisher": "your-name",
-  "license": "CC BY-NC-SA 4.0",
-  "homepage": "https://github.com/your-user/cerebra-cmdb-marketplace",
-  "latestVersion": "1.0.0"
-}
-```
-
-### Step 4: Add command graphs
-1. For each command id in `profile.json`, add optional graph sidecar in `graphs/<command-id>.json`.
-2. Validate JSON syntax and scenario structure.
-3. Keep graph ids and references consistent (`steps.from/to`, `container.members`, `show_text.target_entity`).
-
-### Step 5: Add `manifest.v1.json`
-Include hash entries for:
-- `profile.json`
-- each file in `assets/`
-- each file in `graphs/`
-
-Hash command examples:
-
-```bash
-shasum -a 256 profile.json
-shasum -a 256 assets/*.png
-shasum -a 256 graphs/*.json
-```
-
-### Step 6: Update catalog index
-Add your pack entry in `catalog/index.v1.json` with:
-- `packId`
-- `displayName`
-- `latestVersion`
-- `manifestUrl`
-
-Use jsDelivr URL format:
-
-```text
-https://cdn.jsdelivr.net/gh/<owner>/cerebra-cmdb-marketplace@main/packs/<packId>/versions/<version>/manifest.v1.json
-```
+### PR checklist template
+- [ ] `profile.json` is valid JSON
+- [ ] all commands have string `description`
+- [ ] command ids are unique
+- [ ] graph filenames map to existing command ids
+- [ ] graph JSON is valid scenario syntax
+- [ ] manifest hashes match files
+- [ ] catalog entry points to correct manifest URL
 
 ---
 
@@ -353,38 +360,6 @@ node AI-Prompt-Graphs-CmDB/validate-output.cjs graphs/<command-id>.json
 - Use only supported entity types (`node`, `container`, `text_box`).
 - Use only supported step types (`edge`, `show_text`).
 - Keep visibility entity-keyed.
-
----
-
-## How To Submit A Pack
-
-Contribution flow:
-1. Fork the repo.
-2. Create a branch.
-3. Add/update pack files.
-4. Run checks locally.
-5. Open pull request.
-6. Maintainer review and merge.
-
-### PR requirements
-1. One logical change per PR (new pack or single pack version update).
-2. Include clear summary:
-   - pack id
-   - version
-   - what changed
-3. Confirm data safety:
-   - no credentials
-   - no private/internal targets
-   - no proprietary or stolen content
-
-### PR checklist template
-- [ ] `profile.json` is valid JSON
-- [ ] all commands have string `description`
-- [ ] command ids are unique
-- [ ] graph filenames map to existing command ids
-- [ ] graph JSON is valid scenario syntax
-- [ ] manifest hashes match files
-- [ ] catalog entry points to correct manifest URL
 
 ---
 
@@ -432,7 +407,8 @@ Always:
 ### Install fails with profile schema errors
 Cause: profile has invalid command field types (usually missing `description`).
 
-Fix:
+If you used Cerebra in-app export, this should be automatically normalized.
+If you built the pack manually, fix missing descriptions like this:
 
 ```bash
 jq 'map(.description = (.description // ""))' profile.json > profile.fixed.json
