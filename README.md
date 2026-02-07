@@ -19,6 +19,14 @@ The recommended way to create and share CmDB packs is to work on your profile in
 - **Install packs**: `CmdDB` -> `Marketplace` (browse, Install/Update/Reinstall)
 - **Share packs**: `CmdDB` -> `Profile Settings` -> `Marketplace Export`
 
+CmdDB Marketplace:
+
+![Cerebra CmdDB Marketplace](docs/images/cerebra-cmdb-marketplace.png)
+
+Profile Settings -> Marketplace Export:
+
+![Cerebra Profile Settings Marketplace Export](docs/images/cerebra-profile-settings-export.png)
+
 ### Step-by-step: share your profile
 1. Build or update your profile in Cerebra (`CmdDB`).
 2. (Optional) Add screenshots/assets:
