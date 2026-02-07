@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-02-07T07:35:25.476Z",
+  "generatedAt": "2026-02-07T08:07:12.424Z",
   "packs": [
     {
       "packId": "cerebra.fortigate",
@@ -48,6 +48,14 @@
       "displayName": "kali",
       "latestVersion": "1.0.0",
       "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.kali/versions/1.0.0/manifest.v1.json"
+    },
+    {
+      "packId": "community.offensive",
+      "publisher": "community",
+      "slug": "offensive",
+      "displayName": "offensive",
+      "latestVersion": "1.0.0",
+      "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.offensive/versions/1.0.0/manifest.v1.json"
     }
   ]
 }

