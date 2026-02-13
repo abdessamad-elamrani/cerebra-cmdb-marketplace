@@ -1,0 +1,492 @@
+[
+  {
+    "id": "4cfb52c7-97c4-48ba-904d-7fbc39e1ee95",
+    "label": "Connect to VPN ",
+    "command": "sudo openvpn <filename>.ovpn",
+    "description": "<p>Establish a VPN connection to the lab environment , used by HTB, THM and also normal network vpns..</p>",
+    "tags": [
+      "connectivity"
+    ],
+    "color": "#d9e5ec"
+  },
+  {
+    "id": "77c3fca4-3f8a-4963-9bd3-0f93135e3da8",
+    "label": "Locate Files (Update DB)",
+    "command": "sudo updatedb",
+    "description": "Updates the file index database on the system.",
+    "tags": [
+      "filesystem"
+    ],
+    "color": "#3498db"
+  },
+  {
+    "id": "dbf44d46-a1d0-445b-b419-55c5f149cd39",
+    "label": "Locate Files",
+    "command": "locate <filename>",
+    "description": "Searches for files in the updated database.",
+    "tags": [
+      "filesystem"
+    ],
+    "color": "#3498db"
+  },
+  {
+    "id": "4c62b6d1-8276-4199-b065-1309648eea69",
+    "label": "DNS Enumeration (Bruteforce)",
+    "command": "dnsrecon -d <domain> -D <wordlist> -t brt",
+    "description": "Performs DNS brute-forcing to discover subdomains.",
+    "tags": [
+      "dns"
+    ],
+    "color": "#9b59b6"
+  },
+  {
+    "id": "6e0f0b41-62a3-48a5-aa43-c68d45f97fb5",
+    "label": "DNS Enumeration (Automated)",
+    "command": "dnsenum <domain>",
+    "description": "Automated DNS enumeration including zone transfer checks.",
+    "tags": [
+      "dns"
+    ],
+    "color": "#9b59b6"
+  },
+  {
+    "id": "2822c66c-1e81-47c5-9b7d-fff2368a602f",
+    "label": "DNS Records Query",
+    "command": "host -t <type> <domain>",
+    "description": "Queries specific DNS record types.",
+    "tags": [
+      "dns"
+    ],
+    "color": "#9b59b6"
+  },
+  {
+    "id": "b9437c9c-0c22-4fa0-bfad-768d53a185a8",
+    "label": "Nmap Scan (Default Scripts + Version)",
+    "command": "sudo nmap -sC -sV -oN <output_file> <IP>",
+    "description": "Performs Nmap scan with default scripts and version detection.",
+    "tags": [
+      "nmap"
+    ],
+    "color": "#9b59b6"
+  },
+  {
+    "id": "1feb0c7c-4dfd-43d1-98bb-05c086ddf875",
+    "label": "Nmap Full TCP Scan",
+    "command": "nmap -p 1-65535 <IP>",
+    "description": "Scans all 65,535 TCP ports.",
+    "tags": [
+      "nmap"
+    ],
+    "color": "#9b59b6"
+  },
+  {
+    "id": "0152e0c9-c47e-48cc-9096-988c3343f476",
+    "label": "Nmap UDP Scan",
+    "command": "sudo nmap -sU <IP>",
+    "description": "Scans for open UDP ports.",
+    "tags": [
+      "nmap"
+    ],
+    "color": "#9b59b6"
+  },
+  {
+    "id": "34ee9399-c209-47ae-998d-0a37a6a930e5",
+    "label": "Network Sweep (Ping Scan)",
+    "command": "nmap -v -sn <IP_Range> -oG <output_file>",
+    "description": "Identifies live hosts using ping sweep.",
+    "tags": [
+      "nmap"
+    ],
+    "color": "#9b59b6"
+  },
+  {
+    "id": "24d2898a-f42a-49d5-a0cd-b9af4115c6c5",
+    "label": "SMB Enumeration via Nmap",
+    "command": "nmap -p 445 --script smb-os-discovery <IP>",
+    "description": "Discovers OS information over SMB using Nmap.",
+    "tags": [
+      "smb"
+    ],
+    "color": "#e67e22"
+  },
+  {
+    "id": "0e0dda77-b9b0-452a-82e1-0f0cf6b8b5a7",
+    "label": "SMB Shares Enumeration",
+    "command": "smbclient -L //<IP> -U <user>",
+    "description": "Lists SMB shares on a target system.",
+    "tags": [
+      "smb"
+    ],
+    "color": "#e67e22"
+  },
+  {
+    "id": "bce1c0c3-5bb5-4b7b-9441-d8d5c484088d",
+    "label": "SNMP Enumeration (Bruteforce)",
+    "command": "onesixtyone -c <community_list> -i <ip_list>",
+    "description": "Bruteforces SNMP community strings.",
+    "tags": [
+      "snmp"
+    ],
+    "color": "#e67e22"
+  },
+  {
+    "id": "66cdf02e-08b0-4852-a73f-6aa2d63a7b48",
+    "label": "SNMP Walk",
+    "command": "snmpwalk -c public -v 1 <IP>",
+    "description": "Walks the SNMP MIB tree.",
+    "tags": [
+      "snmp"
+    ],
+    "color": "#e67e22"
+  },
+  {
+    "id": "4ff710e8-3fb3-48d4-9dcc-3238f05a9295",
+    "label": "Web Directory Brute Force",
+    "command": "gobuster dir -u <URL> -w <wordlist>",
+    "description": "Discovers hidden web directories.",
+    "tags": [
+      "web"
+    ],
+    "color": "#e67e22"
+  },
+  {
+    "id": "fba31195-2ab6-40b5-b10e-26f8aa4ceb52",
+    "label": "WordPress Scan",
+    "command": "wpscan --url <URL> --enumerate p --plugins-detection aggressive",
+    "description": "Enumerates WordPress plugins and users.",
+    "tags": [
+      "web"
+    ],
+    "color": "#e67e22"
+  },
+  {
+    "id": "4b2025e3-bf40-48ac-b0a9-fc781959c5fb",
+    "label": "Search Exploit",
+    "command": "searchsploit \"<software name/version>\"",
+    "description": "Searches local Exploit-DB for matching exploits.",
+    "tags": [
+      "exploit"
+    ],
+    "color": "#c0392b"
+  },
+  {
+    "id": "780c539c-5abc-46a6-8c7f-75c39fcbc200",
+    "label": "Mirror Exploit",
+    "command": "searchsploit -m <Exploit-ID>",
+    "description": "Copies exploit code from Exploit-DB to working directory.",
+    "tags": [
+      "exploit"
+    ],
+    "color": "#c0392b"
+  },
+  {
+    "id": "a3da8144-2225-4075-a083-555804981ae2",
+    "label": "Cross Compile for Windows",
+    "command": "i686-w64-mingw32-gcc <source_file.c> -o <output_file.exe>",
+    "description": "Compiles C code into a Windows executable from Linux.",
+    "tags": [
+      "exploit"
+    ],
+    "color": "#c0392b"
+  },
+  {
+    "id": "579839f6-b4f8-4759-a043-d122b8f69632",
+    "label": "Metasploit DB Init",
+    "command": "sudo msfdb init",
+    "description": "Initializes the Metasploit database.",
+    "tags": [
+      "metasploit"
+    ],
+    "color": "#1abc9c"
+  },
+  {
+    "id": "a5a2ae84-f798-408d-bfa7-3fd2fd5b63c0",
+    "label": "Launch Metasploit",
+    "command": "sudo msfconsole",
+    "description": "Starts Metasploit console.",
+    "tags": [
+      "metasploit"
+    ],
+    "color": "#1abc9c"
+  },
+  {
+    "id": "a37d2fe3-31d3-4785-9c46-5671428a8994",
+    "label": "Generate Payload",
+    "command": "msfvenom -p <payload> LHOST=<IP> LPORT=<PORT> -f <format> -o <output_file>",
+    "description": "Creates a standalone payload.",
+    "tags": [
+      "metasploit"
+    ],
+    "color": "#1abc9c"
+  },
+  {
+    "id": "ec6299a7-f817-4f5f-a565-ec657c9ec718",
+    "label": "Metasploit Listener Setup",
+    "command": "use exploit/multi/handler\nset payload <payload>\nset LHOST <IP>\nset LPORT <PORT>\nrun",
+    "description": "Sets up a handler to catch shells.",
+    "tags": [
+      "metasploit"
+    ],
+    "color": "#1abc9c"
+  },
+  {
+    "id": "58e684fa-1736-4714-9bf9-e3e0061a3f11",
+    "label": "Hydra Network Brute Force",
+    "command": "sudo hydra -l <username> -P <wordlist> -s <port> ssh://<IP>",
+    "description": "Bruteforces SSH login credentials.",
+    "tags": [
+      "password-attacks"
+    ],
+    "color": "#f1c40f"
+  },
+  {
+    "id": "ea0a21c5-1b31-4957-a31d-5fc3608562ea",
+    "label": "SMB Password Spray",
+    "command": "crackmapexec smb <IP> -u <user_list> -p '<password>' -d <domain> --continue-on-success",
+    "description": "Sprays a password across many SMB users.",
+    "tags": [
+      "password-attacks"
+    ],
+    "color": "#f1c40f"
+  },
+  {
+    "id": "1e20e215-52d0-4ac3-92a9-b8dbb37f364d",
+    "label": "Extract NTLM Hashes (DCSync)",
+    "command": "impacket-secretsdump -just-dc-user <target_user> <domain>/<user>:<password>@<IP>",
+    "description": "Performs DCSync to dump NTLM hashes.",
+    "tags": [
+      "password-attacks"
+    ],
+    "color": "#f1c40f"
+  },
+  {
+    "id": "771eef81-fe4d-40ce-8d6a-36fe11d3ba88",
+    "label": "Convert SSH Key for Cracking",
+    "command": "ssh2john id_rsa > ssh.hash",
+    "description": "Converts SSH private key into a crackable format.",
+    "tags": [
+      "password-attacks"
+    ],
+    "color": "#f1c40f"
+  },
+  {
+    "id": "d204fe07-9df4-4556-adec-189c481df06d",
+    "label": "Crack Hash (Hashcat)",
+    "command": "hashcat -m <mode> <hash_file> <wordlist> -r <rule_file> --force",
+    "description": "Cracks hashes using Hashcat.",
+    "tags": [
+      "password-attacks"
+    ],
+    "color": "#f1c40f"
+  },
+  {
+    "id": "371342dd-78ec-4da4-8aaa-5f1f8ed53d5b",
+    "label": "Crack Hash (John the Ripper)",
+    "command": "john --wordlist=<wordlist> --rules=<rule_name> <hash_file>",
+    "description": "Cracks hashes using John the Ripper.",
+    "tags": [
+      "password-attacks"
+    ],
+    "color": "#f1c40f"
+  },
+  {
+    "id": "c6f206c2-23dd-48d9-8134-577aa7e65003",
+    "label": "Windows System Info",
+    "command": "systeminfo",
+    "description": "Displays OS version and system info.",
+    "tags": [
+      "windows"
+    ],
+    "color": "#2980b9"
+  },
+  {
+    "id": "d6544fae-87eb-47f3-b848-e374fd712162",
+    "label": "Windows User Privileges",
+    "command": "whoami /priv",
+    "description": "Shows privileges of current user.",
+    "tags": [
+      "windows"
+    ],
+    "color": "#2980b9"
+  },
+  {
+    "id": "0e70667c-31ab-416f-9c0d-fcbb4efed0fd",
+    "label": "Windows IP Configuration",
+    "command": "ipconfig /all",
+    "description": "Displays detailed network interface info.",
+    "tags": [
+      "windows"
+    ],
+    "color": "#2980b9"
+  },
+  {
+    "id": "d8352cb4-d84f-4bee-a2c4-fc4c75168057",
+    "label": "List Local Users",
+    "command": "Get-LocalUser",
+    "description": "Lists all local users.",
+    "tags": [
+      "windows"
+    ],
+    "color": "#2980b9"
+  },
+  {
+    "id": "8c3d8743-6d92-4052-afeb-a242fb640928",
+    "label": "List Local Admins",
+    "command": "Get-LocalGroupMember administrators",
+    "description": "Displays members of local administrators group.",
+    "tags": [
+      "windows"
+    ],
+    "color": "#2980b9"
+  },
+  {
+    "id": "3bf5edee-9046-431e-a36b-e40b094edd32",
+    "label": "Run winPEAS",
+    "command": ".\\winPEAS.exe",
+    "description": "Runs automated privilege escalation checks.",
+    "tags": [
+      "windows"
+    ],
+    "color": "#2980b9"
+  },
+  {
+    "id": "877faccb-1534-42b5-ba7b-d82e8accd612",
+    "label": "Service Binary Path Enumeration",
+    "command": "Get-CimInstance -ClassName win32_service | Select Name,State,PathName | Where-Object {$_.State -like 'Running'}",
+    "description": "Lists services with binary paths.",
+    "tags": [
+      "windows"
+    ],
+    "color": "#2980b9"
+  },
+  {
+    "id": "74f60817-6909-4333-a557-2d281ffb3055",
+    "label": "Find SUID Binaries",
+    "command": "find / -perm -u=s -type f 2>/dev/null",
+    "description": "Searches for SUID binaries.",
+    "tags": [
+      "linux"
+    ],
+    "color": "#27ae60"
+  },
+  {
+    "id": "98591f0a-081d-4323-a3e3-46fd88370064",
+    "label": "Check Linux Capabilities",
+    "command": "/usr/sbin/getcap -r / 2>/dev/null",
+    "description": "Identifies binaries with capabilities.",
+    "tags": [
+      "linux"
+    ],
+    "color": "#27ae60"
+  },
+  {
+    "id": "68e5b037-6ae5-4568-9abc-88c939b75baf",
+    "label": "Check Sudo Permissions",
+    "command": "sudo -l",
+    "description": "Lists commands the user can run with sudo.",
+    "tags": [
+      "linux"
+    ],
+    "color": "#27ae60"
+  },
+  {
+    "id": "9b0d1e68-6ce2-4dcf-9ada-b0a22fc85694",
+    "label": "List Cron Jobs",
+    "command": "cat /etc/crontab",
+    "description": "Lists system-wide cron jobs.",
+    "tags": [
+      "linux"
+    ],
+    "color": "#27ae60"
+  },
+  {
+    "id": "4d1a758c-5c3a-433a-aa13-4312180aaab1",
+    "label": "Run UNIX PrivEsc Check",
+    "command": "./unix-privesc-check standard",
+    "description": "Runs automated privilege escalation scanning.",
+    "tags": [
+      "linux"
+    ],
+    "color": "#27ae60"
+  },
+  {
+    "id": "e0bc7ea7-d094-4f26-99f3-04a4757933fa",
+    "label": "SSH Local Port Forwarding",
+    "command": "ssh -N -L <local_bind_port>:<target_ip>:<target_port> <user>@<gateway_ip>",
+    "description": "Forwards a local port through SSH to a remote host.",
+    "tags": [
+      "tunneling"
+    ],
+    "color": "#8e44ad"
+  },
+  {
+    "id": "51f74da8-0222-4e46-99dd-7e4f4199f3bf",
+    "label": "SSH Dynamic Port Forwarding",
+    "command": "ssh -N -D <local_port> <user>@<gateway_ip>",
+    "description": "Creates a SOCKS proxy using SSH.",
+    "tags": [
+      "tunneling"
+    ],
+    "color": "#8e44ad"
+  },
+  {
+    "id": "efa3a6df-2191-4c7d-9a61-7234708f3180",
+    "label": "Socat Port Forwarding",
+    "command": "socat TCP-LISTEN:<listen_port>,fork TCP:<target_ip>:<target_port>",
+    "description": "Redirects traffic using socat.",
+    "tags": [
+      "tunneling"
+    ],
+    "color": "#8e44ad"
+  },
+  {
+    "id": "d25ff141-b8a0-4666-a49d-be0fbdcfc00d",
+    "label": "AS-REP Roasting",
+    "command": "impacket-GetNPUsers <domain>/ -usersfile <users.txt> -format <hashcat/john> -outputfile <output.txt>",
+    "description": "Requests TGTs for users without Kerberos preauth.",
+    "tags": [
+      "active-directory"
+    ],
+    "color": "#d35400"
+  },
+  {
+    "id": "afb49878-aaa9-40fe-a3f0-87cb7083fc53",
+    "label": "Kerberoasting",
+    "command": "impacket-GetUserSPNs <domain>/<user>:<password> -request",
+    "description": "Requests Kerberos service tickets for cracking.",
+    "tags": [
+      "active-directory"
+    ],
+    "color": "#d35400"
+  },
+  {
+    "id": "2c6d4227-7736-4a5c-93d7-03d45407dc33",
+    "label": "BloodHound Collection",
+    "command": "Invoke-BloodHound -CollectionMethod All",
+    "description": "Collects AD information for BloodHound.",
+    "tags": [
+      "active-directory"
+    ],
+    "color": "#d35400"
+  },
+  {
+    "id": "6785e94e-9b37-4d3d-bfb4-0750529e21df",
+    "label": "PowerView User Enumeration",
+    "command": "Get-NetUser | select cn",
+    "description": "Enumerates domain users.",
+    "tags": [
+      "active-directory"
+    ],
+    "color": "#d35400"
+  },
+  {
+    "id": "e4355ac1-cb8d-4c94-b9b9-d4b108e587c7",
+    "label": "Mimikatz Credential Dump",
+    "command": "mimikatz # sekurlsa::logonpasswords",
+    "description": "Extracts credentials from memory.",
+    "tags": [
+      "active-directory"
+    ],
+    "color": "#d35400"
+  }
+]
