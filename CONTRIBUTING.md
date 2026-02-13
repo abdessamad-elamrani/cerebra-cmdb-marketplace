@@ -1,11 +1,13 @@
 # Contributing
 
+Runbooks here are manual operator procedures, not SOAR automations.
+
 ## Recommended: Share From Inside Cerebra
 
 Use Cerebra’s in-app export flow whenever possible. It generates the correct pack structure and metadata (including file hashes) and can submit a PR.
 
-1. Build/update your profile in Cerebra (`CmdDB`).
-2. Go to `CmdDB` -> `Profile Settings` -> `Marketplace Export`.
+1. Build/update your runbook in Cerebra (`Runbooks`).
+2. Go to `Runbooks` -> `Runbook Settings` -> `Marketplace Export`.
 3. Choose:
    - `Export + Submit PR` (recommended), or
    - `Export Pack` and submit the PR manually.
