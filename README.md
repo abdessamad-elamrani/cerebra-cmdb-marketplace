@@ -1,9 +1,9 @@
-# Cerebra CmDB Marketplace
+# Cerebra Runbook Marketplace
 
-Community and curated CmDB profile packs for Cerebra.
+Community and curated Runbook packs for Cerebra.
 
-This repository is the public content layer for the CmDB marketplace:
-- command profiles
+This repository is the public content layer for the Runbook marketplace:
+- runbook profiles
 - command screenshots/assets
 - command graph sidecars
 - pack/version metadata
@@ -11,22 +11,32 @@ This repository is the public content layer for the CmDB marketplace:
 
 Important: Cerebra graph rendering uses JSON scenario files. It does not consume Mermaid diagrams.
 
+Runbooks in this marketplace are manual operator procedures, not SOAR automations.
+
 ## Share From Cerebra (Recommended)
 
-The recommended way to create and share CmDB packs is to work on your profile inside **Cerebra**, then export it to this repo format (and optionally open a PR) directly from the app UI.
+The recommended way to create and share Runbook packs is to work on your runbook inside **Cerebra**, then export it to this repo format (and optionally open a PR) directly from the app UI.
 
 ### Where this lives in the Cerebra UI
-- **Install packs**: `CmdDB` -> `Marketplace` (browse, Install/Update/Reinstall)
-- **Share packs**: `CmdDB` -> `Profile Settings` -> `Marketplace Export`
+- **Install packs**: `Runbooks` -> `Marketplace` (browse, Install/Update/Reinstall)
+- **Share packs**: `Runbooks` -> `Runbook Settings` -> `Marketplace Export`
 
-### Step-by-step: share your profile
-1. Build or update your profile in Cerebra (`CmdDB`).
+Runbook Marketplace:
+
+![Cerebra Runbook Marketplace](docs/images/cerebra-cmdb-marketplace.png)
+
+Runbook Settings -> Marketplace Export:
+
+![Cerebra Runbook Settings Marketplace Export](docs/images/cerebra-profile-settings-export.png)
+
+### Step-by-step: share your runbook
+1. Build or update your runbook in Cerebra (`Runbooks`).
 2. (Optional) Add screenshots/assets:
    - add images to command descriptions in Cerebra (exported into `assets/` automatically)
    - **do not include secrets**, internal tokens, passwords, or private-only infrastructure
 3. (Optional) Add a flow graph for key commands:
    - each command can have one graph JSON sidecar (see graph sections below)
-4. Open `CmdDB` -> `Profile Settings` -> `Marketplace Export`.
+4. Open `Runbooks` -> `Runbook Settings` -> `Marketplace Export`.
 5. Fill in:
    - **Publisher** + **Slug**: pack identity is `packId = <publisher>.<slug>` (lowercase, no spaces)
    - **Version**: use semver (`1.0.0`). If the pack already exists, Cerebra suggests the next version and blocks PRs that don’t bump.
@@ -55,7 +65,7 @@ If you are unsure what screenshots to include, open a PR without them and ask ma
 2. [How It Works](#how-it-works)
 3. [Repository Structure](#repository-structure)
 4. [Pack Format Contract](#pack-format-contract)
-5. [CmDB Graph Feature (In App)](#cmdb-graph-feature-in-app)
+5. [Runbook Graph Feature (In App)](#runbook-graph-feature-in-app)
 6. [Graph JSON Syntax (Current)](#graph-json-syntax-current)
 7. [Graph JSON Example](#graph-json-example)
 8. [Rendered Example](#rendered-example)
@@ -75,7 +85,7 @@ Runtime flow in app:
 2. User picks a pack.
 3. App fetches pack `manifest.v1.json`.
 4. App downloads `profile.json`, `assets/`, `graphs/` and verifies SHA-256 hashes.
-5. Installed profile appears in CmDB profile selector.
+5. Installed runbook appears in the Runbooks selector.
 
 Content path at install time:
 - `catalog/index.v1.json` -> pack entry -> `manifest.v1.json`
@@ -140,10 +150,10 @@ Graph files map by command id:
 
 ---
 
-## CmDB Graph Feature (In App)
+## Runbook Graph Feature (In App)
 
-How users work with graphs inside CmDB:
-1. Open `CmdDB` and select a profile.
+How users work with graphs inside Runbooks:
+1. Open `Runbooks` and select a runbook.
 2. Edit a command (pencil icon) and paste JSON in `Flow Graph JSON`.
 3. Save the command.
 4. Click the `Network` icon on the command tile to open `Flow Graph` modal.
@@ -219,7 +229,7 @@ Do not use step-keyed format like `"0": ["node1"]`.
 {
   "title": "NTLM Relay Mini Scenario",
   "version": "3.0",
-  "description": "Minimal valid JSON scenario for CmDB graph rendering.",
+  "description": "Minimal valid JSON scenario for Runbook graph rendering.",
   "entities": [
     {
       "id": "attacker_zone",
@@ -300,7 +310,7 @@ Command screenshot asset examples:
 Use this only if you can’t use the in-app PR submission.
 
 ### Option A: Export from Cerebra, submit PR manually
-1. Use `Export Pack` in Cerebra (Profile Settings -> Marketplace Export).
+1. Use `Export Pack` in Cerebra (Runbook Settings -> Marketplace Export).
 2. Copy the exported files into your fork of this repo.
 3. Open a PR.
 
@@ -373,7 +383,7 @@ Maintainers review packs against these gates:
    - tags and descriptions are useful
 3. Graph quality (if included)
    - graph files match command ids
-   - graph JSON renders in CmDB graph viewer
+   - graph JSON renders in Runbook graph viewer
    - step references point to existing entities
 4. Safety and compliance
    - no secrets, private credentials, or illegal content
