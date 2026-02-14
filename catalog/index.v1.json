@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-02-14T20:38:57.829Z",
+  "generatedAt": "2026-02-14T20:45:06.749Z",
   "packs": [
     {
       "packId": "cerebra.fortigate",
@@ -61,9 +61,9 @@
       "packId": "community.test-runbook-e2e",
       "publisher": "community",
       "slug": "test-runbook-e2e",
-      "displayName": "Test_Runbook_E2E",
-      "latestVersion": "1.0.0",
-      "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.test-runbook-e2e/versions/1.0.0/manifest.v1.json"
+      "displayName": "test-runbook-e2e",
+      "latestVersion": "1.0.1",
+      "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.test-runbook-e2e/versions/1.0.1/manifest.v1.json"
     }
   ]
 }

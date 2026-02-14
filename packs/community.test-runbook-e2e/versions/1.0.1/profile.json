@@ -1,0 +1,23 @@
+[
+  {
+    "id": "54798612-373d-4956-88ff-71188b4f6ab4",
+    "label": "shai junos modified",
+    "command": "shai junos command modified",
+    "description": "<p>desc</p><p></p><img src=\"local-file://profile-assets/test-runbook-e2e/2185ad02-970d-46b6-bae2-dff5106cb04a.png\" alt=\"Pasted Image\"><p></p>",
+    "tags": [
+      "test",
+      "e2e"
+    ],
+    "color": "#ec4899"
+  },
+  {
+    "id": "55afd6d8-ae16-4b25-b716-3c878fd5af86",
+    "label": "modiied",
+    "command": "test",
+    "description": "<p>test</p>",
+    "tags": [
+      "test"
+    ],
+    "color": "#f59e0b"
+  }
+]
