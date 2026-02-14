@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "packId": "community.fortimanager",
+  "version": "1.0.0",
+  "profile": {
+    "file": "profile.json",
+    "sha256": "0eeafef4c96fb9ecab9adaaf6cad15eb53425f333e0ce59a24c584b6b6887150"
+  }
+}

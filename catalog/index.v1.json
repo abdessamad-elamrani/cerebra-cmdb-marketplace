@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-02-13T19:00:26.251Z",
+  "generatedAt": "2026-02-14T16:22:30.822Z",
   "packs": [
     {
       "packId": "cerebra.fortigate",
@@ -40,6 +40,14 @@
         "offensive"
       ],
       "description": "Offensive CmDB pack"
+    },
+    {
+      "packId": "community.fortimanager",
+      "publisher": "community",
+      "slug": "fortimanager",
+      "displayName": "fortimanager",
+      "latestVersion": "1.0.0",
+      "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.fortimanager/versions/1.0.0/manifest.v1.json"
     },
     {
       "packId": "community.kali",
