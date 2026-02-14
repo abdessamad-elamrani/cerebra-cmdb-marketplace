@@ -1,0 +1,20 @@
+{
+  "name": "cerebra-cmdb-marketplace",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Cerebra Runbook Marketplace (content + maintainer scripts)",
+  "license": "CC BY-NC-SA 4.0",
+  "scripts": {
+    "packs:list": "node scripts/packs-list.mjs",
+    "packs:scan": "node scripts/packs-scan.mjs",
+    "packs:stats": "node scripts/packs-stats.mjs",
+    "packs:remove": "node scripts/packs-remove.mjs",
+    "packs:validate": "npm run validate",
+    "validate:catalog": "node scripts/validate-catalog.mjs",
+    "validate:packs": "node scripts/validate-pack.mjs --all=true",
+    "validate": "node scripts/validate-catalog.mjs && node scripts/validate-pack.mjs --all=true",
+    "validate:strict": "node scripts/validate-catalog.mjs --strict=true && node scripts/validate-pack.mjs --all=true --strict=true",
+    "catalog:rebuild": "node scripts/build-catalog-index.mjs --write=true"
+  }
+}
+
