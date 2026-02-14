@@ -1,0 +1,8 @@
+{
+  "packId": "community.test-runbook-e2e",
+  "publisher": "community",
+  "license": "CC BY-NC-SA 4.0",
+  "homepage": "https://github.com/abdessamad-elamrani/cerebra-cmdb-marketplace",
+  "latestVersion": "1.0.0",
+  "displayName": "Test_Runbook_E2E"
+}
