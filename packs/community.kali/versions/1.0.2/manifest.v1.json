@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "packId": "community.kali",
-  "version": "1.0.2",
-  "profile": {
-    "file": "profile.json",
-    "sha256": "b48c8506677c635b44278d617f8373b8da3682c5a4222df6d362aac5174fc806"
-  }
-}
