@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "packId": "community.test-runbook-e2e",
+  "version": "1.0.0",
+  "profile": {
+    "file": "profile.json",
+    "sha256": "55e871e531bff345082b4e7f722dd08a949fd6930e2c22fa70f7cb3a34e5e18f"
+  },
+  "assets": [
+    {
+      "file": "assets/2185ad02-970d-46b6-bae2-dff5106cb04a.png",
+      "sha256": "cce45f0830b7a4eabf868c419e66fa6760dd01d514dcfa8e501ceaaa3ef68bbe"
+    }
+  ],
+  "graphs": [
+    {
+      "commandId": "54798612-373d-4956-88ff-71188b4f6ab4",
+      "file": "graphs/54798612-373d-4956-88ff-71188b4f6ab4.json",
+      "sha256": "52fabb47f5de0686a7ff336037071a862e8dab2b7f94ef74cca7d6a8d141bd68"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-02-14T16:22:30.822Z",
+  "generatedAt": "2026-02-14T20:38:57.829Z",
   "packs": [
     {
       "packId": "cerebra.fortigate",
@@ -56,6 +56,14 @@
       "displayName": "kali",
       "latestVersion": "1.0.2",
       "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.kali/versions/1.0.2/manifest.v1.json"
+    },
+    {
+      "packId": "community.test-runbook-e2e",
+      "publisher": "community",
+      "slug": "test-runbook-e2e",
+      "displayName": "Test_Runbook_E2E",
+      "latestVersion": "1.0.0",
+      "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.test-runbook-e2e/versions/1.0.0/manifest.v1.json"
     }
   ]
 }
