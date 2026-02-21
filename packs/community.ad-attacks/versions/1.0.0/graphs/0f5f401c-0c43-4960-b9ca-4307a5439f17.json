@@ -1,0 +1,67 @@
+{
+  "title": "GPP Default Password Recovery",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Toolkit",
+      "type": "container",
+      "icon": "IconTerminal",
+      "members": [
+        "gpp_tool",
+        "plaintext_credential"
+      ]
+    },
+    {
+      "id": "gpp_tool",
+      "label": "gpp-decrypt",
+      "type": "node",
+      "icon": "IconCode"
+    },
+    {
+      "id": "plaintext_credential",
+      "label": "Plaintext Password",
+      "type": "node",
+      "icon": "IconKey"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "SYSVOL (Domain Controller)",
+      "type": "node",
+      "icon": "IconFolder"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Search SYSVOL for XML",
+      "type": "edge",
+      "from": "gpp_tool",
+      "to": "domain_controller",
+      "description": "The attacker searches the world-readable SYSVOL share for Group Policy XML files containing the cpassword attribute.",
+      "cli": "findstr /S /I cpassword \\\\marvel.local\\sysvol\\marvel.local\\policies\\*.xml",
+      "mitre": {
+        "id": "T1003.006",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: Group Policy Preferences"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Decrypt Static Static Key",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "plaintext_credential",
+      "description": "The script uses Microsoft's accidentally published, hardcoded AES private key to instantly decrypt the password string locally."
+    }
+  ]
+}

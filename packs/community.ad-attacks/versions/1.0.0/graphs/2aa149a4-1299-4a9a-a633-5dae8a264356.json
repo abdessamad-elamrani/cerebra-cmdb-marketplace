@@ -1,0 +1,67 @@
+{
+  "title": "Session Enumeration (wkssvc)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "type": "container",
+      "icon": "IconTerminal",
+      "members": [
+        "enum_tool",
+        "session_map"
+      ]
+    },
+    {
+      "id": "enum_tool",
+      "label": "SharpHound / PowerView",
+      "type": "node",
+      "icon": "IconCode"
+    },
+    {
+      "id": "session_map",
+      "label": "Identity Topology",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "target_endpoint"
+      ]
+    },
+    {
+      "id": "target_endpoint",
+      "label": "Target Workstation / Server",
+      "type": "node",
+      "icon": "IconWorkstation"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Invoke NetWkstaUserEnum",
+      "type": "edge",
+      "from": "enum_tool",
+      "to": "target_endpoint",
+      "description": "The attacker issues RPC calls to the Workstation service, requesting the array of active logon sessions.",
+      "cli": "Get-NetLoggedon -ComputerName target_pc",
+      "mitre": {
+        "id": "T1049",
+        "tactic": "Discovery",
+        "technique": "System Network Connections Discovery"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Extract Logon Cache",
+      "type": "edge",
+      "from": "target_endpoint",
+      "to": "session_map",
+      "description": "The endpoint returns the usernames and logon domains, allowing the attacker to pinpoint high-value targets."
+    }
+  ]
+}

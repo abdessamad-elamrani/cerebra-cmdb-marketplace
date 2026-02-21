@@ -1,0 +1,67 @@
+{
+  "title": "Basic AD Enumeration (PowerView)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "powerview_tool",
+        "ad_data"
+      ]
+    },
+    {
+      "id": "powerview_tool",
+      "label": "PowerView Module",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "ad_data",
+      "label": "AD Object Output",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (LDAP)",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Execute .NET LDAP Queries",
+      "type": "edge",
+      "from": "powerview_tool",
+      "to": "domain_controller",
+      "description": "PowerView uses native Windows .NET libraries to issue massive, legitimate LDAP wildcard queries to the DC.",
+      "cli": "Get-NetUser | select samaccountname, description",
+      "mitre": {
+        "id": "T1087.002",
+        "tactic": "Discovery",
+        "technique": "Account Discovery: Domain Account"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Return Directory Objects",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "ad_data",
+      "description": "The DC returns the requested user, group, and computer attributes, fulfilling the legitimate read request."
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "title": "Silver Ticket (Mimikatz)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "mimikatz_tool",
+        "forged_ticket"
+      ]
+    },
+    {
+      "id": "mimikatz_tool",
+      "label": "mimikatz.exe",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "forged_ticket",
+      "label": "Forged TGS (RC4 Keys)",
+      "type": "node",
+      "icon": "IconKey"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "target_endpoint"
+      ]
+    },
+    {
+      "id": "target_endpoint",
+      "label": "Target Host Service",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Forge Service Ticket (TGS)",
+      "type": "edge",
+      "from": "mimikatz_tool",
+      "to": "forged_ticket",
+      "description": "Utilizing the stolen computer/service password hash, the attacker manually constructs a mathematically flawless, high-privileged Kerberos ticket offline.",
+      "cli": "mimikatz # kerberos::golden /domain:marvel.local /sid:... /target:fs01 /service:cifs /rc4:... /user:Administrator /ptt",
+      "mitre": {
+        "id": "T1558.002",
+        "tactic": "Credential Access",
+        "technique": "Steal or Forge Kerberos Tickets: Silver Ticket"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Access Targeted Service",
+      "type": "edge",
+      "from": "forged_ticket",
+      "to": "target_endpoint",
+      "description": "The attacker accesses the network service directly. The DC is bypassed entirely. The target service believes the forged PAC and grants Admin access.",
+      "mitre": {
+        "id": "T1550.003",
+        "tactic": "Lateral Movement",
+        "technique": "Use Alternate Authentication Material: Pass the Ticket"
+      }
+    }
+  ]
+}

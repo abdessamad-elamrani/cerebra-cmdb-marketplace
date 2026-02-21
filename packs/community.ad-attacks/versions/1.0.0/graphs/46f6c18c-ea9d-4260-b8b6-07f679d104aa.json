@@ -1,0 +1,67 @@
+{
+  "title": "DCSync (Mimikatz)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "mimikatz_tool",
+        "dumped_hashes"
+      ]
+    },
+    {
+      "id": "mimikatz_tool",
+      "label": "mimikatz.exe",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "dumped_hashes",
+      "label": "Target Hashes (krbtgt)",
+      "type": "node",
+      "icon": "IconKey"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (KDC)",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Initiate MS-DRSR Replication",
+      "type": "edge",
+      "from": "mimikatz_tool",
+      "to": "domain_controller",
+      "description": "Utilizing an existing highly privileged token, Mimikatz binds to the DRSUAPI interface and formally requests a password hash replication.",
+      "cli": "mimikatz # lsadump::dcsync /domain:marvel.local /user:krbtgt",
+      "mitre": {
+        "id": "T1003.006",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: DCSync"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Extract Cryptographic Material",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "dumped_hashes",
+      "description": "The Domain Controller complies with the legitimate RPC request. The targeted NTLM and AES keys are returned to the attacker's console."
+    }
+  ]
+}

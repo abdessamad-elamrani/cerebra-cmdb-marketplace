@@ -1,0 +1,113 @@
+{
+  "title": "LLMNR Poisoning (Responder)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "responder_tool",
+        "stolen_hash"
+      ],
+      "position": {
+        "x": -200.7633067021739,
+        "y": 10.689404650752568
+      }
+    },
+    {
+      "id": "responder_tool",
+      "label": "Responder",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": -121.4210079697456,
+        "y": -36.126933195994035
+      }
+    },
+    {
+      "id": "stolen_hash",
+      "label": "NTLMv2 Hash",
+      "icon": "IconKey",
+      "type": "node",
+      "position": {
+        "x": -271.10560543460224,
+        "y": 32.50574249749918
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Subnet",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "victim_workstation"
+      ],
+      "position": {
+        "x": 265.5169446995605,
+        "y": -117.22882995131047
+      }
+    },
+    {
+      "id": "victim_workstation",
+      "label": "Victim Endpoint",
+      "icon": "IconWorkstation",
+      "type": "node",
+      "position": {
+        "x": 234.79565177009215,
+        "y": -132.99705260338158
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Failed DNS / Broadcast",
+      "mitre": {
+        "id": "T1040",
+        "tactic": "Credential Access",
+        "technique": "Network Sniffing"
+      },
+      "type": "edge",
+      "from": "victim_workstation",
+      "to": "corporate_network",
+      "description": "Victim attempts to reach an invalid hostname and falls back to broadcasting LLMNR requests to the subnet.",
+      "cli": "dir \\\\invalid_server"
+    },
+    {
+      "id": 2,
+      "name": "Spoof LLMNR Reply",
+      "mitre": {
+        "id": "T1557.001",
+        "tactic": "Credential Access",
+        "technique": "LLMNR/NBT-NS Poisoning and SMB Relay"
+      },
+      "type": "edge",
+      "from": "responder_tool",
+      "to": "victim_workstation",
+      "description": "Responder maliciously answers the broadcast, claiming to be the requested server."
+    },
+    {
+      "id": 3,
+      "name": "Capture SMB Auth",
+      "type": "edge",
+      "from": "victim_workstation",
+      "to": "responder_tool",
+      "description": "Believing the spoof, the victim attempts to authenticate over SMB, handing over their NTLMv2 hash."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": true,
+  "viewport": {
+    "zoom": 1.37,
+    "pan": {
+      "x": 650.5796827998306,
+      "y": 407.8020416934851
+    }
+  },
+  "stepInfoPosition": {
+    "x": 818.3316040039062,
+    "y": 802.5403442382812
+  }
+}

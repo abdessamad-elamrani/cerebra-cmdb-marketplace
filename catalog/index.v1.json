@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-02-14T22:03:48.557Z",
+  "generatedAt": "2026-02-21T22:10:48.427Z",
   "packs": [
     {
       "packId": "cerebra.fortigate",
@@ -40,6 +40,14 @@
         "offensive"
       ],
       "description": "Offensive CmDB pack"
+    },
+    {
+      "packId": "community.ad-attacks",
+      "publisher": "community",
+      "slug": "ad-attacks",
+      "displayName": "ad-attacks",
+      "latestVersion": "1.0.0",
+      "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.ad-attacks/versions/1.0.0/manifest.v1.json"
     },
     {
       "packId": "community.fortimanager",

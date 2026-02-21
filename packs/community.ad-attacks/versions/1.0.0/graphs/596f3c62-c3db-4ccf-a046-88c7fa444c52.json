@@ -1,0 +1,67 @@
+{
+  "title": "CME Local Pass-The-Hash",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "cme_tool",
+        "stolen_hash"
+      ]
+    },
+    {
+      "id": "cme_tool",
+      "label": "CrackMapExec",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "stolen_hash",
+      "label": "Stolen NTLM Hash",
+      "type": "node",
+      "icon": "IconKey"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "target_windows"
+      ]
+    },
+    {
+      "id": "target_windows",
+      "label": "Target Host (10.0.2.72)",
+      "type": "node",
+      "icon": "IconWorkstation"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "NTLM Challenge-Response Auth",
+      "type": "edge",
+      "from": "cme_tool",
+      "to": "target_windows",
+      "description": "CME authenticates over SMB by using the stolen NTLM hash to encrypt the server's handshake challenge.",
+      "cli": "crackmapexec smb 10.0.2.72 -u \"Administrator\" -H \"...:31d6cfe...\" --local-auth",
+      "mitre": {
+        "id": "T1550.002",
+        "tactic": "Lateral Movement",
+        "technique": "Use Alternate Authentication Material: Pass the Hash"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Session Granted (Pwn3d!)",
+      "type": "edge",
+      "from": "target_windows",
+      "to": "cme_tool",
+      "description": "The target accepts the cryptographically valid response and grants an administrative SMB session."
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "title": "Enumerate Group Policy Objects (PowerView)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Shell",
+      "icon": "IconTerminal",
+      "type": "container",
+      "members": [
+        "powerview_module",
+        "gpo_list"
+      ],
+      "position": {
+        "x": -78.14867578894913,
+        "y": -6.604104810325964
+      }
+    },
+    {
+      "id": "powerview_module",
+      "label": "PowerView.ps1",
+      "icon": "IconCode",
+      "type": "node",
+      "position": {
+        "x": -50.99312348221235,
+        "y": 78.21143580066337
+      }
+    },
+    {
+      "id": "gpo_list",
+      "label": "GPO configurations",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": -134.07674708685138,
+        "y": -116.4196454213153
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": 242.39717122363572,
+        "y": -126.35735241330889
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": 245.4743424682519,
+        "y": -104.23917591137592
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Initiate LDAP GPO Query",
+      "mitre": {
+        "id": "T1482",
+        "tactic": "Discovery",
+        "technique": "Domain Trust Discovery"
+      },
+      "type": "edge",
+      "from": "powerview_module",
+      "to": "domain_controller",
+      "description": "Attacker executes Get-NetGPO requesting all groupPolicyContainer objects.",
+      "cli": "Get-NetGPO | select displayname, whenchanged"
+    },
+    {
+      "id": 2,
+      "name": "Return GPO Roster",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "gpo_list",
+      "description": "The DC fulfills the request, returning display names and modification dates of all GPOs."
+    }
+  ],
+  "viewport": {
+    "zoom": 1.3,
+    "pan": {
+      "x": 631.3415252685533,
+      "y": 353.7491884173769
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": true
+}

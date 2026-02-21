@@ -1,0 +1,96 @@
+{
+  "title": "Native SPN Discovery (setspn)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "icon": "IconWorkstation",
+      "type": "container",
+      "members": [
+        "setspn_tool",
+        "spn_list"
+      ],
+      "position": {
+        "x": 165.24320863639042,
+        "y": -28.272518991165526
+      }
+    },
+    {
+      "id": "setspn_tool",
+      "label": "setspn.exe",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 71.54423143732821,
+        "y": 40.77251899116555
+      }
+    },
+    {
+      "id": "spn_list",
+      "label": "Vulnerable Service Accounts",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": 236.9421858354526,
+        "y": -122.31755697349661
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": -260.7902629812287,
+        "y": -16.887469313087124
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (LDAP)",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": -260.7902629812287,
+        "y": -35.387469313087124
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Execute Wildcard LDAP Query",
+      "mitre": {
+        "id": "T1087.002",
+        "tactic": "Discovery",
+        "technique": "Account Discovery: Domain Account"
+      },
+      "type": "edge",
+      "from": "setspn_tool",
+      "to": "domain_controller",
+      "description": "The attacker executes the native Microsoft binary to query LDAP for all objects possessing a servicePrincipalName attribute.",
+      "cli": "setspn.exe -T marvel.local -Q */*"
+    },
+    {
+      "id": 2,
+      "name": "Parse Identities",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "spn_list",
+      "description": "The Domain Controller returns the full list. The attacker filters for user accounts, obtaining the required targeting data for Kerberoasting."
+    }
+  ],
+  "viewport": {
+    "zoom": 1.2999999999999985,
+    "pan": {
+      "x": 677.9196314493815,
+      "y": 349.86961669921914
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

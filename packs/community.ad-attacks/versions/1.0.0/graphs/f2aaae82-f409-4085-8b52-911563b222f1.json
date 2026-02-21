@@ -1,0 +1,67 @@
+{
+  "title": "Enumerate Domain Computers via LDAP (PowerView)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Shell",
+      "type": "container",
+      "icon": "IconTerminal",
+      "members": [
+        "powerview_module",
+        "computer_list"
+      ]
+    },
+    {
+      "id": "powerview_module",
+      "label": "PowerView.ps1",
+      "type": "node",
+      "icon": "IconCode"
+    },
+    {
+      "id": "computer_list",
+      "label": "Endpoint Map (Targets)",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Initiate LDAP Query",
+      "type": "edge",
+      "from": "powerview_module",
+      "to": "domain_controller",
+      "description": "The attacker's shell initiates an LDAP search directed at the DC, querying for all computer objects.",
+      "cli": "Get-NetComputer | select operatingsystem,operatingsystemversion",
+      "mitre": {
+        "id": "T1018",
+        "tactic": "Discovery",
+        "technique": "Remote System Discovery"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Return Computer Roster",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "computer_list",
+      "description": "The Domain Controller processes the LDAP query and returns a list of all computer objects and OS versions."
+    }
+  ]
+}

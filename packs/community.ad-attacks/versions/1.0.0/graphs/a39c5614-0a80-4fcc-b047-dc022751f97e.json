@@ -1,0 +1,29 @@
+{
+  "title": "Test Automation Feature",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "test_runner",
+      "label": "Test Console",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "test_output",
+      "label": "Debug Output",
+      "type": "node",
+      "icon": "IconData"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Execute Test String",
+      "type": "edge",
+      "from": "test_runner",
+      "to": "test_output",
+      "description": "The developer tests the workflow UI.",
+      "cli": "yo yow"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "title": "Custom LDAP User Enum (.NET)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "powershell_process",
+        "ad_properties"
+      ]
+    },
+    {
+      "id": "powershell_process",
+      "label": "PowerShell (.NET Searcher)",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "ad_properties",
+      "label": "User Object Properties",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Execute LDAP Filter Query",
+      "type": "edge",
+      "from": "powershell_process",
+      "to": "domain_controller",
+      "description": "Attacker utilizes the .NET DirectorySearcher to query the DC for all objects matching (objectClass=User).",
+      "cli": "$Searcher.Filter=\"(objectClass=User)\"; $Searcher.FindAll()",
+      "mitre": {
+        "id": "T1087.002",
+        "tactic": "Discovery",
+        "technique": "Account Discovery: Domain Account"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Stream Object Attributes",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "ad_properties",
+      "description": "The DC fulfills the paginated request, returning comprehensive AD attributes (descriptions, SPNs, memberships) for analysis."
+    }
+  ]
+}

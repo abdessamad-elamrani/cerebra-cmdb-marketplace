@@ -1,0 +1,67 @@
+{
+  "title": "AS-REP Roasting (GetNPUsers)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "getnpusers_tool",
+        "cracked_passwords"
+      ]
+    },
+    {
+      "id": "getnpusers_tool",
+      "label": "GetNPUsers.py",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "cracked_passwords",
+      "label": "AS-REP Hashes",
+      "type": "node",
+      "icon": "IconKey"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (KDC)",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Send Pre-Auth-less AS-REQ",
+      "type": "edge",
+      "from": "getnpusers_tool",
+      "to": "domain_controller",
+      "description": "The attacker requests TGTs for known valid users without supplying the mandatory encrypted pre-auth validation timestamp.",
+      "cli": "GetNPUsers.py marvel.local/ -usersfile valid_users.txt -format hashcat -dc-ip 10.0.0.12",
+      "mitre": {
+        "id": "T1558.004",
+        "tactic": "Credential Access",
+        "technique": "Steal or Forge Kerberos Tickets: AS-REP Roasting"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Extract AS-REP Blobs",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "cracked_passwords",
+      "description": "For misconfigured accounts, the KDC obliges, returning an AS-REP blob encrypted with the user's password. Impacket saves this for offline cracking."
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "title": "Advanced LDAP Filtering",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "powershell_process",
+        "ad_results"
+      ]
+    },
+    {
+      "id": "powershell_process",
+      "label": "PowerShell Script",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "ad_results",
+      "label": "LDAP Query Results",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Execute Parameterized Search",
+      "type": "edge",
+      "from": "powershell_process",
+      "to": "domain_controller",
+      "description": "Attacker utilizes the .NET DirectorySearcher to query the DC using modular, passed-in LDAP filters (e.g. samAccountType).",
+      "cli": "$Searcher.Filter=$TargetFilter; $Searcher.FindAll()",
+      "mitre": {
+        "id": "T1482",
+        "tactic": "Discovery",
+        "technique": "Domain Trust Discovery"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Return Targeted Subsets",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "ad_results",
+      "description": "The DC fulfills the request, returning only the specific user or computer objects matching the complex parameter logic."
+    }
+  ]
+}

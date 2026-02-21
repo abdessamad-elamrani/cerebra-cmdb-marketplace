@@ -1,0 +1,93 @@
+{
+  "title": "Find Local Admin Access (PowerView)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "powerview_script",
+        "admin_targets_list"
+      ]
+    },
+    {
+      "id": "powerview_script",
+      "label": "PowerView.ps1",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "admin_targets_list",
+      "label": "Accessible Hosts",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller",
+        "domain_endpoints"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer"
+    },
+    {
+      "id": "domain_endpoints",
+      "label": "All Workstations",
+      "type": "node",
+      "icon": "IconWorkstation"
+    }
+  ],
+  "visibility": {
+    "admin_targets_list": {
+      "start": 3,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Query Computer List",
+      "type": "edge",
+      "from": "powerview_script",
+      "to": "domain_controller",
+      "description": "PowerView queries LDAP to retrieve a list of all computers joined to the domain.",
+      "cli": "Find-LocalAdminAccess",
+      "mitre": {
+        "id": "T1018",
+        "tactic": "Discovery",
+        "technique": "Remote System Discovery"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Test SCM RPC Access",
+      "type": "edge",
+      "from": "powerview_script",
+      "to": "domain_endpoints",
+      "description": "PowerView iterates across all hosts, attempting to open the Service Control Manager with Administrator privileges.",
+      "mitre": {
+        "id": "T1046",
+        "tactic": "Discovery",
+        "technique": "Network Service Discovery"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Identify Vulnerable Hosts",
+      "type": "edge",
+      "from": "domain_endpoints",
+      "to": "admin_targets_list",
+      "description": "If access is granted, the hostname is logged as a lateral movement target. If denied, the script moves on."
+    }
+  ]
+}

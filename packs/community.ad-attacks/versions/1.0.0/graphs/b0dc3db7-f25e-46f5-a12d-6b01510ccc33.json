@@ -1,0 +1,81 @@
+{
+  "title": "Meterpreter PsExec Hashdump",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "msfconsole",
+        "stolen_hashes"
+      ]
+    },
+    {
+      "id": "msfconsole",
+      "label": "Metasploit Framework",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "stolen_hashes",
+      "label": "SAM Hashes (Hashdump)",
+      "type": "node",
+      "icon": "IconKey"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "target_machine"
+      ]
+    },
+    {
+      "id": "target_machine",
+      "label": "Target Host",
+      "type": "node",
+      "icon": "IconWorkstation"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "SMB Authenticate & Upload",
+      "type": "edge",
+      "from": "msfconsole",
+      "to": "target_machine",
+      "description": "Metasploit authenticates via SMB, uploads a payload, and creates a service via RPC.",
+      "cli": "exploit",
+      "mitre": {
+        "id": "T1021.002",
+        "tactic": "Lateral Movement",
+        "technique": "SMB/Windows Admin Shares"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Establish Meterpreter C2",
+      "type": "edge",
+      "from": "target_machine",
+      "to": "msfconsole",
+      "description": "The payload executes as SYSTEM and opens a reverse Meterpreter session."
+    },
+    {
+      "id": 3,
+      "name": "Execute Internal Hashdump",
+      "type": "edge",
+      "from": "msfconsole",
+      "to": "stolen_hashes",
+      "description": "The attacker issues the hashdump command, instructing the Meterpreter payload to scrape local SAM hashes from memory.",
+      "cli": "hashdump",
+      "mitre": {
+        "id": "T1003.002",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: Security Account Manager"
+      }
+    }
+  ]
+}

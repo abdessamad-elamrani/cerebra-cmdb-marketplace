@@ -1,0 +1,87 @@
+{
+  "title": "Share Discovery (Invoke-ShareFinder)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "sharefinder_tool",
+        "readable_shares"
+      ]
+    },
+    {
+      "id": "sharefinder_tool",
+      "label": "Invoke-ShareFinder",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "readable_shares",
+      "label": "Accessible UNC Paths",
+      "type": "node",
+      "icon": "IconFolder"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller",
+        "target_endpoints"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer"
+    },
+    {
+      "id": "target_endpoints",
+      "label": "All Domain Computers",
+      "type": "node",
+      "icon": "IconWorkstation"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Map Computer Topology",
+      "type": "edge",
+      "from": "sharefinder_tool",
+      "to": "domain_controller",
+      "description": "The script queries LDAP to build a master array of all theoretically active computer objects in the domain.",
+      "mitre": {
+        "id": "T1018",
+        "tactic": "Discovery",
+        "technique": "Remote System Discovery"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Interrogate SMB API",
+      "type": "edge",
+      "from": "sharefinder_tool",
+      "to": "target_endpoints",
+      "description": "Multi-threaded connections sweep the domain, testing NetShareEnum APIs and explicitly validating Read permissions for the attacker's user.",
+      "cli": "Invoke-ShareFinder -Verbose -CheckShareAccess",
+      "mitre": {
+        "id": "T1135",
+        "tactic": "Discovery",
+        "technique": "Network Share Discovery"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Compile Accessible Data Maps",
+      "type": "edge",
+      "from": "target_endpoints",
+      "to": "readable_shares",
+      "description": "The targets respond. The script outputs only the UNC paths where sensitive data can be immediately exfiltrated."
+    }
+  ]
+}

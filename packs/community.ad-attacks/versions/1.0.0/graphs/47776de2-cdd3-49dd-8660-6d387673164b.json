@@ -1,0 +1,73 @@
+{
+  "title": "Shell via Impacket PsExec",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Operations",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "impacket_tool"
+      ]
+    },
+    {
+      "id": "impacket_tool",
+      "label": "impacket-psexec",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "target_machine"
+      ]
+    },
+    {
+      "id": "target_machine",
+      "label": "Target Host (10.0.2.73)",
+      "type": "node",
+      "icon": "IconWindows"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Authenticate & Upload Payload",
+      "type": "edge",
+      "from": "impacket_tool",
+      "to": "target_machine",
+      "description": "Attacker connects via SMB (Pass-the-Hash) and uploads a service executable to the ADMIN$ share.",
+      "cli": "impacket-psexec -hashes :c39f2beb... MARVEL/fcastle@10.0.2.73",
+      "mitre": {
+        "id": "T1021.002",
+        "tactic": "Lateral Movement",
+        "technique": "SMB/Windows Admin Shares"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Register Service (SCM API)",
+      "type": "edge",
+      "from": "impacket_tool",
+      "to": "target_machine",
+      "description": "Attacker sends RPC requests to create and start a Windows service pointing to the payload.",
+      "mitre": {
+        "id": "T1569.002",
+        "tactic": "Execution",
+        "technique": "System Services: Service Execution"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Spawn SYSTEM Shell",
+      "type": "edge",
+      "from": "target_machine",
+      "to": "impacket_tool",
+      "description": "The payload executes as NT AUTHORITY\\SYSTEM and hooks a reverse interactive shell back to the attacker."
+    }
+  ]
+}

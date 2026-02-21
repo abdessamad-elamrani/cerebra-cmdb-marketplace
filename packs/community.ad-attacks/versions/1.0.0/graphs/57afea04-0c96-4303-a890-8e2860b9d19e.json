@@ -1,0 +1,134 @@
+{
+  "title": "SharpHound Collection & BloodHound Analysis",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_infrastructure",
+      "label": "Attacker Environment",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "bloodhound_ui",
+        "neo4j_db"
+      ]
+    },
+    {
+      "id": "target_shell",
+      "label": "Compromised Domain Shell",
+      "type": "container",
+      "icon": "IconTerminal",
+      "members": [
+        "sharphound_script",
+        "zip_archive"
+      ]
+    },
+    {
+      "id": "sharphound_script",
+      "label": "SharpHound Collector",
+      "type": "node",
+      "icon": "IconCode"
+    },
+    {
+      "id": "zip_archive",
+      "label": "BloodHound.zip",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "neo4j_db",
+      "label": "Neo4j Database",
+      "type": "node",
+      "icon": "IconDatabase"
+    },
+    {
+      "id": "bloodhound_ui",
+      "label": "BloodHound Graph",
+      "type": "node",
+      "icon": "IconBrowser"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller",
+        "domain_workstations"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer"
+    },
+    {
+      "id": "domain_workstations",
+      "label": "Domain Endpoints",
+      "type": "node",
+      "icon": "IconWorkstation"
+    }
+  ],
+  "visibility": {
+    "zip_archive": {
+      "start": 3,
+      "end": 100
+    },
+    "neo4j_db": {
+      "start": 4,
+      "end": 100
+    },
+    "bloodhound_ui": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "LDAP Structural Mapping",
+      "type": "edge",
+      "from": "sharphound_script",
+      "to": "domain_controller",
+      "description": "SharpHound queries LDAP aggressively to extract users, groups, computer memberships, and ACLs.",
+      "cli": "Invoke-BloodHound -CollectionMethod All",
+      "mitre": {
+        "id": "T1087.002",
+        "tactic": "Discovery",
+        "technique": "Account Discovery: Domain Account"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Session Enumeration",
+      "type": "edge",
+      "from": "sharphound_script",
+      "to": "domain_workstations",
+      "description": "SharpHound sweeps endpoints via SMB/RPC to locate active sessions and local admin rights."
+    },
+    {
+      "id": 3,
+      "name": "Generate Archive",
+      "type": "edge",
+      "from": "sharphound_script",
+      "to": "zip_archive",
+      "description": "JSON responses are aggregated and compressed into a zip file."
+    },
+    {
+      "id": 4,
+      "name": "Exfiltrate & Ingest",
+      "type": "edge",
+      "from": "zip_archive",
+      "to": "neo4j_db",
+      "description": "The zip file is transferred to the attacker's machine and ingested into the Neo4j backend database."
+    },
+    {
+      "id": 5,
+      "name": "Analyze Attack Paths",
+      "type": "edge",
+      "from": "neo4j_db",
+      "to": "bloodhound_ui",
+      "description": "The attacker visually traces the shortest path to Domain Admin in the BloodHound graphical interface."
+    }
+  ]
+}

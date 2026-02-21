@@ -1,0 +1,28 @@
+{
+  "title": "Test Automation Feature (test)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "test_runner",
+      "label": "Test System",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "test_target",
+      "label": "Development Sandbox",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Validation Execution",
+      "type": "edge",
+      "from": "test_runner",
+      "to": "test_target",
+      "description": "Final diagnostic test to ensure the JSON graph renderer can ingest standard node schema."
+    }
+  ]
+}

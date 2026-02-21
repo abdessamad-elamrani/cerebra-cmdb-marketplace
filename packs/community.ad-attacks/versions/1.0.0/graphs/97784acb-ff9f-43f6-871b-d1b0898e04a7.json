@@ -1,0 +1,72 @@
+{
+  "title": "Search User's Groups (.NET)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "powershell_process",
+        "memberof_array"
+      ]
+    },
+    {
+      "id": "powershell_process",
+      "label": "PowerShell (.NET Searcher)",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "memberof_array",
+      "label": "memberOf Properties",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Query Specific SPN/SAM",
+      "type": "edge",
+      "from": "powershell_process",
+      "to": "domain_controller",
+      "description": "Attacker sets the LDAP filter to target a specific user and issues FindOne().",
+      "cli": "$Searcher.Filter=\"(samAccountName=TargetUser)\"; $User = $Searcher.FindOne()",
+      "mitre": {
+        "id": "T1087.002",
+        "tactic": "Discovery",
+        "technique": "Account Discovery: Domain Account"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Extract Group DistNames",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "memberof_array",
+      "description": "The DC returns the user object, and the attacker isolates the memberOf array.",
+      "mitre": {
+        "id": "T1069.002",
+        "tactic": "Discovery",
+        "technique": "Permission Groups Discovery: Domain Groups"
+      }
+    }
+  ]
+}

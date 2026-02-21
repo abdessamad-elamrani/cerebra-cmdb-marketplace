@@ -1,0 +1,59 @@
+{
+  "title": "PowerShell Execution Policy Bypass",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "target_machine",
+      "label": "Compromised Host",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "attacker_cmd",
+        "powershell_engine",
+        "malicious_script"
+      ]
+    },
+    {
+      "id": "attacker_cmd",
+      "label": "cmd.exe",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "powershell_engine",
+      "label": "New powershell.exe",
+      "type": "node",
+      "icon": "IconWindows"
+    },
+    {
+      "id": "malicious_script",
+      "label": "script.ps1",
+      "type": "node",
+      "icon": "IconCode"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Spawn with Bypass Flag",
+      "type": "edge",
+      "from": "attacker_cmd",
+      "to": "powershell_engine",
+      "description": "Attacker spawns PowerShell using the -ep bypass flag to circumvent built-in script execution blocks.",
+      "cli": "powershell -ep bypass -File .\\script.ps1",
+      "mitre": {
+        "id": "T1059.001",
+        "tactic": "Defense Evasion",
+        "technique": "Command and Scripting Interpreter: PowerShell"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Execute Unsigned Code",
+      "type": "edge",
+      "from": "powershell_engine",
+      "to": "malicious_script",
+      "description": "The engine processes the untrusted PS1 file without throwing an ExecutionPolicy restriction error."
+    }
+  ]
+}

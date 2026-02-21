@@ -1,0 +1,65 @@
+{
+  "title": "Mimikatz LSASS/SAM Dump",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Host",
+      "type": "container",
+      "icon": "IconServer",
+      "members": [
+        "mimikatz_tool",
+        "lsass_process",
+        "stolen_creds"
+      ]
+    },
+    {
+      "id": "mimikatz_tool",
+      "label": "mimikatz.exe",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "lsass_process",
+      "label": "lsass.exe / SAM Hive",
+      "type": "node",
+      "icon": "IconWindows"
+    },
+    {
+      "id": "stolen_creds",
+      "label": "Extracted Hashes/Passwords",
+      "type": "node",
+      "icon": "IconKey"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Elevate Debug Privileges",
+      "type": "edge",
+      "from": "mimikatz_tool",
+      "to": "lsass_process",
+      "description": "Mimikatz requests SeDebugPrivilege to gain read access to protected OS service memory.",
+      "cli": "mimikatz # privilege::debug",
+      "mitre": {
+        "id": "T1134",
+        "tactic": "Privilege Escalation",
+        "technique": "Access Token Manipulation"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Scrape Memory for Credentials",
+      "type": "edge",
+      "from": "mimikatz_tool",
+      "to": "stolen_creds",
+      "description": "Mimikatz executes sekurlsa::logonpasswords to carve plaintext passwords and NTLM hashes directly from the LSASS process space and decrypt them.",
+      "cli": "mimikatz # sekurlsa::logonpasswords",
+      "mitre": {
+        "id": "T1003.001",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: LSASS Memory"
+      }
+    }
+  ]
+}

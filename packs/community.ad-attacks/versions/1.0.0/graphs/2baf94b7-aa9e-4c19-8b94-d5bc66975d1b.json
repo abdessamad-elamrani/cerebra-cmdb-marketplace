@@ -1,0 +1,81 @@
+{
+  "title": "Password Spraying (PowerShell)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Toolkit",
+      "type": "container",
+      "icon": "IconTerminal",
+      "members": [
+        "spray_tool",
+        "valid_credentials"
+      ]
+    },
+    {
+      "id": "spray_tool",
+      "label": "Invoke-PasswordSpray",
+      "type": "node",
+      "icon": "IconCode"
+    },
+    {
+      "id": "valid_credentials",
+      "label": "Cracked AD Credentials",
+      "type": "node",
+      "icon": "IconKey"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (KDC)",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Query Lockout Thresholds",
+      "type": "edge",
+      "from": "spray_tool",
+      "to": "domain_controller",
+      "description": "The script queries LDAP for AD password policies to perfectly calibrate the spray threshold.",
+      "cli": "Get-DomainPolicy -Verbose",
+      "mitre": {
+        "id": "T1201",
+        "tactic": "Discovery",
+        "technique": "Password Policy Discovery"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Horizontal Authentication Spray",
+      "type": "edge",
+      "from": "spray_tool",
+      "to": "domain_controller",
+      "description": "The tool horizontally tests one single, highly probable password against thousands of accounts simultaneously.",
+      "cli": "Invoke-DomainPasswordSpray -UserList users.txt -Password Spring2024!",
+      "mitre": {
+        "id": "T1110.003",
+        "tactic": "Credential Access",
+        "technique": "Brute Force: Password Spraying"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Return Successful Auth",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "valid_credentials",
+      "description": "The DC grants ticket access for the few accounts that fell victim to weak password creation."
+    }
+  ]
+}
