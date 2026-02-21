@@ -1,0 +1,67 @@
+{
+  "title": "Manual ADsPath Discovery",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "powershell_process",
+        "ldap_path_string"
+      ]
+    },
+    {
+      "id": "powershell_process",
+      "label": "PowerShell Script",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "ldap_path_string",
+      "label": "ADsPath String",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Invoke ADSI Root Query",
+      "type": "edge",
+      "from": "powershell_process",
+      "to": "domain_controller",
+      "description": "Attacker instantiates the .NET DirectoryEntry class to blindly bind to the domain's RootDSE.",
+      "cli": "$ADClass = [ADSI]\"\"; $ADClass.Path",
+      "mitre": {
+        "id": "T1482",
+        "tactic": "Discovery",
+        "technique": "Domain Trust Discovery"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Return LDAP Base",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "ldap_path_string",
+      "description": "The DC returns the structural LDAP path (ADsPath), enabling the attacker to build complex custom queries."
+    }
+  ]
+}

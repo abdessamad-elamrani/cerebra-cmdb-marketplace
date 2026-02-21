@@ -1,0 +1,96 @@
+{
+  "title": "Enumerate Domain Group Members (PowerView)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Shell",
+      "icon": "IconTerminal",
+      "type": "container",
+      "members": [
+        "powerview_module",
+        "member_list"
+      ],
+      "position": {
+        "x": -288.6246199741671,
+        "y": -12.319519892707817
+      }
+    },
+    {
+      "id": "powerview_module",
+      "label": "PowerView.ps1",
+      "icon": "IconCode",
+      "type": "node",
+      "position": {
+        "x": -253.30510008145927,
+        "y": 59.128856214980374
+      }
+    },
+    {
+      "id": "member_list",
+      "label": "Domain Admins Roster",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": -302.9441398668749,
+        "y": -108.76789600039601
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": 94.8981642956474,
+        "y": -110.86761358434183
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": 78.10848907410976,
+        "y": -153.29703463143062
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "LDAP Membership Query",
+      "mitre": {
+        "id": "T1069.002",
+        "tactic": "Discovery",
+        "technique": "Permission Groups Discovery: Domain Groups"
+      },
+      "type": "edge",
+      "from": "powerview_module",
+      "to": "domain_controller",
+      "description": "Attacker queries the Domain Controller for the membership of high-privilege groups.",
+      "cli": "Get-NetGroupMember -GroupName \"Domain Admins\""
+    },
+    {
+      "id": 2,
+      "name": "Return Group Members",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "member_list",
+      "description": "The DC returns a list of users, computers, and nested groups within the requested group."
+    }
+  ],
+  "viewport": {
+    "zoom": 1.37,
+    "pan": {
+      "x": 877.3681300624758,
+      "y": 381.5740736104599
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": true
+}

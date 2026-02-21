@@ -1,0 +1,75 @@
+{
+  "title": "Impacket Kerberoasting (GetUserSPNs)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "impacket_tool",
+        "cracked_tickets"
+      ]
+    },
+    {
+      "id": "impacket_tool",
+      "label": "GetUserSPNs.py",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "cracked_tickets",
+      "label": "krb5tgs Hashes",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (KDC)",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Query SPN Directory",
+      "type": "edge",
+      "from": "impacket_tool",
+      "to": "domain_controller",
+      "description": "Impacket queries LDAP to locate all user accounts with registered Service Principal Names.",
+      "cli": "GetUserSPNs.py marvel.local/fcastle:Pass123 -dc-ip 10.0.2.70 -request",
+      "mitre": {
+        "id": "T1558.003",
+        "tactic": "Credential Access",
+        "technique": "Steal or Forge Kerberos Tickets: Kerberoasting"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Request TGS Tickets",
+      "type": "edge",
+      "from": "impacket_tool",
+      "to": "domain_controller",
+      "description": "The attacker explicitly requests Kerberos Service Tickets for every vulnerable account from the KDC."
+    },
+    {
+      "id": 3,
+      "name": "Extract Encrypted Hashes",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "cracked_tickets",
+      "description": "The KDC returns the tickets. Impacket strips the metadata, leaving only the hash formats required for offline cracking."
+    }
+  ]
+}

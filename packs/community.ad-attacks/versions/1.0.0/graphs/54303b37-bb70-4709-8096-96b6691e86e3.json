@@ -1,0 +1,72 @@
+{
+  "title": "Offline NTLM Credential Cracking",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_rig",
+      "label": "Attacker Cracking Rig",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "hashcat_tool",
+        "stolen_hashes",
+        "wordlist_file",
+        "cracked_passwords"
+      ]
+    },
+    {
+      "id": "stolen_hashes",
+      "label": "hashes.txt (NTLM)",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "wordlist_file",
+      "label": "rockyou.txt",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "hashcat_tool",
+      "label": "Hashcat Process (GPU)",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "cracked_passwords",
+      "label": "Identified Passwords",
+      "type": "node",
+      "icon": "IconKey"
+    }
+  ],
+  "visibility": {
+    "cracked_passwords": {
+      "start": 2,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Execute Dictionary Attack",
+      "type": "edge",
+      "from": "hashcat_tool",
+      "to": "stolen_hashes",
+      "description": "Hashcat loads the wordlist and brute-forces NTLM hashes using GPU acceleration.",
+      "cli": "hashcat -m 1000 ~/AD/hashes.txt /usr/share/wordlists/rockyou.txt -O",
+      "mitre": {
+        "id": "T1110.002",
+        "tactic": "Credential Access",
+        "technique": "Brute Force: Password Cracking"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Recover Plaintext",
+      "type": "edge",
+      "from": "hashcat_tool",
+      "to": "cracked_passwords",
+      "description": "Hashcat finds cryptographic collisions and outputs the recovered plaintext passwords."
+    }
+  ]
+}

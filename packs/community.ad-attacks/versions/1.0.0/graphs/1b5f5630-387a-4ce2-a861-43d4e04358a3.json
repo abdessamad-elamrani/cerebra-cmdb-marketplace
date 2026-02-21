@@ -1,0 +1,67 @@
+{
+  "title": "SPN Discovery (PowerView)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "powerview_tool",
+        "spn_objects"
+      ]
+    },
+    {
+      "id": "powerview_tool",
+      "label": "PowerView (Get-NetUser)",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "spn_objects",
+      "label": "Service Account Pipeline",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (LDAP)",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Execute Targeted LDAP Query",
+      "type": "edge",
+      "from": "powerview_tool",
+      "to": "domain_controller",
+      "description": "PowerView executes an LDAP query specifically filtering for User objects (not Machine accounts) with populated SPNs.",
+      "cli": "Get-NetUser -SPN | select SamAccountName",
+      "mitre": {
+        "id": "T1087.002",
+        "tactic": "Discovery",
+        "technique": "Account Discovery: Domain Account"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Return Object Pipeline",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "spn_objects",
+      "description": "The Domain Controller honors the request. The attacker is returned a pristine list of high-value Kerberoasting targets."
+    }
+  ]
+}

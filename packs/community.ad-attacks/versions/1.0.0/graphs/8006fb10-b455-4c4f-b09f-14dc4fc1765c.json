@@ -1,0 +1,96 @@
+{
+  "title": "Enumerate Shares with PowerView",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Shell",
+      "icon": "IconTerminal",
+      "type": "container",
+      "members": [
+        "powerview_script",
+        "share_results"
+      ],
+      "position": {
+        "x": 184.98161353108267,
+        "y": -12.679335627489472
+      }
+    },
+    {
+      "id": "powerview_script",
+      "label": "PowerView.ps1",
+      "icon": "IconCode",
+      "type": "node",
+      "position": {
+        "x": 214.20167209864286,
+        "y": 45.39373183547396
+      }
+    },
+    {
+      "id": "share_results",
+      "label": "Discovered Shares",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": 165.26155496352249,
+        "y": -95.7524030904529
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "target_computer"
+      ],
+      "position": {
+        "x": -107.86401816580528,
+        "y": -65.86092958098698
+      }
+    },
+    {
+      "id": "target_computer",
+      "label": "Target Host",
+      "icon": "IconWorkstation",
+      "type": "node",
+      "position": {
+        "x": -107.86401816580528,
+        "y": -78.36092958098698
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "RPC Share Query",
+      "mitre": {
+        "id": "T1135",
+        "tactic": "Discovery",
+        "technique": "Network Share Discovery"
+      },
+      "type": "edge",
+      "from": "powerview_script",
+      "to": "target_computer",
+      "description": "PowerView establishes an SMB session and sends a NetShareEnum RPC request.",
+      "cli": "Get-NetShare -ComputerName Spiderman"
+    },
+    {
+      "id": 2,
+      "name": "RPC Response (Shares)",
+      "type": "edge",
+      "from": "target_computer",
+      "to": "share_results",
+      "description": "The target machine returns a list of its available SMB shares."
+    }
+  ],
+  "viewport": {
+    "zoom": 1.41,
+    "pan": {
+      "x": 581.1145506286615,
+      "y": 371.1219011230468
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": true
+}

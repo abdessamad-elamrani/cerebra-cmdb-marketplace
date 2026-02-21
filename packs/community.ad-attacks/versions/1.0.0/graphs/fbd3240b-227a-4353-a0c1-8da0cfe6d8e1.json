@@ -1,0 +1,120 @@
+{
+  "title": "AS-REP Roasting (Rubeus)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "icon": "IconWorkstation",
+      "type": "container",
+      "members": [
+        "c2_beacon",
+        "rubeus_assembly",
+        "cracked_passwords"
+      ],
+      "position": {
+        "x": 153.96755353357088,
+        "y": 11.617575893087974
+      }
+    },
+    {
+      "id": "c2_beacon",
+      "label": "C2 Memory Space",
+      "icon": "IconWindows",
+      "type": "node",
+      "position": {
+        "x": 53.53372915266239,
+        "y": -22.354744041771102
+      }
+    },
+    {
+      "id": "rubeus_assembly",
+      "label": "Rubeus (.NET Memory)",
+      "icon": "IconCode",
+      "type": "node",
+      "position": {
+        "x": 239.43107434212743,
+        "y": -141.18785710592277
+      }
+    },
+    {
+      "id": "cracked_passwords",
+      "label": "AS-REP Hashes",
+      "icon": "IconKey",
+      "type": "node",
+      "position": {
+        "x": 98.83149997414597,
+        "y": 100.59634818796997
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": -170.11175838803896,
+        "y": -71.918572894583
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": -170.11175838803896,
+        "y": -84.418572894583
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Reflective Assembly Injection",
+      "mitre": {
+        "id": "T1620",
+        "tactic": "Defense Evasion",
+        "technique": "Reflective Code Loading"
+      },
+      "type": "edge",
+      "from": "c2_beacon",
+      "to": "rubeus_assembly",
+      "description": "The attacker injects the compiled Rubeus C# explicitly into memory, avoiding all disk writes.",
+      "cli": "beacon> execute-assembly Rubeus.exe asreproast /format:hashcat"
+    },
+    {
+      "id": 2,
+      "name": "Automated AS-REQ Formulation",
+      "mitre": {
+        "id": "T1558.004",
+        "tactic": "Credential Access",
+        "technique": "Steal or Forge Kerberos Tickets: AS-REP Roasting"
+      },
+      "type": "edge",
+      "from": "rubeus_assembly",
+      "to": "domain_controller",
+      "description": "Rubeus queries LDAP, dynamically constructs raw ASN.1 encoded AS-REQ packets, and fires them at the DC."
+    },
+    {
+      "id": 3,
+      "name": "Extract and Parse ASN.1",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "cracked_passwords",
+      "description": "The DC returns the valid AS-REP tickets. Rubeus parses the ASN.1 manually in memory, returning the hashcat-ready blobs to the C2."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": true,
+  "viewport": {
+    "zoom": 1.6999999999999988,
+    "pan": {
+      "x": 576.4032475789388,
+      "y": 360.0591186523436
+    }
+  }
+}

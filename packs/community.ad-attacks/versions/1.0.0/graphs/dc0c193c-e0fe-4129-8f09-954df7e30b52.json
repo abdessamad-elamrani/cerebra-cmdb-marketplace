@@ -1,0 +1,52 @@
+{
+  "title": "Domain Join and Machine Role Enum",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "target_machine",
+      "label": "Compromised Host",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "attacker_shell",
+        "wmi_service"
+      ]
+    },
+    {
+      "id": "attacker_shell",
+      "label": "Attacker Shell",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "wmi_service",
+      "label": "Local WMI Registry",
+      "type": "node",
+      "icon": "IconWindows"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Query System Configuration",
+      "type": "edge",
+      "from": "attacker_shell",
+      "to": "wmi_service",
+      "description": "The attacker queries the local system configuration to extract the machine's domain status and logical role.",
+      "cli": "wmic computersystem get domain,domainrole",
+      "mitre": {
+        "id": "T1082",
+        "tactic": "Discovery",
+        "technique": "System Information Discovery"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Return Status",
+      "type": "edge",
+      "from": "wmi_service",
+      "to": "attacker_shell",
+      "description": "WMI responds with the configured AD Domain (e.g. corp.local) or WORKGROUP flag."
+    }
+  ]
+}

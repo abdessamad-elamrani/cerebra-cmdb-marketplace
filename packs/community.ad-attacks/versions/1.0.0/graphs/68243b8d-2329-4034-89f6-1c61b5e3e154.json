@@ -1,0 +1,65 @@
+{
+  "title": "Meterpreter Incognito Token Impersonate",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "target_host",
+      "label": "Compromised Terminal Server",
+      "type": "container",
+      "icon": "IconServer",
+      "members": [
+        "meterpreter_session",
+        "lsass_memory",
+        "victim_token"
+      ]
+    },
+    {
+      "id": "meterpreter_session",
+      "label": "Meterpreter Process (SYSTEM)",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "lsass_memory",
+      "label": "LSASS / API",
+      "type": "node",
+      "icon": "IconWindows"
+    },
+    {
+      "id": "victim_token",
+      "label": "Domain Admin Token",
+      "type": "node",
+      "icon": "IconKey"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Enumerate Cached Tokens",
+      "type": "edge",
+      "from": "meterpreter_session",
+      "to": "lsass_memory",
+      "description": "Attacker executes `list_tokens -u`, using the incognito extension to query the OS for active access tokens.",
+      "cli": "list_tokens -u",
+      "mitre": {
+        "id": "T1134.001",
+        "tactic": "Privilege Escalation",
+        "technique": "Access Token Manipulation: Token Impersonation/Theft"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Duplicate & Impersonate Token",
+      "type": "edge",
+      "from": "meterpreter_session",
+      "to": "victim_token",
+      "description": "Attacker calls `impersonate_token`, utilizing DuplicateTokenEx to attach the stolen Domain Admin context to their current execution thread.",
+      "cli": "impersonate_token 'MARVEL\\Administrator'",
+      "mitre": {
+        "id": "T1134.001",
+        "tactic": "Defense Evasion",
+        "technique": "Access Token Manipulation: Token Impersonation/Theft"
+      }
+    }
+  ]
+}

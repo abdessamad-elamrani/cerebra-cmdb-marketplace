@@ -1,0 +1,60 @@
+{
+  "title": "Native AD Enum (net user)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Host",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "attacker_shell"
+      ]
+    },
+    {
+      "id": "attacker_shell",
+      "label": "cmd.exe (net.exe)",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Native Domain Query",
+      "type": "edge",
+      "from": "attacker_shell",
+      "to": "domain_controller",
+      "description": "Attacker invokes the built-in net.exe tool to request Active Directory user lists via native Windows RPC APIs.",
+      "cli": "net user /domain",
+      "mitre": {
+        "id": "T1087.002",
+        "tactic": "Discovery",
+        "technique": "Account Discovery: Domain Account"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Return Basic Directory List",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "attacker_shell",
+      "description": "The DC fulfills the request, returning a truncated list of all domain user names directly to the console."
+    }
+  ]
+}

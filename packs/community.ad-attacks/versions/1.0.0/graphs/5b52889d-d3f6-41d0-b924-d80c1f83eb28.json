@@ -1,0 +1,87 @@
+{
+  "title": "Golden Ticket Forgery",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "type": "container",
+      "icon": "IconTerminal",
+      "members": [
+        "mimikatz_tool",
+        "krbtgt_hash"
+      ]
+    },
+    {
+      "id": "mimikatz_tool",
+      "label": "mimikatz.exe",
+      "type": "node",
+      "icon": "IconCode"
+    },
+    {
+      "id": "krbtgt_hash",
+      "label": "Stolen krbtgt Hash",
+      "type": "node",
+      "icon": "IconKey"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller",
+        "target_resource"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (KDC)",
+      "type": "node",
+      "icon": "IconServer"
+    },
+    {
+      "id": "target_resource",
+      "label": "Any Admin Share",
+      "type": "node",
+      "icon": "IconFolder"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Forge Master TGT Offline",
+      "type": "edge",
+      "from": "mimikatz_tool",
+      "to": "krbtgt_hash",
+      "description": "Mimikatz uses the krbtgt hash and Domain SID to mathematically construct an offline Domain Admin TGT and injects it into memory.",
+      "cli": "kerberos::golden /domain:marvel.local /sid:S-1-5... /rc4:<krbtgt_hash> /user:FakeAdmin /ptt",
+      "mitre": {
+        "id": "T1558.001",
+        "tactic": "Credential Access",
+        "technique": "Steal or Forge Kerberos Tickets: Golden Ticket"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Present Forged Ticket",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "domain_controller",
+      "description": "The attacker attempts to access a protected network resource. Windows transparently presents the forged TGT to the KDC.",
+      "mitre": {
+        "id": "T1558.001",
+        "tactic": "Persistence",
+        "technique": "Steal or Forge Kerberos Tickets: Golden Ticket"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Grant Universal Access",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "target_resource",
+      "description": "The KDC trusts the ticket's signature, explicitly believing the attacker is an Enterprise Admin, and grants access to the target."
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "title": "Malicious SCF/URL Drop",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Responder Instance",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "captured_hash"
+      ]
+    },
+    {
+      "id": "captured_hash",
+      "label": "Victim NTLMv2",
+      "type": "node",
+      "icon": "IconKey"
+    },
+    {
+      "id": "corporate_share",
+      "label": "Corporate File Server",
+      "type": "container",
+      "icon": "IconServer",
+      "members": [
+        "malicious_scf"
+      ]
+    },
+    {
+      "id": "malicious_scf",
+      "label": "@mine.scf",
+      "type": "node",
+      "icon": "IconCode"
+    },
+    {
+      "id": "victim_machine",
+      "label": "Victim Workstation",
+      "type": "node",
+      "icon": "IconWorkstation"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Drop Coercion Artifact",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "corporate_share",
+      "description": "The attacker writes an SCF file with a malicious UNC IconFile path to a world-readable share.",
+      "mitre": {
+        "id": "T1187",
+        "tactic": "Credential Access",
+        "technique": "Forced Authentication"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Explorer Renders Icon",
+      "type": "edge",
+      "from": "victim_machine",
+      "to": "malicious_scf",
+      "description": "A victim browses the folder. Windows Explorer automatically reads the SCF file attempting to load the icon."
+    },
+    {
+      "id": 3,
+      "name": "Automatic SMB Auth (Trap)",
+      "type": "edge",
+      "from": "victim_machine",
+      "to": "attacker_machine",
+      "description": "Following the UNC path, the victim's OS silently authenticates to the attacker's Responder trap, handing over their NTLMv2 hash."
+    }
+  ]
+}

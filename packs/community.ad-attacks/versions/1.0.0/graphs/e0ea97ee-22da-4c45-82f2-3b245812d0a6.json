@@ -1,0 +1,72 @@
+{
+  "title": "SMB Data Exfiltration (smbclient)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "smbclient_tool",
+        "stolen_data"
+      ]
+    },
+    {
+      "id": "smbclient_tool",
+      "label": "smbclient",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "stolen_data",
+      "label": "Exfiltrated Corporate Files",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "file_server"
+      ]
+    },
+    {
+      "id": "file_server",
+      "label": "Corporate File Server / NAS",
+      "type": "node",
+      "icon": "IconFolder"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Establish Authorized Session",
+      "type": "edge",
+      "from": "smbclient_tool",
+      "to": "file_server",
+      "description": "The attacker authenticates to the target share using compromised credentials.",
+      "cli": "smbclient //10.0.0.50/IT_Backups -U domain/jsmith%Password123",
+      "mitre": {
+        "id": "T1039",
+        "tactic": "Collection",
+        "technique": "Data from Network Shared Drive"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Silent Data Transfer (GET)",
+      "type": "edge",
+      "from": "file_server",
+      "to": "stolen_data",
+      "description": "The attacker issues the interactive 'get' or 'mget' commands to pull the data across the network to their local machine.",
+      "mitre": {
+        "id": "T1048",
+        "tactic": "Exfiltration",
+        "technique": "Exfiltration Over Alternative Protocol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "title": "enum4linux SMB Enumeration",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Toolkit",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "enum4linux_tool",
+        "extracted_data"
+      ]
+    },
+    {
+      "id": "enum4linux_tool",
+      "label": "enum4linux",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "extracted_data",
+      "label": "Users/Shares/Policies",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "vulnerable_server"
+      ]
+    },
+    {
+      "id": "vulnerable_server",
+      "label": "Server (IPC$)",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Establish Anonymous Session",
+      "type": "edge",
+      "from": "enum4linux_tool",
+      "to": "vulnerable_server",
+      "description": "enum4linux connects to the IPC$ share providing blank credentials, establishing an anonymous Null Session.",
+      "cli": "enum4linux -a 10.0.1.55",
+      "mitre": {
+        "id": "T1046",
+        "tactic": "Discovery",
+        "technique": "Network Service Discovery"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Query RPC Interfaces",
+      "type": "edge",
+      "from": "enum4linux_tool",
+      "to": "vulnerable_server",
+      "description": "The tool repeatedly queries the SAM, LSA, and SRVSVC RPC pipes to extract detailed domain statistics."
+    },
+    {
+      "id": 3,
+      "name": "Return Unauthenticated Data",
+      "type": "edge",
+      "from": "vulnerable_server",
+      "to": "extracted_data",
+      "description": "The server blindly fulfills the requests, exposing usernames, groups, SIDs, and password policies to the attacker.",
+      "mitre": {
+        "id": "T1087.002",
+        "tactic": "Discovery",
+        "technique": "Account Discovery: Domain Account"
+      }
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "title": "Pass-The-Ticket (Mimikatz)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Host",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "mimikatz_tool",
+        "kirbi_file"
+      ]
+    },
+    {
+      "id": "mimikatz_tool",
+      "label": "mimikatz.exe",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "kirbi_file",
+      "label": "Stolen .kirbi TGT",
+      "type": "node",
+      "icon": "IconKey"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller",
+        "target_resource"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer"
+    },
+    {
+      "id": "target_resource",
+      "label": "Any Network Resource",
+      "type": "node",
+      "icon": "IconFolder"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Export Cached Tickets",
+      "type": "edge",
+      "from": "mimikatz_tool",
+      "to": "kirbi_file",
+      "description": "Mimikatz reads LSASS memory via SeDebugPrivilege, exporting active Kerberos tickets to disk as .kirbi files.",
+      "cli": "mimikatz # sekurlsa::tickets /export",
+      "mitre": {
+        "id": "T1558",
+        "tactic": "Credential Access",
+        "technique": "Steal or Forge Kerberos Tickets"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Inject Ticket (PTT)",
+      "type": "edge",
+      "from": "kirbi_file",
+      "to": "mimikatz_tool",
+      "description": "The attacker explicitly injects a highly privileged .kirbi ticket directly into their current, unprivileged logon session.",
+      "cli": "mimikatz # kerberos::ptt Administrator.kirbi",
+      "mitre": {
+        "id": "T1550.003",
+        "tactic": "Lateral Movement",
+        "technique": "Use Alternate Authentication Material: Pass the Ticket"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Auth Mapped Resource",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "domain_controller",
+      "description": "Windows automatically presents the fraudulently injected TGT to the KDC when accessing network resources."
+    }
+  ]
+}

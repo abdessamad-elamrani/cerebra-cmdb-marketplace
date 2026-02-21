@@ -1,0 +1,67 @@
+{
+  "title": "DCSync (secretsdump)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Arsenal (Linux)",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "secretsdump_tool",
+        "domain_hashes"
+      ]
+    },
+    {
+      "id": "secretsdump_tool",
+      "label": "secretsdump.py",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "domain_hashes",
+      "label": "NTDS.DIT Hash Dump",
+      "type": "node",
+      "icon": "IconKey"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (KDC)",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Initiate External Replication",
+      "type": "edge",
+      "from": "secretsdump_tool",
+      "to": "domain_controller",
+      "description": "The Python toolkit authenticates via SMB/RPC, binds to DRSUAPI, and demands full Active Directory hash replication.",
+      "cli": "secretsdump.py MARVEL.LOCAL/fcastle:Pass123@10.0.0.12",
+      "mitre": {
+        "id": "T1003.006",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: DCSync"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Extract Protocol Hashes",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "domain_hashes",
+      "description": "The DC fulfills the request, streaming the NTLM and AES cryptographic data across the network to the attacker's toolkit."
+    }
+  ]
+}

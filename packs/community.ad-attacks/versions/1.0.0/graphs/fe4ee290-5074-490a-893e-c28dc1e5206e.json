@@ -1,0 +1,46 @@
+{
+  "title": "PowerShell Fix Colors (PSReadLine)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Terminal",
+      "icon": "IconTerminal",
+      "type": "container",
+      "members": [
+        "powershell_host"
+      ]
+    },
+    {
+      "id": "powershell_host",
+      "label": "PowerShell Session",
+      "icon": "IconCode",
+      "type": "node"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Remove PSReadLine",
+      "mitre": {
+        "id": "T1562",
+        "tactic": "Defense Evasion",
+        "technique": "Impair Defenses"
+      },
+      "type": "edge",
+      "from": "powershell_host",
+      "to": "powershell_host",
+      "description": "Removes the PSReadLine module to fix rendering and ANSI sequence issues over raw reverse shells.",
+      "cli": "Remove-Module PSReadLine"
+    }
+  ],
+  "viewport": {
+    "zoom": 1.899999999999999,
+    "pan": {
+      "x": 604.9950556437174,
+      "y": 321.80386962890583
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

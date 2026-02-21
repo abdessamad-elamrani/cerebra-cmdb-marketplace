@@ -1,0 +1,67 @@
+{
+  "title": "Enumerate Logged On Users (Get-NetLoggedon)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Shell",
+      "type": "container",
+      "icon": "IconTerminal",
+      "members": [
+        "powerview_script",
+        "active_sessions"
+      ]
+    },
+    {
+      "id": "powerview_script",
+      "label": "PowerView.ps1",
+      "type": "node",
+      "icon": "IconCode"
+    },
+    {
+      "id": "active_sessions",
+      "label": "Logged On Users List",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "target_machine"
+      ]
+    },
+    {
+      "id": "target_machine",
+      "label": "Target Host (Spiderman)",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "RPC Session Query",
+      "type": "edge",
+      "from": "powerview_script",
+      "to": "target_machine",
+      "description": "PowerView establishes an RPC connection and invokes the NetWkstaUserEnum or NetSessionEnum API.",
+      "cli": "Get-NetLoggedon -ComputerName Spiderman",
+      "mitre": {
+        "id": "T1049",
+        "tactic": "Discovery",
+        "technique": "System Network Connections Discovery"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Return Session Array",
+      "type": "edge",
+      "from": "target_machine",
+      "to": "active_sessions",
+      "description": "The target returns the usernames and logon domains of all currently authenticated, interactive users."
+    }
+  ]
+}

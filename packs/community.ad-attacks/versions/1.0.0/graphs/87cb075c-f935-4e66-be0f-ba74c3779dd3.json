@@ -1,0 +1,131 @@
+{
+  "title": "Enumerate Domain Users with PowerView",
+  "version": "3.0",
+  "viewport": {
+    "zoom": 0.68,
+    "pan": {
+      "x": 719.0188438077048,
+      "y": 378.8405938018202
+    }
+  },
+  "edgeLabelFontSize": 14,
+  "entityLabelFontSize": 21,
+  "containerTitleFontSize": 27,
+  "entityIconSize": 94,
+  "containerPaddingSize": 82,
+  "edgeCurveScale": 198,
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "entities": [
+    {
+      "id": "attacker_environment",
+      "label": "Attacker Environment",
+      "position": {
+        "x": -433.44606326704377,
+        "y": -45.971525908940606
+      },
+      "icon": "IconKali",
+      "type": "container",
+      "width": 450,
+      "height": 380,
+      "members": [
+        "attacker_machine",
+        "powerview_script",
+        "harvested_users"
+      ]
+    },
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Shell",
+      "position": {
+        "x": -505.24151781249844,
+        "y": -227.5169804543953
+      },
+      "icon": "IconTerminal",
+      "type": "node"
+    },
+    {
+      "id": "powerview_script",
+      "label": "PowerView.ps1",
+      "position": {
+        "x": -368.1506087215892,
+        "y": 84.5739286365141
+      },
+      "icon": "IconInfectedCode",
+      "type": "node"
+    },
+    {
+      "id": "harvested_users",
+      "label": "Domain Users List",
+      "position": {
+        "x": -620.8778814488628,
+        "y": -112.0624349998497
+      },
+      "icon": "IconStolenCredential",
+      "type": "node"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "position": {
+        "x": 244.20057038473954,
+        "y": -155.14418368935833
+      },
+      "icon": "IconNetwork",
+      "type": "container",
+      "width": 380,
+      "height": 300,
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (AD)",
+      "position": {
+        "x": 244.20057038473954,
+        "y": -180.64418368935833
+      },
+      "icon": "IconServer",
+      "type": "node"
+    }
+  ],
+  "visibility": {
+    "harvested_users": {
+      "start": 3,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "LDAP User Query",
+      "mitre": {
+        "id": "T1087.002",
+        "tactic": "Discovery",
+        "technique": "Account Discovery: Domain Account"
+      },
+      "type": "edge",
+      "from": "powerview_script",
+      "to": "domain_controller",
+      "description": "PowerView initiates an unauthenticated or authenticated LDAP query to the Domain Controller requesting all user objects.",
+      "cli": "Get-DomainUser -Properties name, samaccountname, badpwdcount"
+    },
+    {
+      "id": 2,
+      "name": "LDAP Response Data",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "powerview_script",
+      "description": "The DC fulfills the read request, returning all requested attributes for every domain user."
+    },
+    {
+      "id": 3,
+      "name": "Exfiltrate User Data",
+      "type": "edge",
+      "from": "powerview_script",
+      "to": "harvested_users",
+      "description": "Usernames and failed login attempt counts are saved, enabling the attacker to plan password spraying without locking out accounts."
+    }
+  ]
+}

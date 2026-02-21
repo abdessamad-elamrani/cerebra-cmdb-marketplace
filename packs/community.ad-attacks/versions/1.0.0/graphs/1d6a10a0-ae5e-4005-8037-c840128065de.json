@@ -1,0 +1,123 @@
+{
+  "title": "ntlmrelayx SMB Attack",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Toolkit",
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "ntlmrelayx_tool",
+        "stolen_sam"
+      ],
+      "position": {
+        "x": -211.1767630841362,
+        "y": 32.69556864046686
+      }
+    },
+    {
+      "id": "ntlmrelayx_tool",
+      "label": "ntlmrelayx.py",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": -228.84632902440126,
+        "y": -39.98370330184684
+      }
+    },
+    {
+      "id": "stolen_sam",
+      "label": "Target Local SAM",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": -205.00719714387117,
+        "y": 80.37484058278055
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "source_victim",
+        "target_server"
+      ],
+      "position": {
+        "x": 191.26512271880358,
+        "y": -20.642207736346677
+      }
+    },
+    {
+      "id": "source_victim",
+      "label": "Source Auth (Victim)",
+      "icon": "IconWorkstation",
+      "type": "node",
+      "position": {
+        "x": 233.73978087739235,
+        "y": 18.606151711633228
+      }
+    },
+    {
+      "id": "target_server",
+      "label": "Target Box (SMB Signing Disabled)",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": 141.29046456021476,
+        "y": -84.89056718432658
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Intercept Inbound Auth",
+      "mitre": {
+        "id": "T1557.001",
+        "tactic": "Credential Access",
+        "technique": "Adversary-in-the-Middle: LLMNR/NBT-NS Poisoning and SMB Relay"
+      },
+      "type": "edge",
+      "from": "source_victim",
+      "to": "ntlmrelayx_tool",
+      "description": "Triggered by a coercion attack (e.g. Responder), the victim mistakenly attempts to authenticate to the attacker."
+    },
+    {
+      "id": 2,
+      "name": "Forward Handshake to Target",
+      "mitre": {
+        "id": "T1557.001",
+        "tactic": "Lateral Movement",
+        "technique": "Adversary-in-the-Middle: LLMNR/NBT-NS Poisoning and SMB Relay"
+      },
+      "type": "edge",
+      "from": "ntlmrelayx_tool",
+      "to": "target_server",
+      "description": "ntlmrelayx blindly forwards the NTLM challenge-response blobs to the vulnerable target server."
+    },
+    {
+      "id": 3,
+      "name": "Execute Action on Admin Success",
+      "type": "edge",
+      "from": "target_server",
+      "to": "stolen_sam",
+      "description": "Target server authenticates the relayed identity. If the user is an admin, ntlmrelayx automatically dumps the target's SAM hashes and returns them to the attacker."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.37,
+    "pan": {
+      "x": 583.5,
+      "y": 354.5
+    }
+  },
+  "stepInfoPosition": {
+    "x": 685.3316040039062,
+    "y": 783.9420166015625
+  }
+}

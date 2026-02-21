@@ -1,0 +1,67 @@
+{
+  "title": "DCSync Remote Credential Dump",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "impacket_tool",
+        "domain_hashes"
+      ]
+    },
+    {
+      "id": "impacket_tool",
+      "label": "impacket-secretsdump",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "domain_hashes",
+      "label": "All AD Hashes",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "DRSUAPI GetNCChanges",
+      "type": "edge",
+      "from": "impacket_tool",
+      "to": "domain_controller",
+      "description": "Attacker invokes the Directory Replication Service API via RPC, simulating a replica Domain Controller.",
+      "cli": "impacket-secretsdump -just-dc-ntlm marvel/fcastle:Password1@10.0.2.72",
+      "mitre": {
+        "id": "T1003.006",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: DCSync"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Return NTDS Replica",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "domain_hashes",
+      "description": "The DC replicates the NTDS.dit database over the network, providing all NTLM hashes (including krbtgt)."
+    }
+  ]
+}

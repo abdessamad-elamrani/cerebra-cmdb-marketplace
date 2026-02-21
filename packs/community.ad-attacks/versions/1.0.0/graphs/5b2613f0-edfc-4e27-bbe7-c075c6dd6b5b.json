@@ -1,0 +1,67 @@
+{
+  "title": "Kerbrute AD Enumeration",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Toolkit",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "kerbrute_tool",
+        "valid_usernames"
+      ]
+    },
+    {
+      "id": "kerbrute_tool",
+      "label": "kerbrute",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "valid_usernames",
+      "label": "Verified AD Accounts",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (KDC)",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Rapid Pre-Auth Spray",
+      "type": "edge",
+      "from": "kerbrute_tool",
+      "to": "domain_controller",
+      "description": "Kerbrute fires thousands of raw AS-REQ packets via UDP 88 without supplying passwords.",
+      "cli": "kerbrute userenum -d marvel.local usernames.txt",
+      "mitre": {
+        "id": "T1589.001",
+        "tactic": "Reconnaissance",
+        "technique": "Gather Victim Identity Information: Credentials"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Parse KDC Error Codes",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "valid_usernames",
+      "description": "The KDC returns either PRINCIPAL_UNKNOWN (invalid) or PREAUTH_REQUIRED (valid). Kerbrute logs the valid accounts to disk."
+    }
+  ]
+}

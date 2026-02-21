@@ -1,0 +1,67 @@
+{
+  "title": "ACL Permission Dump (PowerView)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "powerview_tool",
+        "acl_data"
+      ]
+    },
+    {
+      "id": "powerview_tool",
+      "label": "PowerView (Get-ObjectAcl)",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "acl_data",
+      "label": "Resolved ACE Entries",
+      "type": "node",
+      "icon": "IconData"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (LDAP)",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Query Security Descriptors",
+      "type": "edge",
+      "from": "powerview_tool",
+      "to": "domain_controller",
+      "description": "PowerView asks LDAP for the raw nTSecurityDescriptor attribute of the specified target object.",
+      "cli": "Get-ObjectAcl -SamAccountName \"Domain Admins\" -ResolveGUIDs",
+      "mitre": {
+        "id": "T1069.002",
+        "tactic": "Discovery",
+        "technique": "Permission Groups Discovery: Domain Groups"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Resolve and Display GUIDs",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "acl_data",
+      "description": "The DC returns the raw SDDL array. PowerView maps the hexadecimal GUIDs to human-readable permission strings (e.g., GenericAll)."
+    }
+  ]
+}

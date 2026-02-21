@@ -1,0 +1,87 @@
+{
+  "title": "Kerberoasting (Rubeus)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "c2_beacon",
+        "rubeus_assembly",
+        "cracked_passwords"
+      ]
+    },
+    {
+      "id": "c2_beacon",
+      "label": "C2 Memory Space",
+      "type": "node",
+      "icon": "IconWindows"
+    },
+    {
+      "id": "rubeus_assembly",
+      "label": "Rubeus (.NET Memory)",
+      "type": "node",
+      "icon": "IconCode"
+    },
+    {
+      "id": "cracked_passwords",
+      "label": "TGS Hashes ($krb5tgs$)",
+      "type": "node",
+      "icon": "IconKey"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Reflective Assembly Injection",
+      "type": "edge",
+      "from": "c2_beacon",
+      "to": "rubeus_assembly",
+      "description": "The attacker injects Rubeus explicitly into memory via C2 execution frameworks.",
+      "cli": "beacon> execute-assembly Rubeus.exe kerberoast /format:hashcat",
+      "mitre": {
+        "id": "T1620",
+        "tactic": "Defense Evasion",
+        "technique": "Reflective Code Loading"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Automated TGS-REQ Interrogation",
+      "type": "edge",
+      "from": "rubeus_assembly",
+      "to": "domain_controller",
+      "description": "Rubeus natively queries LDAP for SPNs, bypasses the OS ticket cache entirely, and fires raw TGS-REQ packets directly at the DC.",
+      "mitre": {
+        "id": "T1558.003",
+        "tactic": "Credential Access",
+        "technique": "Steal or Forge Kerberos Tickets: Kerberoasting"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Extract Crackable RC4",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "cracked_passwords",
+      "description": "The DC returns the valid TGS-REP tickets. Rubeus parses the tickets in memory, extracting the Service Account's encrypted hash blob."
+    }
+  ]
+}

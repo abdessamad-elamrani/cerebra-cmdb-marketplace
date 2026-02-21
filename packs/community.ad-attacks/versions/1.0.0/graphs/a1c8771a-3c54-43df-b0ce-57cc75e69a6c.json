@@ -1,0 +1,52 @@
+{
+  "title": "Local Users Enum",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "target_machine",
+      "label": "Compromised Host",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "attacker_shell",
+        "sam_database"
+      ]
+    },
+    {
+      "id": "attacker_shell",
+      "label": "Attacker Shell",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "sam_database",
+      "label": "Local SAM DB",
+      "type": "node",
+      "icon": "IconWindows"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Query Local Accounts",
+      "type": "edge",
+      "from": "attacker_shell",
+      "to": "sam_database",
+      "description": "Attacker invokes wmic or net user to query the Local Security Authority for registered local accounts.",
+      "cli": "wmic useraccount where localaccount=true get name",
+      "mitre": {
+        "id": "T1087.001",
+        "tactic": "Discovery",
+        "technique": "Account Discovery: Local Account"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Return Account List",
+      "type": "edge",
+      "from": "sam_database",
+      "to": "attacker_shell",
+      "description": "SAM returns the requested usernames, SIDs, and active statuses."
+    }
+  ]
+}

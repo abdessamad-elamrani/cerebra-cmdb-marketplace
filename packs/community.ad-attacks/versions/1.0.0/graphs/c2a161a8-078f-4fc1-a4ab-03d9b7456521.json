@@ -1,0 +1,52 @@
+{
+  "title": "Local User Environment Enumeration",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "target_machine",
+      "label": "Compromised Host",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "attacker_shell",
+        "os_environment"
+      ]
+    },
+    {
+      "id": "attacker_shell",
+      "label": "Attacker Shell",
+      "type": "node",
+      "icon": "IconTerminal"
+    },
+    {
+      "id": "os_environment",
+      "label": "Windows OS API",
+      "type": "node",
+      "icon": "IconWindows"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Query Local Identity",
+      "type": "edge",
+      "from": "attacker_shell",
+      "to": "os_environment",
+      "description": "The shell executes `whoami /groups` to read the security groups in the current process access token.",
+      "cli": "whoami /groups",
+      "mitre": {
+        "id": "T1033",
+        "tactic": "Discovery",
+        "technique": "System Owner/User Discovery"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Return Context Data",
+      "type": "edge",
+      "from": "os_environment",
+      "to": "attacker_shell",
+      "description": "The operating system returns the username, group memberships, and SIDs available to the attacker."
+    }
+  ]
+}
