@@ -1,0 +1,130 @@
+{
+  "title": "CME SAM Dump (CrackMapExec)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "cme_tool",
+        "stolen_sam_hashes"
+      ],
+      "position": {
+        "x": -167.83443708609275,
+        "y": 23.09602649006625
+      }
+    },
+    {
+      "id": "cme_tool",
+      "label": "CrackMapExec",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": -239.07284768211923,
+        "y": -46.35761589403971
+      }
+    },
+    {
+      "id": "stolen_sam_hashes",
+      "label": "Local Admin Hashes",
+      "icon": "IconKey",
+      "type": "node",
+      "position": {
+        "x": -110.59602649006627,
+        "y": 67.54966887417221
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Target Subnet (10.0.2.0/24)",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "target_windows"
+      ],
+      "position": {
+        "x": 199.33774834437088,
+        "y": -70.28145695364239
+      }
+    },
+    {
+      "id": "target_windows",
+      "label": "Target Windows Hosts",
+      "icon": "IconWorkstation",
+      "type": "node",
+      "position": {
+        "x": 199.33774834437085,
+        "y": -82.78145695364239
+      }
+    }
+  ],
+  "visibility": {
+    "stolen_sam_hashes": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch CME Dump Workflow",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "cme_tool",
+      "description": "The attacker starts CrackMapExec with the --sam action against one host or an entire subnet.",
+      "cli": "crackmapexec smb 10.0.2.0/24 -u fcastle -d MARVEL.local -p Password1 --sam"
+    },
+    {
+      "id": 2,
+      "name": "Authenticate Across Target Scope",
+      "type": "edge",
+      "from": "cme_tool",
+      "to": "corporate_network",
+      "description": "CME uses SMB authentication to reach one or more remote Windows hosts where the supplied credentials have administrative value."
+    },
+    {
+      "id": 3,
+      "name": "Invoke Remote SAM Extraction",
+      "mitre": {
+        "id": "T1003.002",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: Security Account Manager"
+      },
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "target_windows",
+      "description": "The target Windows system services the request that exposes local credential material through CME's remote dumping workflow."
+    },
+    {
+      "id": 4,
+      "name": "Return Dumped Hash Material",
+      "type": "edge",
+      "from": "target_windows",
+      "to": "cme_tool",
+      "description": "The remote credential material is returned to CrackMapExec for parsing and display."
+    },
+    {
+      "id": 5,
+      "name": "Store Local Hash Set",
+      "type": "edge",
+      "from": "cme_tool",
+      "to": "stolen_sam_hashes",
+      "description": "The attacker retains the dumped NTLM hashes for offline cracking or pass-the-hash operations."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.51,
+    "pan": {
+      "x": 583,
+      "y": 354
+    }
+  },
+  "stepInfoPosition": {
+    "x": 831.5,
+    "y": 696.5
+  }
+}

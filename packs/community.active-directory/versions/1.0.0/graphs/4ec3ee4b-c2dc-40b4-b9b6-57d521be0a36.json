@@ -1,0 +1,116 @@
+{
+  "title": "Manual ADsPath Discovery (.NET)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "icon": "IconWorkstation",
+      "type": "container",
+      "members": [
+        "powershell_process",
+        "ldap_path_string"
+      ],
+      "position": {
+        "x": 512.05,
+        "y": 76
+      }
+    },
+    {
+      "id": "powershell_process",
+      "label": "PowerShell Script",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 416.5,
+        "y": 76
+      }
+    },
+    {
+      "id": "ldap_path_string",
+      "label": "ADsPath String",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": 607.6,
+        "y": 76
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": 78.39999999999998,
+        "y": 76
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": 78.39999999999998,
+        "y": 76
+      }
+    }
+  ],
+  "visibility": {
+    "ldap_path_string": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Start Manual LDAP Discovery",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "powershell_process",
+      "description": "The attacker uses PowerShell and .NET classes to build a reusable LDAP binding path for later directory searches."
+    },
+    {
+      "id": 2,
+      "name": "Query Current PDC",
+      "type": "edge",
+      "from": "powershell_process",
+      "to": "corporate_network",
+      "description": "The .NET domain object reaches the networked domain services needed to resolve the current PDC role owner.",
+      "cli": "$PDC = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().PdcRoleOwner.Name"
+    },
+    {
+      "id": 3,
+      "name": "Return Distinguished Name Context",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "powershell_process",
+      "description": "The current directory context returns the distinguished name used as the LDAP base path.",
+      "cli": "$DN = ([adsi]'').distinguishedName"
+    },
+    {
+      "id": 4,
+      "name": "Assemble LDAP ADSPath",
+      "type": "edge",
+      "from": "powershell_process",
+      "to": "ldap_path_string",
+      "description": "PowerShell combines the controller name and distinguished name into a reusable LDAP:// ADSPath string.",
+      "cli": "$LDAP = \"LDAP://$PDC/$DN\""
+    },
+    {
+      "id": 5,
+      "name": "Resolve Domain Controller Context",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The network path resolves to the Domain Controller that anchors the final LDAP binding target."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

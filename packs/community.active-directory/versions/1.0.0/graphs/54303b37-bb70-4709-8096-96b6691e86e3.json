@@ -1,0 +1,121 @@
+{
+  "title": "Offline NTLM Credential Cracking",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_rig",
+      "label": "Attacker Cracking Rig",
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "hashcat_tool",
+        "stolen_hashes",
+        "wordlist_file",
+        "cracked_passwords"
+      ],
+      "position": {
+        "x": -64.11609686609714,
+        "y": -18.682336182336414
+      }
+    },
+    {
+      "id": "stolen_hashes",
+      "label": "hashes.txt (NTLM)",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": 104.08831908831866,
+        "y": -52.621082621082664
+      }
+    },
+    {
+      "id": "wordlist_file",
+      "label": "rockyou.txt",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": -29.572649572649638,
+        "y": -111.38176638176667
+      }
+    },
+    {
+      "id": "hashcat_tool",
+      "label": "Hashcat Process (GPU)",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": -217.82051282051293,
+        "y": 47.13675213675208
+      }
+    },
+    {
+      "id": "cracked_passwords",
+      "label": "Identified Passwords",
+      "icon": "IconKey",
+      "type": "node",
+      "position": {
+        "x": 41.780626780626676,
+        "y": 49.017094017093854
+      }
+    }
+  ],
+  "visibility": {
+    "cracked_passwords": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch Hashcat",
+      "mitre": {
+        "id": "T1110.002",
+        "tactic": "Credential Access",
+        "technique": "Brute Force: Password Cracking"
+      },
+      "type": "edge",
+      "from": "attacker_rig",
+      "to": "hashcat_tool",
+      "description": "The attacker starts a Hashcat cracking session in NTLM mode on the local cracking workstation.",
+      "cli": "hashcat -m 1000 ~/AD-CyberMentor/hashes.txt /usr/share/wordlists/rockyou.txt -O --potfile-disable"
+    },
+    {
+      "id": 2,
+      "name": "Load NTLM Hash File",
+      "type": "edge",
+      "from": "stolen_hashes",
+      "to": "hashcat_tool",
+      "description": "The stolen NTLM hash set is loaded into Hashcat as the comparison target for offline cracking."
+    },
+    {
+      "id": 3,
+      "name": "Load Candidate Wordlist",
+      "type": "edge",
+      "from": "wordlist_file",
+      "to": "hashcat_tool",
+      "description": "A candidate password corpus such as rockyou.txt is fed into the cracking engine for high-speed comparison."
+    },
+    {
+      "id": 4,
+      "name": "Recover Plaintext Passwords",
+      "type": "edge",
+      "from": "hashcat_tool",
+      "to": "cracked_passwords",
+      "description": "Hashcat finds matching password candidates and outputs the recovered plaintext credentials."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.35,
+    "pan": {
+      "x": 583,
+      "y": 354
+    }
+  },
+  "stepInfoPosition": {
+    "x": 871.5,
+    "y": 746.5
+  }
+}

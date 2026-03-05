@@ -1,0 +1,117 @@
+{
+  "title": "Kerbrute AD Enumeration",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Toolkit",
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "kerbrute_tool",
+        "valid_usernames"
+      ],
+      "position": {
+        "x": -127.6346028671635,
+        "y": 17.472776735084253
+      }
+    },
+    {
+      "id": "kerbrute_tool",
+      "label": "kerbrute",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": -140.3428100790456,
+        "y": -57.46319782764078
+      }
+    },
+    {
+      "id": "valid_usernames",
+      "label": "Verified AD Accounts",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": -127.63460286716348,
+        "y": 67.40875129780929
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": 169.074408992866,
+        "y": -33.912582860786756
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (KDC)",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": 166.3117552511525,
+        "y": -68.51381279449473
+      }
+    }
+  ],
+  "visibility": {
+    "valid_usernames": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch Kerbrute User Enumeration",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "kerbrute_tool",
+      "description": "The attacker starts Kerbrute with a candidate username list and a target KDC.",
+      "cli": "./kerbrute_linux_amd64 userenum --dc <DC_IP> -d <DOMAIN> <WORDLIST>"
+    },
+    {
+      "id": 2,
+      "name": "Reach Kerberos Service Path",
+      "type": "edge",
+      "from": "kerbrute_tool",
+      "to": "corporate_network",
+      "description": "The user-enumeration client reaches the domain's Kerberos service path."
+    },
+    {
+      "id": 3,
+      "name": "Send Rapid Kerberos Requests",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The KDC receives rapid AS-REQ style probes for candidate usernames."
+    },
+    {
+      "id": 4,
+      "name": "Parse Valid Account Responses",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "valid_usernames",
+      "description": "Kerbrute separates valid usernames from invalid ones based on the returned Kerberos response codes."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.59,
+    "pan": {
+      "x": 583.5,
+      "y": 354.5
+    }
+  },
+  "stepInfoPosition": {
+    "x": 743.1157531738281,
+    "y": 755.7807006835938
+  }
+}

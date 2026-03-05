@@ -1,0 +1,81 @@
+{
+  "title": "PowerShell Execution Policy Bypass",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "target_machine",
+      "label": "Compromised Host",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "attacker_cmd",
+        "powershell_engine",
+        "malicious_script"
+      ],
+      "position": {
+        "x": 273,
+        "y": 76
+      }
+    },
+    {
+      "id": "attacker_cmd",
+      "label": "cmd.exe",
+      "type": "node",
+      "icon": "IconTerminal",
+      "position": {
+        "x": 81.9,
+        "y": 76
+      }
+    },
+    {
+      "id": "powershell_engine",
+      "label": "New powershell.exe",
+      "type": "node",
+      "icon": "IconWindows",
+      "position": {
+        "x": 273,
+        "y": 76
+      }
+    },
+    {
+      "id": "malicious_script",
+      "label": "script.ps1",
+      "type": "node",
+      "icon": "IconCode",
+      "position": {
+        "x": 464.1,
+        "y": 76
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Operate Local Shell",
+      "type": "edge",
+      "from": "target_machine",
+      "to": "attacker_cmd",
+      "description": "The attacker uses an existing shell on the Windows host to spawn a new PowerShell process."
+    },
+    {
+      "id": 2,
+      "name": "Start PowerShell with Bypass Flag",
+      "type": "edge",
+      "from": "attacker_cmd",
+      "to": "powershell_engine",
+      "description": "PowerShell is launched with execution-policy bypass semantics for the current process.",
+      "cli": "powershell -ep bypass"
+    },
+    {
+      "id": 3,
+      "name": "Execute Unsigned Script",
+      "type": "edge",
+      "from": "powershell_engine",
+      "to": "malicious_script",
+      "description": "The bypassed PowerShell instance loads and runs the unsigned local script without being blocked by policy.",
+      "cli": ".\\enumeration.ps1"
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

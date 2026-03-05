@@ -1,0 +1,122 @@
+{
+  "title": "Mimikatz LSASS/SAM Dump",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Host",
+      "icon": "IconServer",
+      "type": "container",
+      "members": [
+        "mimikatz_tool",
+        "lsass_process",
+        "stolen_creds"
+      ],
+      "position": {
+        "x": -27.161674238002945,
+        "y": -18.978809515806688
+      }
+    },
+    {
+      "id": "mimikatz_tool",
+      "label": "mimikatz.exe",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 253.94299815361993,
+        "y": -121.35361259148138
+      }
+    },
+    {
+      "id": "lsass_process",
+      "label": "lsass.exe / SAM Hive",
+      "icon": "IconWindows",
+      "type": "node",
+      "position": {
+        "x": -300.2663466296258,
+        "y": 21.13971940384384
+      }
+    },
+    {
+      "id": "stolen_creds",
+      "label": "Extracted Hashes/Passwords",
+      "icon": "IconKey",
+      "type": "node",
+      "position": {
+        "x": 54.871253343768764,
+        "y": 46.395993559868
+      }
+    }
+  ],
+  "visibility": {
+    "stolen_creds": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch Mimikatz on Compromised Host",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "mimikatz_tool",
+      "description": "The attacker runs Mimikatz on the compromised Windows system to begin local credential extraction."
+    },
+    {
+      "id": 2,
+      "name": "Enable Debug Privileges",
+      "type": "edge",
+      "from": "mimikatz_tool",
+      "to": "lsass_process",
+      "description": "Mimikatz requests SeDebugPrivilege to gain the access needed for protected credential sources.",
+      "cli": "privilege::debug"
+    },
+    {
+      "id": 3,
+      "name": "Dump LSASS Credential Material",
+      "mitre": {
+        "id": "T1003.001",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: LSASS Memory"
+      },
+      "type": "edge",
+      "from": "mimikatz_tool",
+      "to": "stolen_creds",
+      "description": "LSASS memory is queried for live logon secrets, including plaintext passwords and NTLM hashes.",
+      "cli": "sekurlsa::logonpasswords"
+    },
+    {
+      "id": 4,
+      "name": "Dump SAM and LSA Secrets",
+      "mitre": {
+        "id": "T1003.002",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: Security Account Manager"
+      },
+      "type": "edge",
+      "from": "lsass_process",
+      "to": "stolen_creds",
+      "description": "Local SAM and LSA-backed secret material is extracted for reuse or offline cracking.",
+      "cli": "lsadump::sam\nlsadump::lsa /patch"
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.18,
+    "pan": {
+      "x": 583.5,
+      "y": 354.5
+    }
+  },
+  "stepInfoPosition": {
+    "x": 667.1123046875,
+    "y": 781.62548828125
+  },
+  "edgeCurveScale": 131,
+  "stepInfoSize": {
+    "width": 605.9968872070312,
+    "height": 150
+  }
+}

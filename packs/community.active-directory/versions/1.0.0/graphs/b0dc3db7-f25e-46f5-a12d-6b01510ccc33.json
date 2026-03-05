@@ -1,0 +1,141 @@
+{
+  "title": "Meterpreter PsExec Hashdump",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "msfconsole",
+        "stolen_hashes"
+      ],
+      "position": {
+        "x": -192.06944444444423,
+        "y": -3.0277777777777217
+      }
+    },
+    {
+      "id": "msfconsole",
+      "label": "Metasploit Framework",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": -161.11111111111094,
+        "y": -97.91666666666661
+      }
+    },
+    {
+      "id": "stolen_hashes",
+      "label": "SAM Hashes (Hashdump)",
+      "icon": "IconKey",
+      "type": "node",
+      "position": {
+        "x": -246.52777777777746,
+        "y": 54.86111111111118
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "target_machine"
+      ],
+      "position": {
+        "x": 192.36111111111111,
+        "y": -25.6944444444444
+      }
+    },
+    {
+      "id": "target_machine",
+      "label": "Target Host",
+      "icon": "IconWorkstation",
+      "type": "node",
+      "position": {
+        "x": 282.63888888888886,
+        "y": -60.41666666666663
+      }
+    }
+  ],
+  "visibility": {
+    "stolen_hashes": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Configure PsExec Module",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "msfconsole",
+      "description": "The attacker loads the Metasploit PsExec module and configures target and credential parameters.",
+      "cli": "use exploit/windows/smb/psexec\nset smbdomain marvel.local\nset smbuser / password / rhosts / hosts\nrun"
+    },
+    {
+      "id": 2,
+      "name": "Reach Remote SMB Admin Channel",
+      "mitre": {
+        "id": "T1021.002",
+        "tactic": "Lateral Movement",
+        "technique": "SMB/Windows Admin Shares"
+      },
+      "type": "edge",
+      "from": "msfconsole",
+      "to": "corporate_network",
+      "description": "Metasploit uses valid SMB credentials to access the remote administrative channel needed for PsExec-style execution."
+    },
+    {
+      "id": 3,
+      "name": "Deploy and Start Payload Service",
+      "mitre": {
+        "id": "T1569.002",
+        "tactic": "Execution",
+        "technique": "System Services: Service Execution"
+      },
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "target_machine",
+      "description": "The framework uploads a payload and creates a service on the target host to execute it remotely."
+    },
+    {
+      "id": 4,
+      "name": "Establish Meterpreter Session",
+      "type": "edge",
+      "from": "target_machine",
+      "to": "msfconsole",
+      "description": "The payload returns a Meterpreter session that gives the attacker an interactive foothold on the target."
+    },
+    {
+      "id": 5,
+      "name": "Dump Local SAM Hashes",
+      "mitre": {
+        "id": "T1003.002",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: Security Account Manager"
+      },
+      "type": "edge",
+      "from": "msfconsole",
+      "to": "stolen_hashes",
+      "description": "The attacker runs Meterpreter hashdump to extract local account hash material from the compromised Windows host.",
+      "cli": "hashdump"
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.44,
+    "pan": {
+      "x": 583,
+      "y": 354
+    }
+  },
+  "stepInfoPosition": {
+    "x": 822.5,
+    "y": 684.5
+  }
+}

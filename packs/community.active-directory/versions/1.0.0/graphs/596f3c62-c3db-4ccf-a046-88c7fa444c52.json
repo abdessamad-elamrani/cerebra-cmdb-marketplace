@@ -1,0 +1,124 @@
+{
+  "title": "CME Local Pass-The-Hash",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "cme_tool",
+        "stolen_hash"
+      ],
+      "position": {
+        "x": 247.92724079199473,
+        "y": 9.4182456887375
+      }
+    },
+    {
+      "id": "cme_tool",
+      "label": "CrackMapExec",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 289.3655524803064,
+        "y": -114.44539067489886
+      }
+    },
+    {
+      "id": "stolen_hash",
+      "label": "Stolen NTLM Hash",
+      "icon": "IconKey",
+      "type": "node",
+      "position": {
+        "x": 177.46433893974867,
+        "y": 127.13434106876733
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "target_windows"
+      ],
+      "position": {
+        "x": -158.69704066425368,
+        "y": -117.21045348094526
+      }
+    },
+    {
+      "id": "target_windows",
+      "label": "Target Host (10.0.2.72)",
+      "icon": "IconWorkstation",
+      "type": "node",
+      "position": {
+        "x": -158.69704066425368,
+        "y": -129.71045348094526
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch CME with Local Auth",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "cme_tool",
+      "description": "The attacker starts CrackMapExec with a username, a stolen NTLM hash, and the --local-auth option.",
+      "cli": "crackmapexec smb 10.0.2.0/24 -u \"Frank Castle\" -H 64f12cddaa88057e06a81b54e73b949b --local-auth"
+    },
+    {
+      "id": 2,
+      "name": "Supply Stolen Hash Material",
+      "type": "edge",
+      "from": "stolen_hash",
+      "to": "cme_tool",
+      "description": "The NTLM hash is provided as alternate authentication material for the upcoming SMB challenge-response exchange."
+    },
+    {
+      "id": 3,
+      "name": "Attempt SMB Pass-the-Hash",
+      "mitre": {
+        "id": "T1550.002",
+        "tactic": "Lateral Movement",
+        "technique": "Use Alternate Authentication Material: Pass the Hash"
+      },
+      "type": "edge",
+      "from": "cme_tool",
+      "to": "corporate_network",
+      "description": "CME attempts SMB authentication against the remote environment while forcing validation against local accounts."
+    },
+    {
+      "id": 4,
+      "name": "Validate Local Credential Reuse",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "target_windows",
+      "description": "The target host checks whether the supplied local-account hash is valid for its own local SAM-backed authentication context."
+    },
+    {
+      "id": 5,
+      "name": "Return Authenticated Access",
+      "type": "edge",
+      "from": "target_windows",
+      "to": "cme_tool",
+      "description": "Hosts that accept the reused local hash grant authenticated SMB access and are flagged as viable lateral-movement targets."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.22,
+    "pan": {
+      "x": 583,
+      "y": 354
+    }
+  },
+  "stepInfoPosition": {
+    "x": 363.5,
+    "y": 622.5
+  }
+}

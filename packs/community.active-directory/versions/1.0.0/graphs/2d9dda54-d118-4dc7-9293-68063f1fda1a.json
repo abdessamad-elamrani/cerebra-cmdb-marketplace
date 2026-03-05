@@ -1,0 +1,121 @@
+{
+  "title": "Silver Ticket (Mimikatz)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "icon": "IconWorkstation",
+      "type": "container",
+      "members": [
+        "mimikatz_tool",
+        "forged_ticket"
+      ],
+      "position": {
+        "x": 283.47647069715305,
+        "y": -20.174994060753235
+      }
+    },
+    {
+      "id": "mimikatz_tool",
+      "label": "mimikatz.exe",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 353.9347941317418,
+        "y": -153.13735022035618
+      }
+    },
+    {
+      "id": "forged_ticket",
+      "label": "Forged TGS (RC4 Keys)",
+      "icon": "IconKey",
+      "type": "node",
+      "position": {
+        "x": 225.0181472625643,
+        "y": 75.78736209884971
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "target_endpoint"
+      ],
+      "position": {
+        "x": -206.47498512703817,
+        "y": -15.293908189653763
+      }
+    },
+    {
+      "id": "target_endpoint",
+      "label": "Target Host Service",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": -206.47498512703814,
+        "y": -27.793908189653763
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch Mimikatz Ticket Workflow",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "mimikatz_tool",
+      "description": "The attacker starts Mimikatz on the compromised endpoint to forge a service-specific Kerberos ticket."
+    },
+    {
+      "id": 2,
+      "name": "Forge Silver Ticket",
+      "mitre": {
+        "id": "T1558.002",
+        "tactic": "Credential Access",
+        "technique": "Steal or Forge Kerberos Tickets: Silver Ticket"
+      },
+      "type": "edge",
+      "from": "mimikatz_tool",
+      "to": "forged_ticket",
+      "description": "A service-specific TGS is created offline and injected into the current session.",
+      "cli": "kerberos::golden /sid:<SID> /domain:corp.com /target:web04 /service:http /rc4:<hash> /user:Administrator /ptt"
+    },
+    {
+      "id": 3,
+      "name": "Reach Target Service Boundary",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "corporate_network",
+      "description": "The compromised endpoint uses the injected ticket while reaching the targeted service path."
+    },
+    {
+      "id": 4,
+      "name": "Access Targeted Service",
+      "mitre": {
+        "id": "T1550.003",
+        "tactic": "Lateral Movement",
+        "technique": "Use Alternate Authentication Material: Pass the Ticket"
+      },
+      "type": "edge",
+      "from": "forged_ticket",
+      "to": "target_endpoint",
+      "description": "The target service accepts the forged ticket and grants service-specific privileged access."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.28,
+    "pan": {
+      "x": 583.5,
+      "y": 354.5
+    }
+  },
+  "stepInfoPosition": {
+    "x": 625.1157531738281,
+    "y": 808.7059936523438
+  }
+}

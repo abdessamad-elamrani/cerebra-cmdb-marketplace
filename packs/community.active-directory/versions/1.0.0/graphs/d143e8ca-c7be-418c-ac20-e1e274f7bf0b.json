@@ -1,0 +1,113 @@
+{
+  "title": "Native SPN Discovery (setspn)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "icon": "IconWorkstation",
+      "type": "container",
+      "members": [
+        "setspn_tool",
+        "spn_list"
+      ],
+      "position": {
+        "x": 165.24320863639042,
+        "y": -28.272518991165526
+      }
+    },
+    {
+      "id": "setspn_tool",
+      "label": "setspn.exe",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 71.54423143732821,
+        "y": 40.77251899116555
+      }
+    },
+    {
+      "id": "spn_list",
+      "label": "Vulnerable Service Accounts",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": 236.9421858354526,
+        "y": -122.31755697349661
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": -260.7902629812287,
+        "y": -16.887469313087124
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (LDAP)",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": -260.7902629812287,
+        "y": -35.387469313087124
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch setspn Query",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "setspn_tool",
+      "description": "The attacker uses the native setspn utility to inspect service principal names tied to a target account.",
+      "cli": "setspn -L iis_service"
+    },
+    {
+      "id": 2,
+      "name": "Reach Corporate LDAP Services",
+      "type": "edge",
+      "from": "setspn_tool",
+      "to": "corporate_network",
+      "description": "The native SPN query reaches the domain service path that exposes directory-backed SPN data."
+    },
+    {
+      "id": 3,
+      "name": "Query SPN Data from AD",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The Domain Controller resolves the target account and its servicePrincipalName attributes."
+    },
+    {
+      "id": 4,
+      "name": "Return SPN List",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "spn_list",
+      "description": "The directory returns the SPN data so the attacker can identify likely Kerberoasting targets."
+    }
+  ],
+  "viewport": {
+    "zoom": 1.2999999999999985,
+    "pan": {
+      "x": 677.9196314493815,
+      "y": 349.86961669921914
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "visibility": {
+    "spn_list": {
+      "start": 4,
+      "end": 100
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "title": "Local Users Enum",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "target_machine",
+      "label": "Compromised Host",
+      "icon": "IconWorkstation",
+      "type": "container",
+      "members": [
+        "attacker_shell",
+        "sam_database"
+      ],
+      "position": {
+        "x": 27.84666089118238,
+        "y": -34.30778937059777
+      }
+    },
+    {
+      "id": "attacker_shell",
+      "label": "Attacker Shell",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 201.72511205695136,
+        "y": -84.97118535538064
+      }
+    },
+    {
+      "id": "sam_database",
+      "label": "Local SAM DB",
+      "icon": "IconWindows",
+      "type": "node",
+      "position": {
+        "x": -144.0317902745866,
+        "y": -8.644393385814892
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Inspect Compromised Host",
+      "type": "edge",
+      "from": "target_machine",
+      "to": "attacker_shell",
+      "description": "The attacker uses the local shell to enumerate Windows accounts on the compromised host."
+    },
+    {
+      "id": 2,
+      "name": "Query Local Account Data",
+      "mitre": {
+        "id": "T1087.001",
+        "tactic": "Discovery",
+        "technique": "Account Discovery: Local Account"
+      },
+      "type": "edge",
+      "from": "attacker_shell",
+      "to": "sam_database",
+      "description": "Built-in account-management and WMI commands query local account names, SIDs, and disabled-state information.",
+      "cli": "net user\nwmic useraccount where \"LocalAccount=True\" get Name,SID,Disabled"
+    },
+    {
+      "id": 3,
+      "name": "Return Local Account Inventory",
+      "type": "edge",
+      "from": "sam_database",
+      "to": "attacker_shell",
+      "description": "Windows returns the set of local accounts and their attributes for attacker review."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.39,
+    "pan": {
+      "x": 583,
+      "y": 354
+    }
+  },
+  "stepInfoPosition": {
+    "x": 819.5,
+    "y": 692.5
+  },
+  "edgeCurveScale": 160
+}

@@ -1,0 +1,115 @@
+{
+  "title": "Custom LDAP User Enum (.NET)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "powershell_process",
+        "ad_properties"
+      ],
+      "position": {
+        "x": 217,
+        "y": 78.94999999999999
+      }
+    },
+    {
+      "id": "powershell_process",
+      "label": "PowerShell (.NET Searcher)",
+      "type": "node",
+      "icon": "IconTerminal",
+      "position": {
+        "x": 84.69999999999999,
+        "y": 71.07499999999999
+      }
+    },
+    {
+      "id": "ad_properties",
+      "label": "User Object Properties",
+      "type": "node",
+      "icon": "IconData",
+      "position": {
+        "x": 349.3,
+        "y": 86.825
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": 84.69999999999999,
+        "y": 277.925
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer",
+      "position": {
+        "x": 84.69999999999999,
+        "y": 277.925
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Prepare Custom Directory Search",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "powershell_process",
+      "description": "The attacker uses PowerShell and .NET classes to prepare a manual LDAP search for domain user objects."
+    },
+    {
+      "id": 2,
+      "name": "Create Directory Entry and Searcher",
+      "type": "edge",
+      "from": "powershell_process",
+      "to": "ad_properties",
+      "description": "PowerShell creates the local search context used for a custom LDAP query.",
+      "cli": "$direntry = New-Object System.DirectoryServices.DirectoryEntry($LDAP)\n$dirsearcher = New-Object System.DirectoryServices.DirectorySearcher($direntry)"
+    },
+    {
+      "id": 3,
+      "name": "Reach Corporate LDAP Services",
+      "type": "edge",
+      "from": "powershell_process",
+      "to": "corporate_network",
+      "description": "The custom DirectorySearcher reaches the corporate network path used for LDAP access."
+    },
+    {
+      "id": 4,
+      "name": "Submit LDAP User Query",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "A custom LDAP filter requests standard user objects from the Domain Controller.",
+      "cli": "$dirsearcher.filter=\"samAccountType=805306368\"\n$result = $dirsearcher.FindAll()"
+    },
+    {
+      "id": 5,
+      "name": "Return User Property Set",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "ad_properties",
+      "description": "The directory returns the matching user objects and their readable LDAP properties for local parsing."
+    }
+  ],
+  "visibility": {
+    "ad_properties": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

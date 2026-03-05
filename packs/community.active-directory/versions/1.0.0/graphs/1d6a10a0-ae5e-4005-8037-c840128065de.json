@@ -1,0 +1,141 @@
+{
+  "title": "SMB Relay (ntlmrelayx)",
+  "version": "3.0",
+  "viewport": {
+    "zoom": 1.37,
+    "pan": {
+      "x": 583.5,
+      "y": 354.5
+    }
+  },
+  "stepInfoPosition": {
+    "x": 685.3316040039062,
+    "y": 783.9420166015625
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Toolkit",
+      "position": {
+        "x": -228.84632902440126,
+        "y": -27.483703301846838
+      },
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "ntlmrelayx_tool",
+        "stolen_sam"
+      ]
+    },
+    {
+      "id": "ntlmrelayx_tool",
+      "label": "ntlmrelayx.py",
+      "position": {
+        "x": -228.84632902440126,
+        "y": -39.98370330184684
+      },
+      "icon": "IconTerminal",
+      "type": "node"
+    },
+    {
+      "id": "stolen_sam",
+      "label": "Target Local SAM",
+      "position": {
+        "x": -205.00719714387117,
+        "y": 80.37484058278055
+      },
+      "icon": "IconData",
+      "type": "node"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "position": {
+        "x": 191.26512271880358,
+        "y": -20.642207736346677
+      },
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "source_victim",
+        "target_server"
+      ]
+    },
+    {
+      "id": "source_victim",
+      "label": "Source Auth (Victim)",
+      "position": {
+        "x": 233.73978087739235,
+        "y": 18.606151711633228
+      },
+      "icon": "IconWorkstation",
+      "type": "node"
+    },
+    {
+      "id": "target_server",
+      "label": "Target Box (SMB Signing Disabled)",
+      "position": {
+        "x": 141.29046456021476,
+        "y": -84.89056718432658
+      },
+      "icon": "IconServer",
+      "type": "node"
+    }
+  ],
+  "visibility": {
+    "stolen_sam": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Start ntlmrelayx",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "ntlmrelayx_tool",
+      "description": "The attacker launches ntlmrelayx and prepares relay targets or post-authentication actions.",
+      "cli": "impacket-ntlmrelayx -tf targets.txt -smb2support -socks"
+    },
+    {
+      "id": 2,
+      "name": "Intercept Inbound NTLM Authentication",
+      "mitre": {
+        "id": "T1557.001",
+        "tactic": "Credential Access",
+        "technique": "Adversary-in-the-Middle: LLMNR/NBT-NS Poisoning and SMB Relay"
+      },
+      "type": "edge",
+      "from": "source_victim",
+      "to": "ntlmrelayx_tool",
+      "description": "A coerced or poisoned victim attempts NTLM authentication to the attacker-controlled relay host."
+    },
+    {
+      "id": 3,
+      "name": "Reach Relay Target Network Path",
+      "type": "edge",
+      "from": "ntlmrelayx_tool",
+      "to": "corporate_network",
+      "description": "The relay engine forwards the victim's live challenge-response sequence into the corporate target path."
+    },
+    {
+      "id": 4,
+      "name": "Relay Authentication to SMB Target",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "target_server",
+      "description": "The NTLM exchange is relayed to a vulnerable SMB target that lacks the protections needed to block relay."
+    },
+    {
+      "id": 5,
+      "name": "Execute Post-Authentication Action",
+      "type": "edge",
+      "from": "target_server",
+      "to": "stolen_sam",
+      "description": "If the relayed identity is privileged enough, the attacker dumps SAM data or obtains equivalent high-value post-authentication access."
+    }
+  ]
+}

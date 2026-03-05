@@ -1,0 +1,127 @@
+{
+  "title": "Enumerate Shares with PowerView",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Shell",
+      "icon": "IconTerminal",
+      "type": "container",
+      "members": [
+        "powerview_script",
+        "share_results"
+      ],
+      "position": {
+        "x": 184.98161353108267,
+        "y": -12.679335627489472
+      }
+    },
+    {
+      "id": "powerview_script",
+      "label": "PowerView.ps1",
+      "icon": "IconCode",
+      "type": "node",
+      "position": {
+        "x": 214.20167209864286,
+        "y": 45.39373183547396
+      }
+    },
+    {
+      "id": "share_results",
+      "label": "Discovered Shares",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": 165.26155496352249,
+        "y": -95.7524030904529
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "target_computer"
+      ],
+      "position": {
+        "x": -107.86401816580528,
+        "y": -65.86092958098698
+      }
+    },
+    {
+      "id": "target_computer",
+      "label": "Target Host",
+      "icon": "IconWorkstation",
+      "type": "node",
+      "position": {
+        "x": -107.86401816580528,
+        "y": -78.36092958098698
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Load PowerView Module",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "powerview_script",
+      "description": "The attacker imports the PowerView script into the current PowerShell session so share-enumeration cmdlets become available.",
+      "cli": "Import-Module .\\PowerView.ps1"
+    },
+    {
+      "id": 2,
+      "name": "Reach Corporate Share Surface",
+      "type": "edge",
+      "from": "powerview_script",
+      "to": "corporate_network",
+      "description": "PowerView reaches the remote network path used to enumerate exposed shares on the target host."
+    },
+    {
+      "id": 3,
+      "name": "RPC Share Query",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "target_computer",
+      "description": "The target host receives a remote share-enumeration request over SMB/RPC.",
+      "cli": "Get-NetShare -ComputerName Spiderman",
+      "mitre": {
+        "id": "T1135",
+        "tactic": "Discovery",
+        "technique": "Network Share Discovery"
+      }
+    },
+    {
+      "id": 4,
+      "name": "Return Share Metadata",
+      "type": "edge",
+      "from": "target_computer",
+      "to": "powerview_script",
+      "description": "The target host responds with the list of available shares and their metadata."
+    },
+    {
+      "id": 5,
+      "name": "Assemble Share Inventory",
+      "type": "edge",
+      "from": "powerview_script",
+      "to": "share_results",
+      "description": "The attacker reviews the returned share list to identify accessible data stores and lateral-movement opportunities."
+    }
+  ],
+  "viewport": {
+    "zoom": 1.41,
+    "pan": {
+      "x": 581.1145506286615,
+      "y": 371.1219011230468
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": true,
+  "visibility": {
+    "share_results": {
+      "start": 5,
+      "end": 100
+    }
+  }
+}

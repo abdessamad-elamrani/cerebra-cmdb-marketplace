@@ -1,0 +1,109 @@
+{
+  "title": "Enumerate Domain Computers via LDAP (PowerView)",
+  "version": "3.0",
+  "viewport": {
+    "zoom": 1.47,
+    "pan": {
+      "x": 616.2446794048105,
+      "y": 346.7790158081056
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Shell",
+      "icon": "IconTerminal",
+      "type": "container",
+      "members": [
+        "powerview_module",
+        "computer_list"
+      ]
+    },
+    {
+      "id": "powerview_module",
+      "label": "PowerView.ps1",
+      "position": {
+        "x": 40.23312977874712,
+        "y": 40.233129778747156
+      },
+      "icon": "IconCode",
+      "type": "node"
+    },
+    {
+      "id": "computer_list",
+      "label": "Endpoint Map (Targets)",
+      "position": {
+        "x": 129.8955332856693,
+        "y": -93.68571648479691
+      },
+      "icon": "IconData",
+      "type": "node"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "position": {
+        "x": -287.2270113388283,
+        "y": -2.6900592021800733
+      },
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "position": {
+        "x": -287.2270113388283,
+        "y": -15.190059202180073
+      },
+      "icon": "IconServer",
+      "type": "node"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Load PowerView Module",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "powerview_module",
+      "description": "The attacker imports the PowerView script into the current PowerShell session, making its cmdlets available.",
+      "cli": "Import-Module .\\PowerView.ps1"
+    },
+    {
+      "id": 2,
+      "name": "Reach Corporate LDAP Services",
+      "type": "edge",
+      "from": "powerview_module",
+      "to": "corporate_network",
+      "description": "PowerView reaches the domain LDAP path used to enumerate computer objects."
+    },
+    {
+      "id": 3,
+      "name": "Initiate LDAP Query",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The Domain Controller receives the LDAP query for computer objects and operating-system metadata.",
+      "cli": "Get-NetComputer | select operatingsystem, operatingsystemversion",
+      "mitre": {
+        "id": "T1018",
+        "tactic": "Discovery",
+        "technique": "Remote System Discovery"
+      }
+    },
+    {
+      "id": 4,
+      "name": "Return Computer Roster",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "computer_list",
+      "description": "The Domain Controller returns the list of computer objects with OS details for targeting."
+    }
+  ]
+}

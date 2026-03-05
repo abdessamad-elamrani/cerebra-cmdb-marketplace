@@ -1,0 +1,113 @@
+{
+  "title": "Enumerate Domain Group Members (PowerView)",
+  "version": "3.0",
+  "viewport": {
+    "zoom": 1.37,
+    "pan": {
+      "x": 877.3681300624758,
+      "y": 381.5740736104599
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Shell",
+      "position": {
+        "x": -288.6246199741671,
+        "y": -12.319519892707817
+      },
+      "icon": "IconTerminal",
+      "type": "container",
+      "members": [
+        "powerview_module",
+        "member_list"
+      ]
+    },
+    {
+      "id": "powerview_module",
+      "label": "PowerView.ps1",
+      "position": {
+        "x": -253.30510008145927,
+        "y": 59.128856214980374
+      },
+      "icon": "IconCode",
+      "type": "node"
+    },
+    {
+      "id": "member_list",
+      "label": "Domain Admins Roster",
+      "position": {
+        "x": -302.9441398668749,
+        "y": -108.76789600039601
+      },
+      "icon": "IconData",
+      "type": "node"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "position": {
+        "x": 78.10848907410974,
+        "y": -140.79703463143062
+      },
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "position": {
+        "x": 78.10848907410976,
+        "y": -153.29703463143062
+      },
+      "icon": "IconServer",
+      "type": "node"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Load PowerView Module",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "powerview_module",
+      "description": "The attacker imports the PowerView script into the current PowerShell session so its group-enumeration cmdlets become available.",
+      "cli": "Import-Module .\\PowerView.ps1"
+    },
+    {
+      "id": 2,
+      "name": "Reach Corporate LDAP Services",
+      "type": "edge",
+      "from": "powerview_module",
+      "to": "corporate_network",
+      "description": "PowerView reaches the domain LDAP service path to query sensitive group membership."
+    },
+    {
+      "id": 3,
+      "name": "LDAP Membership Query",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The Domain Controller receives the request for the membership of a privileged AD group.",
+      "cli": "Get-NetGroupMember -GroupName \"Domain Admins\"",
+      "mitre": {
+        "id": "T1069.002",
+        "tactic": "Discovery",
+        "technique": "Permission Groups Discovery: Domain Groups"
+      }
+    },
+    {
+      "id": 4,
+      "name": "Return Group Members",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "member_list",
+      "description": "The DC returns the list of users, computers, and nested groups within the requested group."
+    }
+  ]
+}

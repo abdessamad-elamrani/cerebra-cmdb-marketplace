@@ -1,0 +1,126 @@
+{
+  "title": "Find Local Admin Access (PowerView)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "powerview_script",
+        "admin_targets_list"
+      ],
+      "position": {
+        "x": 343,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "powerview_script",
+      "label": "PowerView.ps1",
+      "type": "node",
+      "icon": "IconTerminal",
+      "position": {
+        "x": 78.39999999999998,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "admin_targets_list",
+      "label": "Accessible Hosts",
+      "type": "node",
+      "icon": "IconData",
+      "position": {
+        "x": 607.6,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller",
+        "domain_endpoints"
+      ],
+      "position": {
+        "x": 343,
+        "y": 323.55
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer",
+      "position": {
+        "x": 343,
+        "y": 259.5
+      }
+    },
+    {
+      "id": "domain_endpoints",
+      "label": "All Workstations",
+      "type": "node",
+      "icon": "IconWorkstation",
+      "position": {
+        "x": 343,
+        "y": 387.6
+      }
+    }
+  ],
+  "visibility": {
+    "admin_targets_list": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Load PowerView Module",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "powerview_script",
+      "description": "The attacker imports PowerView into the current PowerShell session so local-admin discovery cmdlets become available.",
+      "cli": "Import-Module .\\PowerView.ps1"
+    },
+    {
+      "id": 2,
+      "name": "Reach Corporate Directory Services",
+      "type": "edge",
+      "from": "powerview_script",
+      "to": "corporate_network",
+      "description": "PowerView reaches the domain environment to identify which remote systems should be tested."
+    },
+    {
+      "id": 3,
+      "name": "Discover Candidate Domain Systems",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The domain directory is queried to identify endpoints that can be tested for remote admin rights."
+    },
+    {
+      "id": 4,
+      "name": "Test Remote Local Admin Rights",
+      "type": "edge",
+      "from": "powerview_script",
+      "to": "domain_endpoints",
+      "description": "The current credential context is checked against remote hosts to see where local administrative access already exists.",
+      "cli": "Find-LocalAdminAccess"
+    },
+    {
+      "id": 5,
+      "name": "Compile Accessible Host List",
+      "type": "edge",
+      "from": "domain_endpoints",
+      "to": "admin_targets_list",
+      "description": "Systems where admin access succeeds are returned as immediate lateral-movement targets."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

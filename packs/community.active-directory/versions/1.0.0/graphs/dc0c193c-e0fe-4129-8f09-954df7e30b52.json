@@ -1,0 +1,87 @@
+{
+  "title": "Domain Join and Machine Role Enum",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "target_machine",
+      "label": "Compromised Host",
+      "icon": "IconWorkstation",
+      "type": "container",
+      "members": [
+        "attacker_shell",
+        "wmi_service"
+      ],
+      "position": {
+        "x": 3.644513897079065,
+        "y": -29.254235955497883
+      }
+    },
+    {
+      "id": "attacker_shell",
+      "label": "Attacker Shell",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": -167.22883987891652,
+        "y": -5.515587529976017
+      }
+    },
+    {
+      "id": "wmi_service",
+      "label": "Local WMI Registry",
+      "icon": "IconWindows",
+      "type": "node",
+      "position": {
+        "x": 159.51786767307465,
+        "y": -77.99288438101975
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Inspect Compromised Host",
+      "type": "edge",
+      "from": "target_machine",
+      "to": "attacker_shell",
+      "description": "The attacker uses the existing shell on the host to determine its domain placement and machine role."
+    },
+    {
+      "id": 2,
+      "name": "Query Domain Join and Role Data",
+      "mitre": {
+        "id": "T1082",
+        "tactic": "Discovery",
+        "technique": "System Information Discovery"
+      },
+      "type": "edge",
+      "from": "attacker_shell",
+      "to": "wmi_service",
+      "description": "Built-in system information and WMI queries request the host name, domain membership, logon server, and numeric domain role.",
+      "cli": "systeminfo | findstr /B /C:\"Host Name\" /C:\"Domain\" /C:\"Logon Server\"\nwmic computersystem get name,domain,partofdomain,domainrole"
+    },
+    {
+      "id": 3,
+      "name": "Return Host Role Assessment",
+      "type": "edge",
+      "from": "wmi_service",
+      "to": "attacker_shell",
+      "description": "The host returns domain-join status and role information so the attacker can distinguish workstation, member server, or domain infrastructure."
+    }
+  ],
+  "viewport": {
+    "zoom": 1.39,
+    "pan": {
+      "x": 586.9862643678172,
+      "y": 352.43113236350626
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "edgeLabelFontSize": 13,
+  "edgeCurveScale": 217,
+  "stepInfoPosition": {
+    "x": 669.5,
+    "y": 730.5
+  }
+}

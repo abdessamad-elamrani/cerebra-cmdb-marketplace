@@ -1,0 +1,86 @@
+{
+  "title": "Local Admins Enum",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "target_machine",
+      "label": "Compromised Host",
+      "icon": "IconWorkstation",
+      "type": "container",
+      "members": [
+        "attacker_shell",
+        "sam_database"
+      ],
+      "position": {
+        "x": 60.35135135135134,
+        "y": 7.094594594594586
+      }
+    },
+    {
+      "id": "attacker_shell",
+      "label": "Attacker Shell",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 167.02702702702703,
+        "y": -2.702702702702709
+      }
+    },
+    {
+      "id": "sam_database",
+      "label": "Local SAM DB",
+      "icon": "IconWindows",
+      "type": "node",
+      "position": {
+        "x": -100,
+        "y": 7.567567567567554
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Inspect Compromised Host",
+      "type": "edge",
+      "from": "target_machine",
+      "to": "attacker_shell",
+      "description": "The attacker uses the local shell to inspect which principals already have administrative control of the host."
+    },
+    {
+      "id": 2,
+      "name": "Query Local Administrators Group",
+      "mitre": {
+        "id": "T1069.001",
+        "tactic": "Discovery",
+        "technique": "Permission Groups Discovery: Local Groups"
+      },
+      "type": "edge",
+      "from": "attacker_shell",
+      "to": "sam_database",
+      "description": "The built-in local-group command asks Windows to resolve the membership of the local Administrators group.",
+      "cli": "net localgroup administrators"
+    },
+    {
+      "id": 3,
+      "name": "Return Administrator Roster",
+      "type": "edge",
+      "from": "sam_database",
+      "to": "attacker_shell",
+      "description": "Windows returns the local and domain principals that currently hold local administrator rights on the system."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": true,
+  "viewport": {
+    "zoom": 1.4,
+    "pan": {
+      "x": 609.486486486487,
+      "y": 297.99999999999966
+    }
+  },
+  "stepInfoPosition": {
+    "x": 795.5,
+    "y": 704.5
+  },
+  "edgeCurveScale": 162
+}

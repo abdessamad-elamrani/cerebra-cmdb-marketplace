@@ -1,0 +1,117 @@
+{
+  "title": "enum4linux SMB Enumeration",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Toolkit",
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "enum4linux_tool",
+        "extracted_data"
+      ],
+      "position": {
+        "x": 236.4531780020056,
+        "y": -109.21524244693393
+      }
+    },
+    {
+      "id": "enum4linux_tool",
+      "label": "enum4linux",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 236.4531780020056,
+        "y": -121.71524244693391
+      }
+    },
+    {
+      "id": "extracted_data",
+      "label": "Users/Shares/Policies",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": 188.3872860802864,
+        "y": 12.404101141088887
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "vulnerable_server"
+      ],
+      "position": {
+        "x": -155.05126426361028,
+        "y": -63.475119489169
+      }
+    },
+    {
+      "id": "vulnerable_server",
+      "label": "Server (IPC$)",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": -155.05126426361028,
+        "y": -75.975119489169
+      }
+    }
+  ],
+  "visibility": {
+    "extracted_data": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch enum4linux",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "enum4linux_tool",
+      "description": "The attacker starts enum4linux with anonymous or authenticated enumeration options.",
+      "cli": "enum4linux -a <TARGET_IP>"
+    },
+    {
+      "id": 2,
+      "name": "Reach Target SMB/RPC Surface",
+      "type": "edge",
+      "from": "enum4linux_tool",
+      "to": "corporate_network",
+      "description": "The tool reaches the remote SMB and RPC interfaces exposed by the target server."
+    },
+    {
+      "id": 3,
+      "name": "Query Share and RPC Interfaces",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "vulnerable_server",
+      "description": "The target server is queried for users, groups, shares, RID data, and password-policy information."
+    },
+    {
+      "id": 4,
+      "name": "Return Enumerated Data Set",
+      "type": "edge",
+      "from": "vulnerable_server",
+      "to": "extracted_data",
+      "description": "The server returns the accessible SMB/RPC data to the attacker for later analysis."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.29,
+    "pan": {
+      "x": 583.5,
+      "y": 354.5
+    }
+  },
+  "stepInfoPosition": {
+    "x": 709.1157531738281,
+    "y": 792.7807006835938
+  }
+}

