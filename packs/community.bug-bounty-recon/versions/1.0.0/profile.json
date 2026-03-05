@@ -1,0 +1,476 @@
+[
+  {
+    "id": "3a7745c5-5c08-4563-9333-841674fe1de5",
+    "label": "Amass: Active Subdomain Brute Forcing",
+    "command": "# Active brute-forcing with permutations\namass enum -active -brute -alts -min-for-recursive 2 -d example.com",
+    "color": "#1f8a7a",
+    "description": "<p>Amass performs active DNS requests, attempts TLS certificate pulling, NSEC zone walking, and brute-forces subdomain labels up to 3 depths recursively.</p>\n<p>This is the loud, exhaustive attack mode. Amass alters discovered names using a massive wordlist (permutations, flips, additions) and actively smashes the target's nameservers to resolve them, uncovering shadow IT hidden from passive indexers.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Discovery of highly esoteric or internal-facing hostnames that have never been scraped by a public search engine or logged in a CT log.</li>\n  <li><strong>Attack pre-requisite:</strong> High bandwidth, elite active DNS resolvers (`resolvers.txt`), and an expansive permutation wordlist.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> amass-guide.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Highly detectable. Target Authoritative DNS servers will receive millions of NXDOMAIN requests. Defend by implementing strict DNS query rate limiting or using WAF rules to drop brute-forcing IPs.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:amass",
+      "type:subdomain-enum",
+      "active",
+      "brute-force"
+    ]
+  },
+  {
+    "id": "a2f21e71-6850-408f-a815-5e73ff6b01df",
+    "label": "Amass: ASN Intel Gathering",
+    "command": "# ASN Reverse Domain Intel\namass intel -asn 13374,14618 -whois",
+    "color": "#1f8a7a",
+    "description": "<p>Uses a target's known Autonomous System Numbers (ASN) to reverse lookup all IP spaces and root domains associated with the corporate entity.</p>\n<p>Large tech companies or legacy enterprises typically own their own ASNs. By scraping routing tables and reverse-mapping the IPs inside the ASN, an attacker uncovers entirely different unbranded root domains secretly owned by the target.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Discovery of alternative corporate brands, infrastructure hosting providers, and entire BGP routing scopes for mass-scanning.</li>\n  <li><strong>Attack pre-requisite:</strong> Knowing the BGP Autonomous System Number (e.g., AS13374) of the target.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> amass-guide.md</li>\n  <li><strong>Detection/Defense opsec:</strong> This relies on querying public BGP and Whois records globally; target networks do not receive this traffic.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:amass",
+      "type:osint",
+      "asn",
+      "bgp"
+    ]
+  },
+  {
+    "id": "c08b3196-c193-48cd-9f47-89940d16a44c",
+    "label": "Amass: Passive Intel Subdomain Enumeration",
+    "command": "# Passive stealth enumeration\namass enum -passive -d example.com",
+    "color": "#1f8a7a",
+    "description": "<p>Runs OWASP Amass in purely passive mode, blindly accepting data from intelligence sources without resolving them locally to maintain absolute stealth.</p>\n<p>OWASP Amass has the largest integration of data sources of any recon tool. In passive mode, it scrapes these sources using scraping techniques, API keys, and certificate transparency logs but expressly strictly avoids sending DNS queries to the target's nameservers.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> A highly expansive, though potentially stale, map of the target's historical infrastructure.</li>\n  <li><strong>Attack pre-requisite:</strong> A meticulously configured `config.yaml` filled with API keys for services like SecurityTrails, Shodan, and Censys.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> amass-guide.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Un-detectable. The target organization receives 0 traffic.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:amass",
+      "type:subdomain-enum",
+      "passive",
+      "stealth"
+    ]
+  },
+  {
+    "id": "ea0dabe4-29a1-4d1d-9d33-f4cd663908ac",
+    "label": "Amass: Reverse CIDR/IP Intel",
+    "command": "# Reverse CIDR Intel\namass intel -cidr 104.154.0.0/15 -p 80,443 -active",
+    "color": "#1f8a7a",
+    "description": "<p>Scans a known corporate CIDR block or IP address range to actively and passively discover associated domains via reverse DNS and internet DBs.</p>\n<p>When an attacker finds a massive `/15` network block owned by the target, they iterate through every single IP, pulling active certificates, performing reverse DNS lookups, and checking OSINT sources to map domain names onto the raw IPs.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Converting a raw network list of IPs into actionable HTTP web application targets mapped by their hostname.</li>\n  <li><strong>Attack pre-requisite:</strong> A valid CIDR block or IP range belonging to the target entity.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> amass-guide.md</li>\n  <li><strong>Detection/Defense opsec:</strong> If active mode is triggered, the target will see TLS client hellos or Reverse PTR DNS queries hitting their entire IP space sequentially.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:amass",
+      "type:osint",
+      "cidr",
+      "reverse-dns"
+    ]
+  },
+  {
+    "id": "d127af86-4505-4d7a-b094-c5a111a6dfe3",
+    "label": "Amass: Reverse Whois Organization Intel",
+    "command": "# Reverse Whois query by Org Name\namass intel -org \"Facebook\" -whois",
+    "color": "#1f8a7a",
+    "description": "<p>Searches reverse Whois databases for the target organization's name to find hidden or acquired root domains matching the registrant.</p>\n<p>Used to find completely unconnected corporate acquisitions (e.g., searching \"Facebook\" to discover they own \"WhatsApp.com\"). The tool queries historical and current Whois records for matching registrant names or emails.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Expands the \"Top-Level\" scope of a bug bounty or red team engagement drastically by revealing unknown subsidiaries.</li>\n  <li><strong>Attack pre-requisite:</strong> The legal name, commonly used acronym, or associated registrant email of the target.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> amass-guide.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Passive and undetectable. Modern domains often use privacy proxies (WhoisGuard) which heavily limits the effectiveness of this technique.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:amass",
+      "type:osint",
+      "whois"
+    ]
+  },
+  {
+    "id": "e1425ab0-6f8c-47b7-ad5e-4972afe869a2",
+    "label": "BGP Toolkit ASN Lookup",
+    "command": "# Rapid ASN lookup via RADb whois\nwhois -h whois.radb.net <Target-IP> | grep origin:",
+    "color": "#1f8a7a",
+    "description": "<p>Using `whois` and RADB objects to map specific IP addresses to their owning Autonomous System Numbers (ASN).</p>\n<p>Reconnaissance often works backwards. An attacker finds a single vulnerable IP, realizes it belongs to the target company, and uses BGP routing data to identify the surrounding /16 or /24 network blocks. They then take that newly discovered corporate block and scan it entirely for auxiliary services.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Escapes the scope of a single web application and expands the attack surface to the entire globally routed IP space owned by that corporate label.</li>\n  <li><strong>Attack pre-requisite:</strong> A known, owned target IP address.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> hacktricks-recon.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Impossible to monitor, relies exclusively on fundamentally public Internet core routing datasets.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "bash",
+      "type:osint",
+      "passive",
+      "bgp",
+      "asn"
+    ]
+  },
+  {
+    "id": "f9526d39-719d-4876-8ee4-d41ea7f40179",
+    "label": "Censys CLI Host Query",
+    "command": "# Passive Censys IP Lookup\ncensys search \"104.154.0.0/24\"",
+    "color": "#1f8a7a",
+    "description": "<p>Uses the Censys Search CLI to query the Censys dataset for exposed infrastructure, certificates, and misconfigured exposed services belonging to a target.</p>\n<p>Censys is an alternative (and historically highly trusted) global scanner specialized heavily in deep cryptographic Certificate parsing and Web service identification. It is the primary engine used by top Bug Bounty hunters to find exposed ElasticSearch servers, dev portals, and IoT devices before scanning them actively.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Identifying heavily nested backends and historically valid TLS certificates that leak internal corporate subdomains via the SAN properties.</li>\n  <li><strong>Attack pre-requisite:</strong> Authenticated Censys API access configured locally.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> hacktricks-recon.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Passive and completely covert. Similar to Shodan, block known Censys scanner pools at the border edge to remain off their public index.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:censys",
+      "type:osint",
+      "passive"
+    ]
+  },
+  {
+    "id": "46d38e91-fa6a-442e-bc46-abfacb9dc2a0",
+    "label": "Crt.sh Certificate Search (curl pipeline)",
+    "command": "# Parse crt.sh transparency logs\ncurl -s \"https://crt.sh/?q=%25.example.com&output=json\" | jq -r '.[].name_value' | sed 's/*.//g' | sort -u",
+    "color": "#1f8a7a",
+    "description": "<p>A manual `curl` + `jq` pipeline to query the Certificate Transparency (CT) logs at crt.sh to instantly find subdomains embedded in SSL/TLS certs.</p>\n<p>When an IT admin creates an SSL certificate (even for an internal site), global Certificate Authorities publicly log the domains bound to that certificate to ensure transparency. Attackers parse these public databases to reveal deep subdomain infrastructure without touching the target.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Immediate, completely unauthenticated and highly trusted source of target subdomains. Perfect for targets that aggressively block active scanning.</li>\n  <li><strong>Attack pre-requisite:</strong> Just bash, curl, and jq.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> hacktricks-recon.md</li>\n  <li><strong>Detection/Defense opsec:</strong> 100% Un-detectable. The query hits a 3rd-party public PostgreSQL database managed by Sectigo. The target organization never sees a single network packet.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "bash",
+      "type:osint",
+      "passive",
+      "stealth"
+    ]
+  },
+  {
+    "id": "8c27fa11-98c5-4002-9fb9-3718193f0315",
+    "label": "DNSx: Bruteforce and Resolution Filter",
+    "command": "# Resolve and filter alive domains\ncat all_subdomains.txt | dnsx -silent -a -cname -resp",
+    "color": "#1f8a7a",
+    "description": "<p>ProjectDiscovery's DNS toolkit. Typically used to quickly filter out dead subdomains from a massive list by aggressively querying valid DNS resolvers.</p>\n<p>Passive DNS scraping gives thousands of theoretical subdomains. Many of these are stale and result in NXDOMAIN. DNSx takes that massive list and aggressively resolves them using concurrent Go threads and a large `resolvers.txt` list to ensure they maintain valid A/AAAA DNS records before attempting active HTTP scans.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Sanitizes and optimizes the attack surface wordlists. Converts a list of 100k messy passive domains into 5k confirmed active responding targets instantly.</li>\n  <li><strong>Attack pre-requisite:</strong> High-bandwidth connectivity and an expansive list of fast public resolvers.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> hacktricks-recon.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Somewhat noisy. Splitting queries over thousands of public resolvers helps obfuscate the source. Defenders might observe massive generalized DNS load.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:dnsx",
+      "type:dns-resolving",
+      "active"
+    ]
+  },
+  {
+    "id": "6c65bf2e-c293-4ccd-b5c8-699c7e26ae57",
+    "label": "GitHub Subdomain Dorking (ghauri/gitdorks)",
+    "command": "# Custom GitHub API dorking (conceptual workflow via python tools)\npython3 github-subdomains.py -t <GITHUB_TOKEN> -d example.com",
+    "color": "#1f8a7a",
+    "description": "<p>Searches the organization's GitHub repositories and commits for hardcoded development subdomains (e.g., dev-api.corp.com) that shouldn't be public.</p>\n<p>Developers routinely hardcode API endpoints, staging database URLs, or intranet subdomains into configuration files (like `.env` or `settings.py`) and commit them to public repos. Utilizing the GitHub Search API allows hunters to systematically rip out these esoteric domains.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Dev-tier and Stage-tier assets usually contain older, vulnerable code, verbose error messaging, and weaker authentication configurations than production endpoints.</li>\n  <li><strong>Attack pre-requisite:</strong> A valid authenticated GitHub Personal Access Token (to avoid severe rate limits).</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> hacktricks-recon.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Fully Passive. Targets must employ strict Git pre-commit hooks (like TruffleHog or GitRob) to prevent sensitive infrastructure leaks from occurring before they hit GitHub.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:github",
+      "type:dorking",
+      "passive"
+    ]
+  },
+  {
+    "id": "fff0364b-0eaf-4812-b740-be22e79b739e",
+    "label": "HTTPX: Basic Live Host Probing",
+    "command": "# Discover live web servers\nhttpx -l subdomains.txt -silent -o live-hosts.txt",
+    "color": "#1f8a7a",
+    "description": "<p>Takes a raw list of domains/subdomains and filters it down to only those running an active HTTP/HTTPS web server.</p>\n<p>DNS resolution does not equal an exposed web application. Often, domains resolve to internal CDNs or dead parking IPs. HTTPX is a hyper-fast asynchronous Go tool that tests the raw domain lists for live, responding HTTP/HTTPS ports.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> A drastically reduced, actionable list of explicitly \"live\" HTTP endpoints to begin manual hacking or vulnerability scanning against.</li>\n  <li><strong>Attack pre-requisite:</strong> A list of raw subdomains, IPs, or CIDR ranges.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> httpx.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Incredibly loud from an HTTP perspective. Target will see thousands of root `/` GET requests arriving simultaneously from a single IP block.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:httpx",
+      "type:web-probing",
+      "active"
+    ]
+  },
+  {
+    "id": "e7dbfd55-223b-4837-b3b8-bf821e5490ef",
+    "label": "HTTPX: FQDN Extraction from CSP/Response",
+    "command": "# Dynamic FQDN extraction from responses\nhttpx -l live-hosts.txt -extract-fqdn -silent",
+    "color": "#1f8a7a",
+    "description": "<p>Smartly parses the HTML Response Body and Content-Security-Policy (CSP) headers of the target to dynamically rip out additional hardcoded subdomains.</p>\n<p>Often, web applications explicitly declare their trusted backend APIs or static content buckets in the `Content-Security-Policy` header. This is a massive intel leak. HTTPX will passively scrape the HTML and Headers searching for regex matches of new DNS domains to feed back into the reconnaissance loop.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Discovery of hidden GraphQL APIs, internal S3 Buckets, and unindexed API edge nodes that only surface as dependencies of the main application.</li>\n  <li><strong>Attack pre-requisite:</strong> A list of root live web applications.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> httpx.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Indistinguishable from regular browser traffic fetching index pages. Impossible to block without disabling the Web Application.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:httpx",
+      "type:web-probing",
+      "active",
+      "extraction"
+    ]
+  },
+  {
+    "id": "43e0f44b-72f0-4155-8b01-ccb2c5763d68",
+    "label": "HTTPX: Headless Web Page Screenshots",
+    "command": "# Visual recon via Headless Chrome screenshots\nhttpx -l live-hosts.txt -ss -system-chrome -srd ./screenshots/",
+    "color": "#1f8a7a",
+    "description": "<p>Drives a headless Chrome browser to literally take a screenshot of the homepage for massive scale visual reconnaissance and clustering of identical apps.</p>\n<p>In bug bounties, looking at thousands of text lines is inefficient. By rendering the actual webpage, an attacker's human brain can instantly spot a vulnerable Jenkins login, a misconfigured Tomcat default page, or an exposed Confluence Wiki inside seconds.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> High-bandwidth visual reconnaissance capability. Bypasses the need to manually browse thousands of URLs.</li>\n  <li><strong>Attack pre-requisite:</strong> High system memory, Go binaries, and Chromium/Chrome installed locally.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> httpx.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Generates slightly unique User-Agents (Headless Chrome). Rendering the page pulls all resources (CSS, JS, analytics), making it \"noisier\" and more resource-intensive on target bandwidth.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:httpx",
+      "type:web-probing",
+      "active",
+      "visual"
+    ]
+  },
+  {
+    "id": "36ee74a5-3ba3-4be3-881f-a657b32dd502",
+    "label": "HTTPX: JARM Fingerprinting",
+    "command": "# JARM TLS hash fingerprinting\nhttpx -l live-hosts.txt -jarm -silent",
+    "color": "#1f8a7a",
+    "description": "<p>Extracts the JARM TLS fingerprint hash from the server, which can uniquely identify malicious C2 servers or specific underlying reverse proxies.</p>\n<p>JARM works by sending 10 differently crafted TLS Client Hello packets to the target and observing the unique ways the server cryptographic stack responds. This creates a specific hash representing the server's exact backend OS, Java version, or Proxy technology.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to track infrastructure across the entire internet. If an attacker finds a vulnerable custom web application with a distinct JARM, they can query Shodan for that exact JARM to find all other instances globally.</li>\n  <li><strong>Attack pre-requisite:</strong> The target server must support TLS/SSL configurations.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> httpx.md</li>\n  <li><strong>Detection/Defense opsec:</strong> JARM probes trigger highly anomalous TLS Client Hellos. Threat hunting teams specifically write Suricata or Snort signatures to detect the idiosyncratic negotiation patterns of JARM scanners.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:httpx",
+      "type:web-probing",
+      "tls",
+      "fingerprinting"
+    ]
+  },
+  {
+    "id": "ffbc612d-2a6f-4de6-b0f7-3fa46d4adf53",
+    "label": "HTTPX: Technology Detection Fingerprinting",
+    "command": "# Tech stack detection\nhttpx -l live-hosts.txt -td -sc -title -silent",
+    "color": "#1f8a7a",
+    "description": "<p>Actively requests the index page of targets and cross-references headers/body against the Wappalyzer dataset to identify tech stacks (React, PHP, Nginx, APIs).</p>\n<p>After discovering live hosts, attackers must prioritize them. A Java Springboot API is radically different from a static AWS bucket. HTTPX's `-td` flag leverages powerful Regex dictionaries to identify the absolute exact stack powering the application.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Crucial contextual knowledge allowing them to target specific CMS exploits (like WordPress), CVEs for particular Java versions, or tailor their SQLi payloads to the specific database hinted at.</li>\n  <li><strong>Attack pre-requisite:</strong> Live URLs.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> httpx.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Normal HTTP traffic. Defenders should strip `Server`, `X-Powered-By`, and detailed proxy headers to slow down automated enumeration.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:httpx",
+      "type:web-probing",
+      "fingerprinting",
+      "active"
+    ]
+  },
+  {
+    "id": "7c314ac5-c1ec-47e4-8020-8e2990672ef1",
+    "label": "HTTPX: Verbose Status Code and Title Grabbing",
+    "command": "# Verbose web intel grabbing\nhttpx -l live-hosts.txt -status-code -title -web-server -content-length -silent",
+    "color": "#1f8a7a",
+    "description": "<p>Retrieves the exact HTTP status code, HTTP Server Header, and HTML page title. Excellent for quickly finding 403 bypasses or 200 OK debug pages.</p>\n<p>In bug bounty hunting, anomalous status codes and unique HTML page titles stand out like sore thumbs. Grabbing them at scale allows hunters to regex search their entire 10,000 subdomains for \"Login\", \"Swagger UI\", \"Admin Dashboard\", or status \"403 Forbidden\" boundaries to bypass.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Instant triage capabilities. Finding a `401 Unauthorized - JBoss Admin` page allows immediate exploitation attempts.</li>\n  <li><strong>Attack pre-requisite:</strong> Live HTTP targets list.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> httpx.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Blends in with standard web traffic analysis. Target systems simply see root `/` requests and return standard data.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:httpx",
+      "type:web-probing",
+      "active"
+    ]
+  },
+  {
+    "id": "5f1b8fc1-f239-46f0-b0bb-ae7288c20fa1",
+    "label": "HTTPX: WAF and CDN Detection",
+    "command": "# Identify CDN/WAF presence\nhttpx -l live-hosts.txt -cdn -silent",
+    "color": "#1f8a7a",
+    "description": "<p>Uses HTTPX to inspect HTTP Response headers specifically looking for signatures of Web Application Firewalls (WAF) or CDNs.</p>\n<p>Before launching destructive tools like Sqlmap or massive Fuzzing brute force attempts (ffuf/dirb), an attacker must know if the target is protected by an aggressive WAF (like Imperva, Cloudflare, Akamai). Fuzzing a WAF will instantly burn the attacker's IP.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Strategic intelligence allowing them to modulate their brute-force thresholds or switch their IP addresses before launching real attacks.</li>\n  <li><strong>Attack pre-requisite:</strong> High-bandwidth connectivity and HTTPX binary.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> httpx.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Cloudflare and standard WAFs inherently broadcast their presence in `server` or `via` headers.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:httpx",
+      "type:web-probing",
+      "waf",
+      "cdn",
+      "active"
+    ]
+  },
+  {
+    "id": "d90b560c-7884-455b-9dbb-dfcae695e9d6",
+    "label": "Naabu to HTTPX: Service Probing Pipeline",
+    "command": "# Pipe Naabu open ports to HTTPX\ncat subdomains.txt | naabu -p 80,443,8080,8443,8081 -silent | httpx -silent -title",
+    "color": "#1f8a7a",
+    "description": "<p>The iconic ProjectDiscovery pipeline. Naabu discovers open ports and pipes them directly into HTTPX to verify live web servers and grab titles.</p>\n<p>Instead of creating two independent files, this Unix pipeline chains standard output. Naabu blasts the network and instantly passes open `IP:Port` combos into HTTPX, which fetches the TLS certificate, status code, and HTML title.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The absolute fastest method to convert raw DNS/IP ranges into a browsable list of live web applications.</li>\n  <li><strong>Attack pre-requisite:</strong> Go toolkit pipeline configured via Unix pipes.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> naabu.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Generates SYN sweeps followed instantly by HTTP GET requests on the open ports. Identifiable by unusual User-Agents if default HTTPX headers are used.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:naabu",
+      "tool:httpx",
+      "type:pipeline",
+      "active"
+    ]
+  },
+  {
+    "id": "9f8dfd68-7c35-420f-b9a2-16b7d8354889",
+    "label": "Naabu: Basic Fast Port Scan",
+    "command": "# Fast top 100 port scan\nnaabu -host example.com -top-ports 100 -silent",
+    "color": "#1f8a7a",
+    "description": "<p>Quickly scans discovered hosts for the top 100 default ports using highly optimized SYN/CONNECT TCP probes.</p>\n<p>Written in Go, Naabu replaces massive, slow Nmap wrappers. By leveraging raw sockets, it parallelizes thousands of port checks across an asset list instantly, providing a quick pulse on what is alive on a massive external perimeter.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Rapid identification of exposed high-value web and administrative ports (e.g., 443, 8080, 22, 3389) across thousands of subdomains.</li>\n  <li><strong>Attack pre-requisite:</strong> A list of subdomains or a target host, and root privileges (for raw SYN packet injection).</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> naabu.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Direct and loud against the firewall. Generates massive amounts of SYN drops. IPS tools natively block IPs performing horizontal port scans.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:naabu",
+      "type:port-scan",
+      "active"
+    ]
+  },
+  {
+    "id": "9d416087-87fd-4418-840d-882eb4abe9e4",
+    "label": "Naabu: CDN Bypass Exclusion Scan",
+    "command": "# Skip full scans on CDNs\nnaabu -list subdomains.txt -p - -exclude-cdn -silent",
+    "color": "#1f8a7a",
+    "description": "<p>Intelligently identifies if an IP is routed through Cloudflare, Akamai, or Incapsula, and restricts the scan to only 80 and 443 to save time and avoid WAF bans.</p>\n<p>CDNs will automatically drop or ban IPs performing mass port scans against their proxy nodes. Naabu dynamically detects the CDN IP ranges and intelligently skips sweeping non-HTTP ports on them, heavily optimizing the scan times and maintaining operational security.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Drastically improved scan speeds (not waiting for timeouts on CDNs) and avoids being blacklisted by global WAF providers like Cloudflare.</li>\n  <li><strong>Attack pre-requisite:</strong> A list of root or subdomains.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> naabu.md</li>\n  <li><strong>Detection/Defense opsec:</strong> The attacker explicitly avoids triggering CDN alarms. Defenders must ensure direct-to-origin infrastructure isn't exposed alongside their CDN.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:naabu",
+      "type:port-scan",
+      "active",
+      "optimization",
+      "cdn"
+    ]
+  },
+  {
+    "id": "7e1b5c54-dcca-4e06-ac8f-43840859f3ae",
+    "label": "Naabu: Full 65535 Port Scan",
+    "command": "# Full port scan\nnaabu -list subdomains.txt -p - -silent",
+    "color": "#1f8a7a",
+    "description": "<p>Performs a rigorous, full TCP port scan (1-65535) against a high-value list of targets. Takes longer but catches non-standard services.</p>\n<p>For high-value targets (like standalone acquired companies or untracked shadow-IT assets), scanning 1000 ports isn't enough. Finding development panels hidden on high ports like 49152 or 54321 is the goldmine of bug bounty hunting.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Discovery of developer-tier staging environments, custom database listeners, or JDB management ports completely obscured from standard scanners.</li>\n  <li><strong>Attack pre-requisite:</strong> Subdomain list. High bandwidth connection and root privileges.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> naabu.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Extremly loud. The target will see connection attempts on all 65,535 ports. Strict ingress firewall rules (Default Deny) mitigate this.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:naabu",
+      "type:port-scan",
+      "active",
+      "exhaustive"
+    ]
+  },
+  {
+    "id": "a114e4c1-be9c-4359-be92-32bf0e49f4ee",
+    "label": "Naabu: Nmap CLI Service Integration",
+    "command": "# Nmap service scan integration\necho example.com | naabu -nmap-cli 'nmap -sV -sC -Pn'",
+    "color": "#1f8a7a",
+    "description": "<p>Uses Naabu for speed to find open ports, then automatically passes the found `{ip}:{port}` combos into Nmap for accurate Service Version (-sV) detection.</p>\n<p>Nmap is incredibly powerful at analyzing protocols but incredibly slow at broad sweeping. Naabu acts as the high-speed sweeper, then uses the `-nmap-cli` hook to pass only the specific open ports to the local Nmap engine to grab banners and run default Lua scripts (`-sC`).</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The speed of Naabu combined with the deep, authoritative service fingerprinting and vulnerability detection of Nmap.</li>\n  <li><strong>Attack pre-requisite:</strong> Naabu and Nmap installed on the host. Root privileges.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> naabu.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Highly intrusive. Nmap scripts (`-sC`) probe for default vulnerabilities like anonymous FTP, SMB enumerations, or X11 access. Defenders should monitor for Nmap User-Agent and characteristic NSE script signatures.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:naabu",
+      "tool:nmap",
+      "type:port-scan",
+      "active"
+    ]
+  },
+  {
+    "id": "fc94c3e9-bd8c-49ce-9ef1-67a1d3159274",
+    "label": "Naabu: Top 1000 Ports Bulk Scan",
+    "command": "# Bulk Top 1000 scan\nnaabu -list subdomains.txt -top-ports 1000 -c 50 -rate 2000",
+    "color": "#1f8a7a",
+    "description": "<p>Reads a list of discovered subdomains and reliably scans the top 1000 nmap ports across all of them efficiently.</p>\n<p>Once passive subdomains are identified, Naabu parses the text file and blasts the standard Nmap top-1000 ports across the entire perimeter utilizing its asynchronous Go backend. This ensures non-standard ports (like Tomcat 8080, Docker 2375, Kubernetes 6443) are detected.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Discovery of hidden administrative interfaces or unauthenticated APIs listening on non-standard high ports across an entire organizational boundary.</li>\n  <li><strong>Attack pre-requisite:</strong> A compiled `subdomains.txt` file and a high-bandwidth uplink.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> naabu.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Generates massive distributed port sweeping signatures. A well-configured WAF/IPS will immediately blackhole the attacker's IP. Defenders should restrict non-essential ports to VPN IP spaces.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:naabu",
+      "type:port-scan",
+      "active",
+      "bulk"
+    ]
+  },
+  {
+    "id": "9c277b99-36fa-44fb-b783-f20ac0b16703",
+    "label": "Naabu: UDP Port Scanning with Payloads",
+    "command": "# UDP DNS port scan\nnaabu -p u:53 -host example.com -cp \"DNS query payload\"",
+    "color": "#1f8a7a",
+    "description": "<p>Custom UDP port scanning (e.g., DNS port 53 or SNMP port 161) sending specific payloads to trigger responses.</p>\n<p>Unlike TCP, UDP is connectionless. Open UDP ports simply drop packets without responding, making them invisible unless you send an application-layer payload they understand. Naabu bypasses this by allowing custom hexadecimal payloads to trigger an intelligible response.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Identification of deeply hidden UDP services like exposed SNMP nodes, internal DNS resolvers leaking zone transfers, or Memcached servers susceptible to amplification attacks.</li>\n  <li><strong>Attack pre-requisite:</strong> Deep understanding of the specific UDP protocol being tested to craft a valid invocation payload.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> naabu.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Difficult for standard perimeter firewalls if the protocol isn't deeply inspected. SNMP sweeps should trigger immediate alarms in any mature SOC.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:naabu",
+      "type:port-scan",
+      "active",
+      "udp"
+    ]
+  },
+  {
+    "id": "1448b6a4-b341-4837-ae5e-8eec4c01c84c",
+    "label": "Shodan CLI Host Port Query",
+    "command": "# Passive Shodan Host Lookup\nshodan host <Target-IP_or_Domain>",
+    "color": "#1f8a7a",
+    "description": "<p>Uses the Shodan Command Line Interface to passively query a target IP or domain for open ports and banners without ever touching the target's network.</p>\n<p>Shodan continuously port scans the entire internet 24/7. Instead of running a loud Nmap scan from a local machine, an attacker simply asks Shodan's API what services it saw the last time it independently mapped the target's IP. This acts as a completely covert service fingerprinting pipeline.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Deep port insights, vulnerability mapping, and generic banners without generating any alerting traffic on the target Network Intrusion Detection Systems (NIDS).</li>\n  <li><strong>Attack pre-requisite:</strong> A valid `shodan init` API key.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> hacktricks-recon.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Fully Passive. Organizations can combat Shodan by configuring their border routers to block Shodan's known scanning IP blocks, limiting external visibility.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:shodan",
+      "type:osint",
+      "passive",
+      "port-scan"
+    ]
+  },
+  {
+    "id": "42828882-7bbd-46b5-9cd6-1b237c308b32",
+    "label": "Subfinder: Basic Passive Enumeration",
+    "command": "# Enumerate subdomains silently\nsubfinder -d example.com -silent",
+    "color": "#1f8a7a",
+    "description": "<p>Runs a fast, passive subdomain enumeration against a single target domain using default sources. Output is clean and ready for piping.</p>\n<p>This technique relies strictly on passive OSINT sources (e.g., Shodan, Censys, Crt.sh) queried by Subfinder to resolve known subdomains without interacting with the target's authoritative name servers.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Discovery of the victim's external attack surface quickly and completely silently. No network touch occurs.</li>\n  <li><strong>Attack pre-requisite:</strong> Knowledge of the primary top-level domain owned by the target company.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> subfinder.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Since this is completely passive, the target cannot detect the API pulls occurring against third-party datasets. Defenses revolve around strictly monitoring DNS propagation and pruning forgotten assets.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:subfinder",
+      "type:subdomain-enum",
+      "passive",
+      "stealth"
+    ]
+  },
+  {
+    "id": "a2fc9652-116e-43b9-9847-0372b54e6731",
+    "label": "Subfinder: Bulk File Input Enumeration",
+    "command": "# Enumerate from a list of domains\nsubfinder -dL roots.txt -all -silent -o subdomains.txt",
+    "color": "#1f8a7a",
+    "description": "<p>Takes a list of root seed domains (from acquisitions or ASN lookups) and enumerates subdomains for all of them concurrently.</p>\n<p>In large-scale bug bounty hunting, attackers rarely target a single domain. Instead, they compile a file of hundreds of acquired brands and let Subfinder shred through the entire list using high concurrency.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Massive horizontal scaling of the attack surface, identifying thousands of targets across an entire corporate asset portfolio.</li>\n  <li><strong>Attack pre-requisite:</strong> A pre-compiled text file of valid, owned root domains (`roots.txt`).</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> subfinder.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Passive and undetectable. Requires defenders to similarly monitor all known corporate acquisitions for rogue assets.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:subfinder",
+      "type:subdomain-enum",
+      "bulk"
+    ]
+  },
+  {
+    "id": "15af4e2a-9d11-489c-91f4-63c6db09790e",
+    "label": "Subfinder: JSON Output with Sources",
+    "command": "# JSON output with source attribution\nsubfinder -d example.com -all -json -cs -o output.json",
+    "color": "#1f8a7a",
+    "description": "<p>Generates a JSONL output format containing the discovered subdomains along with the exact data source (e.g., crtsh, shodan) that found it, useful for database ingest.</p>\n<p>Advanced adversaries and automation platforms trace the origin of every discovered asset to assign a confidence score or refresh rate.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Structured reconnaissance data that easily integrates into SIEMs, ELK stacks, or custom offensive infrastructure tracking tools.</li>\n  <li><strong>Attack pre-requisite:</strong> Required JSON processing tools like `jq` in the broader pipeline.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> subfinder.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Undetectable logic processing on the attacker host.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:subfinder",
+      "type:subdomain-enum",
+      "automation"
+    ]
+  },
+  {
+    "id": "4ade39a6-1cbd-45af-a63c-4e44c37586b8",
+    "label": "Subfinder: Recursive Passive Enumeration",
+    "command": "# Recursive enumeration\nsubfinder -d example.com -recursive -all -silent",
+    "color": "#1f8a7a",
+    "description": "<p>Forces Subfinder to use only sources capable of handling subdomains recursively to find deeply nested domains (e.g., dev.api.corp.example.com).</p>\n<p>Often, passive sources will return third-level domains like `api.example.com`. By enabling recursive enumeration, Subfinder takes these findings and dynamically re-queries the datasets for `*.api.example.com`.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Visibility into deeply nested environments, such as internal staging or regional development endpoints, which are frequently misconfigured.</li>\n  <li><strong>Attack pre-requisite:</strong> Target domain and a configured `provider-config.yaml` with API keys that support recursive searching.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> subfinder.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Entirely passive and undetectable by the target.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "tool:subfinder",
+      "type:subdomain-enum",
+      "recursive",
+      "passive"
+    ]
+  },
+  {
+    "id": "7532e236-b3a2-453c-8a44-3611e111ec6e",
+    "label": "Waymore / Waybackurls Endpoint Fetch",
+    "command": "# Historical endpoint fetching\necho example.com | waybackurls > endpoints.txt",
+    "color": "#1f8a7a",
+    "description": "<p>Queries the Internet Archive (Wayback Machine), Common Crawl, and AlienVault OTX to find historical cached URLs, parameters, and endpoints for a given domain.</p>\n<p>Modern applications frequently hide paths. However, web crawlers may have indexed an exposed `admin.php` or a raw REST API endpoint `/api/v1/users` from three years ago. By fetching historical datasets, bug hunters find hidden, deprecated routes that may still be functional and highly vulnerable.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Discovery of long-forgotten, unmaintained API endpoints which are notorious for lacking modern authorization checks. Deep parameter extraction (`?id=1`, `?redirect=`) for later fuzzing.</li>\n  <li><strong>Attack pre-requisite:</strong> A root domain. A specialized Go/Python parser (waybackurls/waymore/gau).</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> hacktricks-recon.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Passive to grab. However, when the attacker feeds the fetched endpoints into their active fuzzer, targets will see waves of HTTP 404s and 403s on old APIs. Defenders must completely decommission code, rather than simply unlinking paths.</li>\n</ul>",
+    "tags": [
+      "recon",
+      "external",
+      "bug-bounty",
+      "bash",
+      "type:archive-fetch",
+      "passive",
+      "parameters"
+    ]
+  }
+]

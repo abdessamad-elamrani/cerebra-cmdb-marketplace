@@ -1,0 +1,129 @@
+{
+  "version": "3.0",
+  "title": "Crt.sh Certificate Search (curl pipeline)",
+  "description": "A manual `curl` + `jq` pipeline to query the Certificate Transparency (CT) logs at crt.sh to instantly find subdomains embedded in SSL/TLS certs. When...",
+  "entities": [
+    {
+      "id": "attacker_env",
+      "type": "container",
+      "label": "Attacker Infrastructure",
+      "icon": "IconKali",
+      "members": [
+        "attacker",
+        "recon_tool",
+        "recon_intel"
+      ],
+      "position": {
+        "x": 434,
+        "y": 71.45
+      }
+    },
+    {
+      "id": "attacker",
+      "type": "node",
+      "label": "Attacker",
+      "icon": "IconAttacker",
+      "position": {
+        "x": 73.84999999999997,
+        "y": 71.45
+      }
+    },
+    {
+      "id": "recon_tool",
+      "type": "node",
+      "label": "Crt.sh Certificate Search (curl pipeline)",
+      "icon": "IconTerminal",
+      "position": {
+        "x": 264.95,
+        "y": 71.45
+      }
+    },
+    {
+      "id": "recon_intel",
+      "type": "node",
+      "label": "Discovered Host Data",
+      "icon": "IconData",
+      "position": {
+        "x": 794.1500000000001,
+        "y": 71.45
+      }
+    },
+    {
+      "id": "target_env",
+      "type": "container",
+      "label": "Public Internet",
+      "icon": "IconCloud",
+      "members": [
+        "target_asset"
+      ],
+      "position": {
+        "x": 529.55,
+        "y": 262.55
+      }
+    },
+    {
+      "id": "target_asset",
+      "type": "node",
+      "label": "OSINT Datasets",
+      "icon": "IconDatabase",
+      "position": {
+        "x": 529.55,
+        "y": 262.55
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "type": "edge",
+      "name": "Initiate Scan",
+      "from": "attacker",
+      "to": "recon_tool",
+      "description": "The attacker launches the reconnaissance tool with the target scope."
+    },
+    {
+      "id": 2,
+      "type": "edge",
+      "name": "Target Probing",
+      "from": "recon_tool",
+      "to": "target_asset",
+      "description": "The tool sends optimized packets or API queries across the network boundaries."
+    },
+    {
+      "id": 3,
+      "type": "edge",
+      "name": "Data Extraction",
+      "from": "target_asset",
+      "to": "recon_intel",
+      "description": "The resulting metadata (ports, subdomains, titles) is aggregated and stored."
+    }
+  ],
+  "visibility": {
+    "attacker_env": {
+      "start": 0,
+      "end": 100
+    },
+    "attacker": {
+      "start": 0,
+      "end": 100
+    },
+    "recon_tool": {
+      "start": 0,
+      "end": 100
+    },
+    "target_env": {
+      "start": 0,
+      "end": 100
+    },
+    "target_asset": {
+      "start": 0,
+      "end": 100
+    },
+    "recon_intel": {
+      "start": 3,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}
