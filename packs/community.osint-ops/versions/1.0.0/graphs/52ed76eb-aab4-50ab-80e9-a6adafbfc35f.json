@@ -1,0 +1,247 @@
+{
+  "title": "gau JSON Output Mode",
+  "version": "3.0",
+  "description": "This runbook operationalizes Emit machine-readable records for parsing and workflow chaining. using #gau . It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands. Execution should stay bounded to approved scope and p",
+  "shortDescription": "gau Structured JSON Emission",
+  "tags": [
+    "archive",
+    "domain",
+    "search",
+    "processing",
+    "automation"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This runbook operationalizes <strong>Emit machine-readable records for parsing and workflow chaining.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#gau</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#gau</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>gau --json</code></pre>",
+    "commandsBlock": "gau --json",
+    "extraInfo": [
+      "Refer to local source docs cited in runbook-list.md ; primary tooling here is #gau .",
+      "Generated via runbook-graph-generator skill"
+    ],
+    "prerequisites": [
+      "authorized assessment scope, operator shell access, and outbound reachability on TCP 80/443 ."
+    ],
+    "attackerGains": [
+      "structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions."
+    ],
+    "detectionNotes": [
+      "enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure."
+    ]
+  },
+  "entities": [
+    {
+      "id": "operator_environment",
+      "type": "container",
+      "label": "Operator Environment",
+      "icon": "IconKali",
+      "style": "dashed_border",
+      "members": [
+        "operator_node",
+        "collection_engine",
+        "validated_intelligence"
+      ],
+      "position": {
+        "x": 560,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "target_provider_plane",
+      "type": "container",
+      "label": "Target and Provider Plane",
+      "icon": "IconCloud",
+      "style": "dashed_border",
+      "members": [
+        "target_surface",
+        "provider_sources"
+      ],
+      "position": {
+        "x": 258.65,
+        "y": 259.5
+      }
+    },
+    {
+      "id": "evidence_pipeline",
+      "type": "container",
+      "label": "Evidence Processing Pipeline",
+      "icon": "IconData",
+      "style": "dashed_border",
+      "members": [
+        "evidence_store",
+        "normalization_stage"
+      ],
+      "position": {
+        "x": 787.85,
+        "y": 323.55
+      }
+    },
+    {
+      "id": "operator_node",
+      "type": "node",
+      "label": "OSINT Operator Workstation",
+      "icon": "IconKali",
+      "position": {
+        "x": 67.54999999999995,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "collection_engine",
+      "type": "node",
+      "label": "Collection Engine (gau)",
+      "icon": "IconPenetrationTool",
+      "position": {
+        "x": 258.65,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "validated_intelligence",
+      "type": "node",
+      "label": "Validated Intelligence Artifacts",
+      "icon": "IconStolenCredential",
+      "position": {
+        "x": 1052.45,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "target_surface",
+      "type": "node",
+      "label": "Domain and Web Asset Surface",
+      "icon": "IconWeb",
+      "position": {
+        "x": 449.75,
+        "y": 259.5
+      }
+    },
+    {
+      "id": "provider_sources",
+      "type": "node",
+      "label": "Archive and Recon Providers",
+      "icon": "IconCloud",
+      "position": {
+        "x": 67.54999999999995,
+        "y": 259.5
+      }
+    },
+    {
+      "id": "evidence_store",
+      "type": "node",
+      "label": "Raw Evidence Store",
+      "icon": "IconDatabase",
+      "position": {
+        "x": 787.85,
+        "y": 259.5
+      }
+    },
+    {
+      "id": "normalization_stage",
+      "type": "node",
+      "label": "Parsing and Normalization Stage",
+      "icon": "IconProcess",
+      "position": {
+        "x": 787.85,
+        "y": 387.6
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "type": "edge",
+      "name": "Seed Targets and Providers",
+      "from": "operator_node",
+      "to": "collection_engine",
+      "icon": "IconProcess",
+      "cli": "gau --json",
+      "description": "Operator defines targets and initiates the first collection command for this workflow.",
+      "tooltip": "Archive and telemetry providers retain historical URL and response records that often outlive production hardening changes."
+    },
+    {
+      "id": 2,
+      "type": "edge",
+      "name": "Query Historical Indexes",
+      "from": "collection_engine",
+      "to": "target_surface",
+      "icon": "IconSearch",
+      "cli": "gau --json",
+      "description": "The workflow runs its primary discovery/extraction phase against target-relevant sources.",
+      "tooltip": "Tool modules query public interfaces, archives, or protocol-exposed metadata at scale."
+    },
+    {
+      "id": 3,
+      "type": "edge",
+      "name": "Query Provider Sources",
+      "from": "provider_sources",
+      "to": "collection_engine",
+      "icon": "IconSearch",
+      "description": "External provider data feeds are retrieved to enrich collection coverage."
+    },
+    {
+      "id": 4,
+      "type": "edge",
+      "name": "Filter/Deduplicate URLs or Responses",
+      "from": "target_surface",
+      "to": "evidence_store",
+      "icon": "IconData",
+      "cli": "gau --json",
+      "description": "Results are filtered, enriched, or correlated to reduce noise and improve analyst utility.",
+      "tooltip": "Structured output plus deterministic filters preserve signal while dropping low-value artifacts."
+    },
+    {
+      "id": 5,
+      "type": "edge",
+      "name": "Export and Chain Findings",
+      "from": "evidence_store",
+      "to": "validated_intelligence",
+      "icon": "IconCheck",
+      "cli": "gau --json",
+      "description": "Final outputs are exported for graph generation, runbook writing, or profile update workflows.",
+      "tooltip": "Consistent artifacts enable downstream automation and repeatable operational reporting."
+    }
+  ],
+  "visibility": {
+    "operator_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "target_provider_plane": {
+      "start": 0,
+      "end": 100
+    },
+    "evidence_pipeline": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_node": {
+      "start": 0,
+      "end": 100
+    },
+    "target_surface": {
+      "start": 0,
+      "end": 100
+    },
+    "provider_sources": {
+      "start": 0,
+      "end": 100
+    },
+    "collection_engine": {
+      "start": 1,
+      "end": 100
+    },
+    "normalization_stage": {
+      "start": 3,
+      "end": 100
+    },
+    "evidence_store": {
+      "start": 3,
+      "end": 100
+    },
+    "validated_intelligence": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}
