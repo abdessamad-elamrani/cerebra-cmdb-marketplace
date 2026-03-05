@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-03-05T22:07:13.636Z",
+  "generatedAt": "2026-03-05T22:08:54.457Z",
   "packs": [
     {
       "packId": "cerebra.fortigate",
@@ -80,6 +80,14 @@
       "displayName": "oscp-cpts",
       "latestVersion": "1.0.0",
       "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.oscp-cpts/versions/1.0.0/manifest.v1.json"
+    },
+    {
+      "packId": "community.osint-ops",
+      "publisher": "community",
+      "slug": "osint-ops",
+      "displayName": "osint-ops",
+      "latestVersion": "1.0.0",
+      "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.osint-ops/versions/1.0.0/manifest.v1.json"
     }
   ]
 }

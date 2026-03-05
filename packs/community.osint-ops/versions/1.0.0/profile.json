@@ -1,0 +1,932 @@
+[
+  {
+    "label": "Download Video (YT-DLP)",
+    "command": "yt-dlp \"URL\"",
+    "color": "#e74c3c",
+    "description": "Downloads a video from a URL.",
+    "tags": [
+      "media"
+    ],
+    "id": "1ea6616a-28cd-4f65-b3f4-ca8e94ae9e82"
+  },
+  {
+    "label": "Download MP3 Audio (YT-DLP)",
+    "command": "yt-dlp \"URL\" -x --audio-format mp3 --audio-quality 320k",
+    "color": "#e74c3c",
+    "description": "Extracts and downloads audio as MP3.",
+    "tags": [
+      "media"
+    ],
+    "id": "678ea2ab-5f50-4d92-846d-065d1c878988"
+  },
+  {
+    "label": "Download Metadata/Subtitles (YT-DLP)",
+    "command": "yt-dlp \"URL\" --write-comments --write-subs --sub-langs all --write-description --skip-download",
+    "color": "#e74c3c",
+    "description": "Downloads metadata, subtitles, and description without the video.",
+    "tags": [
+      "media"
+    ],
+    "id": "78577f17-8a9c-4d87-b074-24bcd86db5c2"
+  },
+  {
+    "label": "FFmpeg Convert to MP4",
+    "command": "ffmpeg -i input.mpg output.mp4",
+    "color": "#e67e22",
+    "description": "Converts video to MP4 format.",
+    "tags": [
+      "media"
+    ],
+    "id": "e00264f5-7a17-476e-8193-ed53655f7609"
+  },
+  {
+    "label": "FFmpeg Extract Frames",
+    "command": "ffmpeg -y -i video.mpg %04d.png",
+    "color": "#e67e22",
+    "description": "Extracts each frame of a video as images.",
+    "tags": [
+      "media"
+    ],
+    "id": "6eea9ff0-21ad-41a9-ad82-885e7eebc7b5"
+  },
+  {
+    "label": "FFmpeg Extract Audio",
+    "command": "ffmpeg -i video.mpg -f mp3 -ab 320000 -vn audio.mp3",
+    "color": "#e67e22",
+    "description": "Extracts high-quality MP3 audio from a video.",
+    "tags": [
+      "media"
+    ],
+    "id": "ce89e7ba-32e1-461c-93ec-16c91644c41b"
+  },
+  {
+    "label": "Record Stream (Streamlink)",
+    "command": "streamlink \"URL\" best -o filename.mp4",
+    "color": "#e67e22",
+    "description": "Records livestream content to a file.",
+    "tags": [
+      "media"
+    ],
+    "id": "1b140d3e-d0e5-4c73-834f-d461a54c100c"
+  },
+  {
+    "label": "Download Images (Gallery-DL)",
+    "command": "gallery-dl \"URL\"",
+    "color": "#e67e22",
+    "description": "Downloads all images from a gallery URL.",
+    "tags": [
+      "media"
+    ],
+    "id": "d2b367cb-60ff-4367-8f75-d3324f035bcd"
+  },
+  {
+    "label": "Download Instagram Profile",
+    "command": "instaloader --login=username targetprofile",
+    "color": "#e67e22",
+    "description": "Downloads posts and metadata from an Instagram profile.",
+    "tags": [
+      "social"
+    ],
+    "id": "c73ba049-8061-4759-b3c6-0d77821c4920"
+  },
+  {
+    "label": "Run Sherlock",
+    "command": "sherlock username --csv -o file.csv",
+    "color": "#9b59b6",
+    "description": "Searches for username across multiple websites and outputs to CSV.",
+    "tags": [
+      "social"
+    ],
+    "id": "77347402-4961-4d55-b7e2-c6ae892976a8"
+  },
+  {
+    "label": "Run SocialScan",
+    "command": "socialscan username",
+    "color": "#9b59b6",
+    "description": "Checks availability of username or email.",
+    "tags": [
+      "social"
+    ],
+    "id": "911186d9-a1d9-4af5-8c39-8f4e4e272ac7"
+  },
+  {
+    "label": "SocialScan Output JSON",
+    "command": "socialscan email --json file.json",
+    "color": "#9b59b6",
+    "description": "Exports SocialScan results to JSON.",
+    "tags": [
+      "social"
+    ],
+    "id": "defabf4a-7261-44eb-bd5a-d287a88702bd"
+  },
+  {
+    "label": "Run Blackbird",
+    "command": "python3 blackbird.py -u username --pdf",
+    "color": "#9b59b6",
+    "description": "Searches for username across social networks and exports a PDF report.",
+    "tags": [
+      "social"
+    ],
+    "id": "d789fed0-575e-45c7-8ff7-a9cf0557850e"
+  },
+  {
+    "label": "Run Maigret",
+    "command": "maigret -a -P -T username",
+    "color": "#9b59b6",
+    "description": "Aggregates hundreds of username checks with detailed reporting.",
+    "tags": [
+      "social"
+    ],
+    "id": "d4f0aa92-ba79-4897-9f91-0260e7b5d388"
+  },
+  {
+    "label": "Run WhatsMyName",
+    "command": "python3 whatsmyname.py -u username",
+    "color": "#9b59b6",
+    "description": "Checks username presence on major platforms.",
+    "tags": [
+      "social"
+    ],
+    "id": "1fb6de04-f55a-46d0-9774-0756442512d1"
+  },
+  {
+    "label": "Run Holehe",
+    "command": "holehe email@address.com > result.txt",
+    "color": "#9b59b6",
+    "description": "Checks if an email is registered on various services.",
+    "tags": [
+      "email"
+    ],
+    "id": "e25e4be4-c8c8-4574-b8ca-b7edc070e56e"
+  },
+  {
+    "label": "GHunt Login",
+    "command": "ghunt login",
+    "color": "#9b59b6",
+    "description": "Authenticates GHunt using cookie-based login.",
+    "tags": [
+      "email"
+    ],
+    "id": "d37bef9b-7ff3-44b2-afab-22f22115443a"
+  },
+  {
+    "label": "GHunt Email Search",
+    "command": "ghunt email address@gmail.com",
+    "color": "#9b59b6",
+    "description": "Investigates a Google account using an email address.",
+    "tags": [
+      "email"
+    ],
+    "id": "9b4e85d8-8393-4ec4-b45f-dde46a75f88b"
+  },
+  {
+    "label": "GHunt Drive Search",
+    "command": "ghunt drive [ID]",
+    "color": "#9b59b6",
+    "description": "Investigates a Google Drive ID for metadata.",
+    "tags": [
+      "email"
+    ],
+    "id": "29198875-98a7-4600-94a6-891766aee0e8"
+  },
+  {
+    "label": "H8Mail Configure API Keys",
+    "command": "h8mail -g",
+    "color": "#9b59b6",
+    "description": "Generates default config file for H8Mail API keys.",
+    "tags": [
+      "breach"
+    ],
+    "id": "dc4048a7-0aac-4d4f-a338-3fb89a8afd5b"
+  },
+  {
+    "label": "H8Mail Run",
+    "command": "h8mail -t target@email.com -c config.ini",
+    "color": "#9b59b6",
+    "description": "Searches data breaches for email addresses.",
+    "tags": [
+      "breach"
+    ],
+    "id": "b9952a8c-757c-4efd-9138-7b5ca49b8ec7"
+  },
+  {
+    "label": "Run EyeWitness (Single URL)",
+    "command": "./EyeWitness.py --single URL -d directory",
+    "color": "#e67e22",
+    "description": "Takes screenshots of a single URL for documentation.",
+    "tags": [
+      "domain"
+    ],
+    "id": "461cc16e-68c8-451d-a853-e3e04bd0e9bb"
+  },
+  {
+    "label": "Run EyeWitness (List Mode)",
+    "command": "./EyeWitness.py -f urls.txt --web",
+    "color": "#e67e22",
+    "description": "Takes screenshots of multiple URLs.",
+    "tags": [
+      "domain"
+    ],
+    "id": "d18c7e99-a268-4730-8004-d7555a97acab"
+  },
+  {
+    "label": "Run TheHarvester",
+    "command": "python3 theHarvester.py -d domain.com -f results.json -b google",
+    "color": "#e67e22",
+    "description": "Collects emails, subdomains, and data from search engines.",
+    "tags": [
+      "domain"
+    ],
+    "id": "6a114a95-2cc1-470b-a56c-2424137848d0"
+  },
+  {
+    "label": "Run Amass Intel",
+    "command": "./amass intel -o output.txt -active -ip -whois -d domain.com",
+    "color": "#e67e22",
+    "description": "Performs domain reconnaissance using Amass.",
+    "tags": [
+      "domain"
+    ],
+    "id": "ed2ace55-293f-4647-af89-ca1601525167"
+  },
+  {
+    "label": "Run Photon Crawler",
+    "command": "python3 photon.py -u domain.com -l 3 -t 100",
+    "color": "#e67e22",
+    "description": "Crawls websites to collect URLs and assets.",
+    "tags": [
+      "domain"
+    ],
+    "id": "53b75748-446b-4b5d-941d-459d0255bc57"
+  },
+  {
+    "label": "Run Sublist3r",
+    "command": "python3 sublist3r.py -d domain.com -o output.txt",
+    "color": "#e67e22",
+    "description": "Enumerates subdomains using Sublist3r.",
+    "tags": [
+      "domain"
+    ],
+    "id": "4e6946a4-1ad1-48ae-8544-aa55b336d834"
+  },
+  {
+    "label": "Waybackpy Known URLs",
+    "command": "waybackpy --url \"URL\" --known_urls > file.txt",
+    "color": "#e67e22",
+    "description": "Retrieves known archived URLs.",
+    "tags": [
+      "archive"
+    ],
+    "id": "3883fd6f-0331-43f9-a840-7f8775245353"
+  },
+  {
+    "label": "Waybackpy Oldest Snapshot",
+    "command": "waybackpy --url \"URL\" --oldest",
+    "color": "#e67e22",
+    "description": "Retrieves the oldest available archive snapshot.",
+    "tags": [
+      "archive"
+    ],
+    "id": "f953f91e-1d48-4f18-87a3-9280b7ea745a"
+  },
+  {
+    "label": "Run Waybackpack",
+    "command": "waybackpack URL -d directory",
+    "color": "#e67e22",
+    "description": "Downloads archived snapshots of a site.",
+    "tags": [
+      "archive"
+    ],
+    "id": "0f1245c1-1e80-48f4-aec1-3899073a67a4"
+  },
+  {
+    "label": "ExifTool Single File",
+    "command": "exiftool image.jpg",
+    "color": "#1abc9c",
+    "description": "Extracts metadata from a single file.",
+    "tags": [
+      "metadata"
+    ],
+    "id": "53f96a04-90db-4190-ada8-3f6b4db25ac7"
+  },
+  {
+    "label": "ExifTool Batch CSV",
+    "command": "exiftool * -csv > report.csv",
+    "color": "#1abc9c",
+    "description": "Extracts metadata from all files into CSV.",
+    "tags": [
+      "metadata"
+    ],
+    "id": "fcd4e92d-bb3f-422b-a46e-219efca593d3"
+  },
+  {
+    "label": "Run Metagoofil",
+    "command": "python3 metagoofil.py -d domain.com -t pdf -o output_folder",
+    "color": "#1abc9c",
+    "description": "Finds public documents and extracts metadata.",
+    "tags": [
+      "metadata"
+    ],
+    "id": "30abe374-b44e-42b3-a3ff-1a0b15dd1740"
+  },
+  {
+    "label": "Run Xeuledoc",
+    "command": "xeuledoc [Google_Doc_URL]",
+    "color": "#1abc9c",
+    "description": "Extracts metadata from Google Docs.",
+    "tags": [
+      "metadata"
+    ],
+    "id": "c8881f15-c2d8-40c2-9478-2baf7b210879"
+  },
+  {
+    "label": "Internet Archive Search Collection",
+    "command": "ia search 'collection:name' -i > list.txt",
+    "color": "#f1c40f",
+    "description": "Searches Internet Archive collections.",
+    "tags": [
+      "archive"
+    ],
+    "id": "4178cba1-831b-4fd6-be49-28403ceef9fb"
+  },
+  {
+    "label": "Internet Archive Download Items",
+    "command": "ia download --itemlist list.txt --glob=\"*.csv\"",
+    "color": "#f1c40f",
+    "description": "Downloads multiple items from Archive.org.",
+    "tags": [
+      "archive"
+    ],
+    "id": "b7754539-1ad7-4042-9306-d7d1f47bd101"
+  },
+  {
+    "label": "Internet Archive Download Collection",
+    "command": "ia download --search 'collection:name' --glob=\"*.mp4\"",
+    "color": "#f1c40f",
+    "description": "Downloads all matching collection files.",
+    "tags": [
+      "archive"
+    ],
+    "id": "2541bf82-0962-4027-b83a-3096b883482b"
+  },
+  {
+    "id": "fcd4d6ea-3b45-57cc-ac70-1ac87f3a3667",
+    "label": "Amass Compose Active Enumeration",
+    "command": "docker compose run --rm enum -active -d example.org",
+    "description": "<p>This runbook operationalizes <strong>Active enumeration through Amass compose workflow.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#amass</span>, <span style=\"color:#ef4444;font-weight:bold;\">#docker</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#amass</span>, <span style=\"color:#ef4444;font-weight:bold;\">#docker</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP/UDP 53</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>docker compose run --rm enum -active -d example.org</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "d0903db9-7b48-5fa1-b237-eecf1b41a2ef",
+    "label": "Amass Containerized Domain Enumeration",
+    "command": "docker run --rm -it -v ~/.config/amass:/.config/amass amass:latest enum -d owasp.org",
+    "description": "<p>This runbook operationalizes <strong>Containerized Amass enum against target domain.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#amass</span>, <span style=\"color:#ef4444;font-weight:bold;\">#docker</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#amass</span>, <span style=\"color:#ef4444;font-weight:bold;\">#docker</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP/UDP 53</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>docker run --rm -it -v ~/.config/amass:/.config/amass amass:latest enum -d owasp.org</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "63c1d60b-c515-513c-9d82-68d44e2c7149",
+    "label": "BBOT JSON Export Pipeline",
+    "command": "bbot -t evilcorp.com -om json | jq",
+    "description": "<p>This runbook operationalizes <strong>Emit structured output for downstream processing and automation.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>, <span style=\"color:#ef4444;font-weight:bold;\">#jq</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>, <span style=\"color:#ef4444;font-weight:bold;\">#jq</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>bbot -t evilcorp.com -om json | jq</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "6aec7368-8c74-52ee-8bdf-ed9f0d42f481",
+    "label": "BBOT Full-Surface Enumeration",
+    "command": "bbot -t evilcorp.com -p kitchen-sink --allow-deadly",
+    "description": "<p>This runbook operationalizes <strong>Maximum-coverage preset for broad discovery and enrichment.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>bbot -t evilcorp.com -p kitchen-sink --allow-deadly</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "80f2cf9b-8b55-5a62-9dd1-c74c566f0d01",
+    "label": "BBOT Multi-Preset Recon Chain",
+    "command": "bbot -t evilcorp.com -p email-enum subdomain-enum spider",
+    "description": "<p>This runbook operationalizes <strong>Combined preset chain for email, subdomain, and spider discovery in one execution.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>bbot -t evilcorp.com -p email-enum subdomain-enum spider</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "a52e44c0-aeb7-5de1-aae9-bfd451ad2c65",
+    "label": "BBOT Neo4j Graph Pipeline",
+    "command": "docker run -d -p 7687:7687 -p 7474:7474 -v \"$(pwd)/neo4j/:/data/\" -e NEO4J_AUTH=neo4j/bbotislife neo4j\nbbot -f subdomain-enum -t evilcorp.com -om neo4j",
+    "description": "<p>This runbook operationalizes <strong>Persist BBOT results into Neo4j for relationship-centric analysis.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>, <span style=\"color:#ef4444;font-weight:bold;\">#docker</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>, <span style=\"color:#ef4444;font-weight:bold;\">#docker</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>docker run -d -p 7687:7687 -p 7474:7474 -v \"$(pwd)/neo4j/:/data/\" -e NEO4J_AUTH=neo4j/bbotislife neo4j\nbbot -f subdomain-enum -t evilcorp.com -om neo4j</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "c16c151c-f0f3-58a9-afe5-cef2f29b36e2",
+    "label": "BBOT Nuclei Recon Fusion",
+    "command": "bbot -f subdomain-enum web-basic -m portscan nuclei --allow-deadly -t app1.evilcorp.com app2.evilcorp.com app3.evilcorp.com",
+    "description": "<p>This runbook operationalizes <strong>Recon plus vulnerability template execution in one BBOT chain.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>, <span style=\"color:#ef4444;font-weight:bold;\">#nuclei</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>, <span style=\"color:#ef4444;font-weight:bold;\">#nuclei</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>bbot -f subdomain-enum web-basic -m portscan nuclei --allow-deadly -t app1.evilcorp.com app2.evilcorp.com app3.evilcorp.com</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "c24001f5-b256-5007-8c37-162aa957355e",
+    "label": "BBOT Passive Subdomain Sweep",
+    "command": "bbot -t evilcorp.com -p subdomain-enum\nbbot -t evilcorp.com -p subdomain-enum -rf passive",
+    "description": "<p>This runbook operationalizes <strong>Baseline passive subdomain discovery workflow using BBOT presets.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>bbot -t evilcorp.com -p subdomain-enum\nbbot -t evilcorp.com -p subdomain-enum -rf passive</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "200ca32f-f6b7-5a2d-9405-47d9407540ff",
+    "label": "BBOT Recursive Spidering Pass",
+    "command": "bbot -t evilcorp.com -p spider",
+    "description": "<p>This runbook operationalizes <strong>Recursive web crawling preset to expand discovered web assets.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>bbot -t evilcorp.com -p spider</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "25dd06f1-219c-57b2-9c1e-580ce94ba8cb",
+    "label": "BBOT Deep Web Profiling",
+    "command": "bbot -t www.evilcorp.com -p web-thorough",
+    "description": "<p>This runbook operationalizes <strong>Deeper web-focused preset for more exhaustive web reconnaissance.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#bbot</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>bbot -t www.evilcorp.com -p web-thorough</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "82bcf55a-87fd-5d49-a058-4af0910e699a",
+    "label": "Blackbird Filtered Proxied Search",
+    "command": "python blackbird.py --filter \"name~Mastodon and cat=social or e_code<=200\" --username crash\npython blackbird.py --username username1 --proxy \"http://myproxy:9090\"",
+    "description": "<p>This runbook operationalizes <strong>Precision filtering and proxied enumeration for controlled investigations.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#blackbird</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#blackbird</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>python blackbird.py --filter \"name~Mastodon and cat=social or e_code&lt;=200\" --username crash\npython blackbird.py --username username1 --proxy \"http://myproxy:9090\"</code></pre>",
+    "tags": [
+      "social",
+      "search",
+      "security",
+      "processing",
+      "metadata"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "020c9111-e451-52c1-83f2-0ba9f1e57115",
+    "label": "Blackbird Identity Reverse Search",
+    "command": "python blackbird.py --username username1\npython blackbird.py --email email1@email",
+    "description": "<p>This runbook operationalizes <strong>Fast identity surface discovery from username and email inputs.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#blackbird</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#blackbird</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>python blackbird.py --username username1\npython blackbird.py --email email1@email</code></pre>",
+    "tags": [
+      "social",
+      "search",
+      "security",
+      "processing",
+      "metadata"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "2e610ba6-efa9-5013-9b0b-9c4db76bb557",
+    "label": "ExifTool yt-dlp Media Intelligence",
+    "command": "exiftool -a -u -g1 a.jpg\nexiftool -r -w .txt -common pictures\nexiftool -ee -p \"$gpslatitude, $gpslongitude, $gpstimestamp\" a.m2ts\nyt-dlp --print filename -o \"%(title)s.%(ext)s\" BaW_jenozKc --restrict-filenames\nyt-dlp -o \"%(playlist)s/%(playlist_index)s - %(title)s.%(ext)s\" \"https://www.youtube.com/playlist?list=PLwiyx1dc3P2JR9N8gQaQN_BCvlSlap7re\"\nyt-dlp -u user -p password -P \"~/MyVideos\" -o \"%(playlist)s/%(chapter_number)s - %(chapter)s/%(title)s.%(ext)s\" \"https://www.udemy.com/java-tutorial\"\nyt-dlp --netrc-cmd 'gpg --decrypt ~/.authinfo.gpg' 'https://www.youtube.com/watch?v=BaW_jenozKc'",
+    "description": "<p>This runbook operationalizes <strong>Extract image/video metadata and perform structured media acquisition with robust naming/auth workflows.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#exiftool</span>, <span style=\"color:#ef4444;font-weight:bold;\">#yt-dlp</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#exiftool</span>, <span style=\"color:#ef4444;font-weight:bold;\">#yt-dlp</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>exiftool -a -u -g1 a.jpg\nexiftool -r -w .txt -common pictures\nexiftool -ee -p \"$gpslatitude, $gpslongitude, $gpstimestamp\" a.m2ts\nyt-dlp --print filename -o \"%(title)s.%(ext)s\" BaW_jenozKc --restrict-filenames\nyt-dlp -o \"%(playlist)s/%(playlist_index)s - %(title)s.%(ext)s\" \"https://www.youtube.com/playlist?list=PLwiyx1dc3P2JR9N8gQaQN_BCvlSlap7re\"\nyt-dlp -u user -p password -P \"~/MyVideos\" -o \"%(playlist)s/%(chapter_number)s - %(chapter)s/%(title)s.%(ext)s\" \"https://www.udemy.com/java-tutorial\"\nyt-dlp --netrc-cmd 'gpg --decrypt ~/.authinfo.gpg' 'https://www.youtube.com/watch?v=BaW_jenozKc'</code></pre>",
+    "tags": [
+      "media",
+      "metadata",
+      "processing",
+      "security",
+      "archive"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "72222e6b-def3-57ca-a79d-62fce294238b",
+    "label": "GHunt Login Email Export",
+    "command": "ghunt login\nghunt email <email_address> --json user_data.json",
+    "description": "<p>This runbook operationalizes <strong>Authenticate GHunt and export email-centered intelligence as JSON.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#ghunt</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#ghunt</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>ghunt login\nghunt email &lt;email_address&gt; --json user_data.json</code></pre>",
+    "tags": [
+      "email",
+      "search",
+      "security",
+      "social",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "c298a97d-021e-5abe-aec1-d7ea45416a6a",
+    "label": "Holehe Email Presence Detection",
+    "command": "holehe test@gmail.com",
+    "description": "<p>This runbook operationalizes <strong>Check service-level account existence tied to a target email.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#holehe</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#holehe</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>holehe test@gmail.com</code></pre>",
+    "tags": [
+      "email",
+      "search",
+      "security",
+      "social",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "e15c81db-545b-5ecf-8b59-239d0048bdc7",
+    "label": "Instaloader Public-Private Collection",
+    "command": "instaloader profile [profile ...]\ninstaloader --fast-update profile [profile ...]\ninstaloader --login=your_username profile [profile ...]",
+    "description": "<p>This runbook operationalizes <strong>Baseline Instagram scraping, incremental updates, and authenticated private access.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#instaloader</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#instaloader</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>instaloader profile [profile ...]\ninstaloader --fast-update profile [profile ...]\ninstaloader --login=your_username profile [profile ...]</code></pre>",
+    "tags": [
+      "social",
+      "metadata",
+      "search",
+      "security",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "c4c08826-165c-5814-aaa7-103e2147ea3a",
+    "label": "Katana Active Session Reuse",
+    "command": "katana -headless -u https://tesla.com -cwu ws://127.0.0.1:9222/devtools/browser/c5316c9c-19d6-42dc-847a-41d1aeebf7d6 -no-incognito",
+    "description": "<p>This runbook operationalizes <strong>Attach katana to a live authenticated browser session for realistic crawling.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#katana</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#katana</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>katana -headless -u https://tesla.com -cwu ws://127.0.0.1:9222/devtools/browser/c5316c9c-19d6-42dc-847a-41d1aeebf7d6 -no-incognito</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "b9be2467-b2b5-5edc-8a2b-8a19a9b72abf",
+    "label": "Katana Authenticated Session Crawl",
+    "command": "katana -u https://tesla.com -H 'Cookie: usrsess=AmljNrESo'\nkatana -u https://tesla.com -H cookie.txt",
+    "description": "<p>This runbook operationalizes <strong>Crawl protected app areas using session headers/cookies.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#katana</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#katana</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>katana -u https://tesla.com -H 'Cookie: usrsess=AmljNrESo'\nkatana -u https://tesla.com -H cookie.txt</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "80e4e1f1-f309-55f6-9ac0-fe70a074e903",
+    "label": "Katana Input Mode Coverage",
+    "command": "katana -u https://tesla.com\nkatana -u https://tesla.com,https://google.com\nkatana -list url_list.txt",
+    "description": "<p>This runbook operationalizes <strong>Crawl single target, multiple targets, or batch file inputs.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#katana</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#katana</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>katana -u https://tesla.com\nkatana -u https://tesla.com,https://google.com\nkatana -list url_list.txt</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "826e9473-7790-55ea-994c-13caf092d47d",
+    "label": "Katana Filtered Response Capture",
+    "command": "katana -u https://www.hackerone.com -mdc 'status_code == 200'\nkatana -u https://example.com -jsonl -eof raw,body\nkatana -u https://example.com -no-scope -store-response",
+    "description": "<p>This runbook operationalizes <strong>Filter crawl results by DSL conditions and store raw response artifacts.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#katana</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#katana</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>katana -u https://www.hackerone.com -mdc 'status_code == 200'\nkatana -u https://example.com -jsonl -eof raw,body\nkatana -u https://example.com -no-scope -store-response</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "374b147a-85f8-5ee1-a8b8-101cb57a0deb",
+    "label": "Katana Headless Crawl Control",
+    "command": "katana -u https://tesla.com -headless -no-sandbox\nkatana -u https://tesla.com -headless -no-incognito\nkatana -u https://tesla.com -headless -system-chrome -headless-options --disable-gpu,proxy-server=http://127.0.0.1:8080",
+    "description": "<p>This runbook operationalizes <strong>Browser-driven crawling modes for dynamic and authenticated targets.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#katana</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#katana</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>katana -u https://tesla.com -headless -no-sandbox\nkatana -u https://tesla.com -headless -no-incognito\nkatana -u https://tesla.com -headless -system-chrome -headless-options --disable-gpu,proxy-server=http://127.0.0.1:8080</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "1919f9ca-16a2-5982-a6fc-c729f1f6ff7b",
+    "label": "Katana JavaScript Endpoint Expansion",
+    "command": "katana -u https://tesla.com -jc\nkatana -u https://tesla.com -kf robotstxt,sitemapxml",
+    "description": "<p>This runbook operationalizes <strong>Expand crawl surface via JS endpoint parsing and robots/sitemap harvesting.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#katana</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#katana</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>katana -u https://tesla.com -jc\nkatana -u https://tesla.com -kf robotstxt,sitemapxml</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "5e6cf26b-1009-5b3e-8cc7-b156b5f00496",
+    "label": "Katana Live-Host Pipeline Crawl",
+    "command": "cat domains | httpx | katana",
+    "description": "<p>This runbook operationalizes <strong>Feed live HTTP hosts directly into crawler from a recon pipeline.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#katana</span>, <span style=\"color:#ef4444;font-weight:bold;\">#httpx</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#katana</span>, <span style=\"color:#ef4444;font-weight:bold;\">#httpx</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>cat domains | httpx | katana</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "2dd0c89d-b093-5630-a043-d51ac9ad157f",
+    "label": "Maigret Multi-Format Reporting",
+    "command": "maigret user --html\nmaigret user --pdf\nmaigret user --xmind",
+    "description": "<p>This runbook operationalizes <strong>Generate rich report artifacts from username investigations.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#maigret</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#maigret</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>maigret user --html\nmaigret user --pdf\nmaigret user --xmind</code></pre>",
+    "tags": [
+      "social",
+      "search",
+      "security",
+      "processing",
+      "metadata"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "1b2666fb-55bb-5303-9020-fc1ae5d30ab0",
+    "label": "Maigret Tag Scope Expansion",
+    "command": "maigret user --tags photo,dating\nmaigret user1 user2 user3 -a",
+    "description": "<p>This runbook operationalizes <strong>Scope searches by site tags or expand to all supported sites.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#maigret</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#maigret</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>maigret user --tags photo,dating\nmaigret user1 user2 user3 -a</code></pre>",
+    "tags": [
+      "social",
+      "search",
+      "security",
+      "processing",
+      "metadata"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "5bd72244-943d-5aa1-9546-fa31b30e9cc9",
+    "label": "Maigret Web Interface Mode",
+    "command": "maigret --web 5000",
+    "description": "<p>This runbook operationalizes <strong>Launch local web UI for interactive username investigation.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#maigret</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#maigret</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>maigret --web 5000</code></pre>",
+    "tags": [
+      "social",
+      "search",
+      "security",
+      "processing",
+      "metadata"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "ea26141c-384b-5881-8a26-2606b052ecdb",
+    "label": "Photon Docker Crawl Workflow",
+    "command": "docker run -it --name photon photon:latest -u google.com\ndocker run -it --name photon -v \"$PWD:/Photon/google.com\" photon:latest -u google.com",
+    "description": "<p>This runbook operationalizes <strong>Crawl target surface and optionally mount output to local workspace.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#photon</span>, <span style=\"color:#ef4444;font-weight:bold;\">#docker</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#photon</span>, <span style=\"color:#ef4444;font-weight:bold;\">#docker</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>docker run -it --name photon photon:latest -u google.com\ndocker run -it --name photon -v \"$PWD:/Photon/google.com\" photon:latest -u google.com</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "7dcdc71b-ebdd-5c44-9875-22bc01d0cb71",
+    "label": "Sherlock Username Footprint Sweep",
+    "command": "sherlock user123\nsherlock user1 user2 user3",
+    "description": "<p>This runbook operationalizes <strong>Enumerate account presence for one or multiple usernames.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#sherlock</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#sherlock</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>sherlock user123\nsherlock user1 user2 user3</code></pre>",
+    "tags": [
+      "social",
+      "search",
+      "security",
+      "processing",
+      "metadata"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "39d42657-eac8-5a96-881c-0f2c78b954ef",
+    "label": "gau Batch Archive URL Harvest",
+    "command": "printf example.com | gau\ncat domains.txt | gau --threads 5\ngau example.com google.com",
+    "description": "<p>This runbook operationalizes <strong>Pull historical URLs from archive providers for one or many domains.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#gau</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#gau</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>printf example.com | gau\ncat domains.txt | gau --threads 5\ngau example.com google.com</code></pre>",
+    "tags": [
+      "archive",
+      "domain",
+      "search",
+      "processing",
+      "automation"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "52ed76eb-aab4-50ab-80e9-a6adafbfc35f",
+    "label": "gau Structured JSON Emission",
+    "command": "gau --json",
+    "description": "<p>This runbook operationalizes <strong>Emit machine-readable records for parsing and workflow chaining.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#gau</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#gau</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>gau --json</code></pre>",
+    "tags": [
+      "archive",
+      "domain",
+      "search",
+      "processing",
+      "automation"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "59ac03e6-bbb3-5fed-8284-217cf7527d51",
+    "label": "gau Provider-Time Query Control",
+    "command": "gau --from 202101\ngau --providers wayback\ngau example.com --to 202101",
+    "description": "<p>This runbook operationalizes <strong>Restrict URL collection to specific providers and date windows.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#gau</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#gau</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>gau --from 202101\ngau --providers wayback\ngau example.com --to 202101</code></pre>",
+    "tags": [
+      "archive",
+      "domain",
+      "search",
+      "processing",
+      "automation"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "dc597201-3e29-5c06-b9b1-5d164d224fe3",
+    "label": "h8mail Local Breach Pivoting",
+    "command": "h8mail -t targets.txt -bc ../Downloads/BreachCompilation/ -sk\nh8mail -t JSmith89 -q username -k \"dehashed_email=user@email.com\" \"dehashed_key=ABCDE123\"\nh8mail -t 42.202.0.42 -q ip -c h8mail_config_priv.ini -ch 2 --power-chase",
+    "description": "<p>This runbook operationalizes <strong>Offline/local breach corpus checks with username and IP pivoting.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#h8mail</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#h8mail</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>h8mail -t targets.txt -bc ../Downloads/BreachCompilation/ -sk\nh8mail -t JSmith89 -q username -k \"dehashed_email=user@email.com\" \"dehashed_key=ABCDE123\"\nh8mail -t 42.202.0.42 -q ip -c h8mail_config_priv.ini -ch 2 --power-chase</code></pre>",
+    "tags": [
+      "breach",
+      "email",
+      "search",
+      "security",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "4fb248f9-b00b-5d14-bc71-e7f1b668da64",
+    "label": "h8mail Single-Bulk Processing",
+    "command": "h8mail -t target@example.com\nh8mail -t targets.txt -c config.ini -o pwned_targets.csv",
+    "description": "<p>This runbook operationalizes <strong>Basic breach lookup for single or bulk targets with report export.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#h8mail</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#h8mail</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>h8mail -t target@example.com\nh8mail -t targets.txt -c config.ini -o pwned_targets.csv</code></pre>",
+    "tags": [
+      "breach",
+      "email",
+      "search",
+      "security",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "c9666df6-fe99-598b-9ec4-5d346330e10c",
+    "label": "snscrape User-Hashtag Collection",
+    "command": "snscrape twitter-user textfiles\nsnscrape --max-results 100 twitter-hashtag archiveteam",
+    "description": "<p>This runbook operationalizes <strong>Collect account timelines and hashtag-driven samples from social sources.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#snscrape</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#snscrape</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>snscrape twitter-user textfiles\nsnscrape --max-results 100 twitter-hashtag archiveteam</code></pre>",
+    "tags": [
+      "social",
+      "search",
+      "metadata",
+      "processing",
+      "security"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "291cbce7-d17b-5199-ae3f-cbb1851c7e22",
+    "label": "theHarvester uv Local Execution",
+    "command": "uv run theHarvester",
+    "description": "<p>This runbook operationalizes <strong>Run theHarvester directly from the project virtual environment.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#theHarvester</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#theHarvester</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>uv run theHarvester</code></pre>",
+    "tags": [
+      "security",
+      "domain",
+      "search",
+      "automation",
+      "processing"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "2eae0468-e221-55a8-8274-b24b61fbd6b8",
+    "label": "waybackurls Domain List Extraction",
+    "command": "cat domains.txt | waybackurls > urls",
+    "description": "<p>This runbook operationalizes <strong>Quickly collect Wayback URLs from domain wordlists.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#waybackurls</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#waybackurls</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>cat domains.txt | waybackurls &gt; urls</code></pre>",
+    "tags": [
+      "archive",
+      "domain",
+      "search",
+      "processing",
+      "automation"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "9c521da3-cdd9-508d-ad5e-9fbddb916d5e",
+    "label": "waymore Runtime Preflight Estimation",
+    "command": "waymore -i redbull.com --check-only",
+    "description": "<p>This runbook operationalizes <strong>Preflight estimation before high-volume archive collection.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#waymore</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#waymore</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>waymore -i redbull.com --check-only</code></pre>",
+    "tags": [
+      "archive",
+      "domain",
+      "search",
+      "processing",
+      "automation"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "d13b50df-8840-56c1-99c7-8e516dad3616",
+    "label": "waymore URL-Response Collection",
+    "command": "docker run -it --rm -v $PWD/results:/app/results waymore:latest -i example.com -oU example.com.links -oR results/example.com/",
+    "description": "<p>This runbook operationalizes <strong>Run complete URL and archived-response collection in containerized mode.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#waymore</span>, <span style=\"color:#ef4444;font-weight:bold;\">#docker</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#waymore</span>, <span style=\"color:#ef4444;font-weight:bold;\">#docker</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>docker run -it --rm -v $PWD/results:/app/results waymore:latest -i example.com -oU example.com.links -oR results/example.com/</code></pre>",
+    "tags": [
+      "archive",
+      "domain",
+      "search",
+      "processing",
+      "automation"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "9565f5b9-0b91-5500-b537-43f097634173",
+    "label": "waymore URL-Mode Processing Chain",
+    "command": "waymore -i redbull.com -mode U | unfurl keys | sort -u",
+    "description": "<p>This runbook operationalizes <strong>URL-only mode piped into key extraction and dedup sorting.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#waymore</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#waymore</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>waymore -i redbull.com -mode U | unfurl keys | sort -u</code></pre>",
+    "tags": [
+      "archive",
+      "domain",
+      "search",
+      "processing",
+      "automation"
+    ],
+    "color": "#1f8a7a"
+  },
+  {
+    "id": "fd960f2c-3f5a-578a-a9ef-1c10920c1c45",
+    "label": "waymore stdin Target Ingestion",
+    "command": "cat redbull_subs.txt | waymore",
+    "description": "<p>This runbook operationalizes <strong>Feed discovered subdomains directly to waymore over stdin.</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#waymore</span>. It is designed for repeatable, evidence-driven OSINT execution rather than ad-hoc one-off commands.</p>\n<p>Execution should stay bounded to approved scope and preserve clean artifacts for downstream graphing, reporting, and profile ingestion.</p>\n\n<ol>\n  <li><strong>Prepare scope and inputs:</strong> define targets, filters, and safe execution parameters.</li>\n  <li><strong>Execute collection pipeline:</strong> run the core tooling sequence to gather high-value intelligence.</li>\n  <li><strong>Validate and persist output:</strong> normalize findings into reusable artifacts for follow-on analysis.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Refer to local source docs cited in <code>runbook-list.md</code>; primary tooling here is <span style=\"color:#ef4444;font-weight:bold;\">#waymore</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized assessment scope, operator shell access, and outbound reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/443</span>.</li>\n  <li><strong>What attacker gain:</strong> structured intelligence outputs (assets, identities, metadata, or historical traces) that accelerate subsequent access or investigation decisions.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce rate limits, monitor unusual enumeration/crawling patterns, harden exposed metadata, and alert on repeated reconnaissance behavior from single operator infrastructure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>cat redbull_subs.txt | waymore</code></pre>",
+    "tags": [
+      "archive",
+      "domain",
+      "search",
+      "processing",
+      "automation"
+    ],
+    "color": "#1f8a7a"
+  }
+]
