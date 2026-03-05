@@ -1,0 +1,187 @@
+{
+  "id": "7b41e8c9-5a11-4f93-b2f5-b6ca98f0ea2d",
+  "schemaVersion": "1.0",
+  "name": "Missing DLL Hijacking",
+  "description": "Intercepting execution of a high-privileged process by injecting a malicious DLL into a writable directory located in the system PATH.",
+  "mitreTechniques": [
+    "T1574.001",
+    "T1082",
+    "T1083"
+  ],
+  "entities": {
+    "nodes": [
+      {
+        "id": "attacker_machine",
+        "label": "Attacker Operator",
+        "type": "Attacker",
+        "group": "Threat Actor"
+      },
+      {
+        "id": "procmon",
+        "label": "Procmon Viewer",
+        "type": "Tool",
+        "group": "Attacker Artifacts"
+      },
+      {
+        "id": "env_path",
+        "label": "System %PATH%",
+        "type": "DataBoundary",
+        "group": "System Configuration"
+      },
+      {
+        "id": "vuln_process",
+        "label": "Privileged Application",
+        "type": "Process",
+        "group": "Target Infrastructure"
+      },
+      {
+        "id": "malicious_dll",
+        "label": "Malicious wlbsctrl.dll",
+        "type": "File",
+        "group": "Attacker Artifacts"
+      },
+      {
+        "id": "system_shell",
+        "label": "Injected Execution Flow",
+        "type": "NetworkConnection",
+        "group": "Attacker Artifacts"
+      }
+    ],
+    "edges": []
+  },
+  "initialVisibility": {
+    "nodes": [
+      "attacker_machine",
+      "env_path",
+      "vuln_process"
+    ],
+    "edges": []
+  },
+  "steps": [
+    {
+      "id": 1,
+      "title": "Identify Missing DLL via Procmon",
+      "description": "Monitor File APIs for privileged processes returning 'NAME NOT FOUND' for required .dll dependencies.",
+      "command": "ProcessMonitor.exe /BackingFile \"procmon.pml\"",
+      "mitre": "T1082",
+      "status": "success",
+      "impact": "Identified vulnerable process blindly requesting wlbsctrl.dll from the PATH.",
+      "visibilityChanges": {
+        "showNodes": [
+          "procmon"
+        ],
+        "showEdges": [
+          "e_procmon_monitor"
+        ]
+      },
+      "newEdges": [
+        {
+          "id": "e_procmon_monitor",
+          "source": "attacker_machine",
+          "target": "procmon",
+          "label": "Analyze ETW",
+          "type": "Reconnaissance"
+        },
+        {
+          "id": "e_procmon_vuln",
+          "source": "procmon",
+          "target": "vuln_process",
+          "label": "Identify Leak",
+          "type": "Reconnaissance"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Check PATH Directory Permissions",
+      "description": "Iterate over every directory in the SYSTEM PATH variable and identify ones writable by non-admin users.",
+      "command": "icacls \"C:\\\\Vulnerable\\\\Path\"",
+      "mitre": "T1083",
+      "status": "success",
+      "impact": "Located a writable folder early in the PATH hierarchy.",
+      "visibilityChanges": {
+        "showNodes": [],
+        "showEdges": [
+          "e_check_path"
+        ]
+      },
+      "newEdges": [
+        {
+          "id": "e_check_path",
+          "source": "attacker_machine",
+          "target": "env_path",
+          "label": "Check ACLs",
+          "type": "Reconnaissance"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Compile & Drop Malicious DLL",
+      "description": "Compile a C payload wrapping command execution inside DllMain, match the exact filename of the missing library, and drop it in the writable PATH dir.",
+      "command": "x86_64-w64-mingw32-gcc payload.c -shared -o MissingDLL.dll && copy MissingDLL.dll \"C:\\\\Vulnerable\\\\Path\\\\\"",
+      "mitre": "T1574.001",
+      "status": "success",
+      "impact": "Payload staged and waiting for LoadLibrary API call.",
+      "visibilityChanges": {
+        "showNodes": [
+          "malicious_dll"
+        ],
+        "showEdges": [
+          "e_drop_dll"
+        ]
+      },
+      "newEdges": [
+        {
+          "id": "e_drop_dll",
+          "source": "attacker_machine",
+          "target": "malicious_dll",
+          "label": "Write File",
+          "type": "FileDrop"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Trigger DLL Load",
+      "description": "Restart the vulnerable service or application. The application searches the PATH, hits the attacker's DLL first, and loads it into its memory space.",
+      "command": "sc stop VulnApp && sc start VulnApp",
+      "mitre": "T1574.001",
+      "status": "success",
+      "impact": "DllMain executes payload directly within the memory boundary of the SYSTEM application.",
+      "visibilityChanges": {
+        "showNodes": [
+          "system_shell"
+        ],
+        "showEdges": [
+          "e_trigger_app",
+          "e_app_loads_dll",
+          "e_dll_executes"
+        ]
+      },
+      "newEdges": [
+        {
+          "id": "e_trigger_app",
+          "source": "attacker_machine",
+          "target": "vuln_process",
+          "label": "Restart Service",
+          "type": "CommandExecution"
+        },
+        {
+          "id": "e_app_loads_dll",
+          "source": "vuln_process",
+          "target": "malicious_dll",
+          "label": "LoadLibrary()",
+          "type": "CodeInjection"
+        },
+        {
+          "id": "e_dll_executes",
+          "source": "malicious_dll",
+          "target": "system_shell",
+          "label": "Execute (SYSTEM)",
+          "type": "NetworkConnection"
+        }
+      ]
+    }
+  ]
+}

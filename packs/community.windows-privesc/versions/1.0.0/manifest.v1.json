@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "packId": "community.windows-privesc",
+  "version": "1.0.0",
+  "profile": {
+    "file": "profile.json",
+    "sha256": "9ccefe8b29746f813b101d0a8f22b5b39c37be67a5399b4bad7fb1b833ed59f8"
+  },
+  "graphs": [
+    {
+      "commandId": "45c39126-78b4-4e2b-b5d1-ab51203697e8",
+      "file": "graphs/45c39126-78b4-4e2b-b5d1-ab51203697e8.json",
+      "sha256": "e14537ca91a52115e7f1b373cc5d77f24804f4434dd5d2382252805bc68b36d6"
+    },
+    {
+      "commandId": "7b41e8c9-5a11-4f93-b2f5-b6ca98f0ea2d",
+      "file": "graphs/7b41e8c9-5a11-4f93-b2f5-b6ca98f0ea2d.json",
+      "sha256": "88f7ab978142102a9fe44ef870693fe2615287e2d674211009a1724a70de780d"
+    },
+    {
+      "commandId": "a23f10c8-4712-4eb9-bb23-95ca1d0d5924",
+      "file": "graphs/a23f10c8-4712-4eb9-bb23-95ca1d0d5924.json",
+      "sha256": "4646f375dcf01eae5e99e2bb4583e7273d28b4bb2f59e319d5271cc7ccb66b46"
+    },
+    {
+      "commandId": "fde12b39-2a91-45cd-a937-299f2b3e8c33",
+      "file": "graphs/fde12b39-2a91-45cd-a937-299f2b3e8c33.json",
+      "sha256": "f1104c39e40ea3305957a47136b1e3b5265111d2eab4a7631dfa2b0bcc8ba240"
+    }
+  ]
+}

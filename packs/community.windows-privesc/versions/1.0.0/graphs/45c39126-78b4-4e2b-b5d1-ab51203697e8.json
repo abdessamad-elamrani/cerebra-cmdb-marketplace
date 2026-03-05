@@ -1,0 +1,190 @@
+{
+  "id": "45c39126-78b4-4e2b-b5d1-ab51203697e8",
+  "schemaVersion": "1.0",
+  "name": "PrintSpoofer Token Impersonation",
+  "description": "Abusing SeImpersonatePrivilege by coercing the Print Spooler service to authenticate to a malicious Named Pipe and stealing its SYSTEM token.",
+  "mitreTechniques": [
+    "T1134.001",
+    "T1082",
+    "T1134.002"
+  ],
+  "entities": {
+    "nodes": [
+      {
+        "id": "service_account",
+        "label": "Compromised Service Account",
+        "type": "Attacker",
+        "group": "Threat Actor"
+      },
+      {
+        "id": "spoolsv",
+        "label": "Print Spooler (SYSTEM)",
+        "type": "Process",
+        "group": "System Components"
+      },
+      {
+        "id": "printspoofer",
+        "label": "PrintSpoofer Exploit",
+        "type": "Tool",
+        "group": "Attacker Artifacts"
+      },
+      {
+        "id": "named_pipe",
+        "label": "Malicious Named Pipe",
+        "type": "File",
+        "group": "Attacker Artifacts",
+        "properties": {
+          "path": "\\\\.\\\\pipe\\\\test\\\\pipe\\\\spoolss"
+        }
+      },
+      {
+        "id": "token",
+        "label": "SYSTEM Access Token",
+        "type": "Credential",
+        "group": "System Configurations"
+      },
+      {
+        "id": "cmd_system",
+        "label": "cmd.exe (SYSTEM)",
+        "type": "Process",
+        "group": "Attacker Artifacts"
+      }
+    ],
+    "edges": []
+  },
+  "initialVisibility": {
+    "nodes": [
+      "service_account",
+      "spoolsv"
+    ],
+    "edges": []
+  },
+  "steps": [
+    {
+      "id": 1,
+      "title": "Verify Impersonation Privileges",
+      "description": "Check the local security context to confirm the compromised user (e.g., IIS AppPool) possesses SeImpersonatePrivilege.",
+      "command": "whoami /priv | findstr \"SeImpersonatePrivilege\"",
+      "mitre": "T1082",
+      "status": "success",
+      "impact": "Confirmed capability to mathematically apply stolen tokens to new threads.",
+      "visibilityChanges": {
+        "showNodes": [],
+        "showEdges": [
+          "e_check_privs"
+        ]
+      },
+      "newEdges": [
+        {
+          "id": "e_check_privs",
+          "source": "service_account",
+          "target": "service_account",
+          "label": "Check Context",
+          "type": "Reconnaissance"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Establish Malicious Listener",
+      "description": "Execute PrintSpoofer to construct an obfuscated Named Pipe listener on the local system.",
+      "command": "PrintSpoofer64.exe -i -c cmd.exe",
+      "mitre": "T1134.001",
+      "status": "success",
+      "impact": "Listener awaiting SYSTEM connection.",
+      "visibilityChanges": {
+        "showNodes": [
+          "printspoofer",
+          "named_pipe"
+        ],
+        "showEdges": [
+          "e_run_spoofer",
+          "e_create_pipe"
+        ]
+      },
+      "newEdges": [
+        {
+          "id": "e_run_spoofer",
+          "source": "service_account",
+          "target": "printspoofer",
+          "label": "Execute",
+          "type": "CommandExecution"
+        },
+        {
+          "id": "e_create_pipe",
+          "source": "printspoofer",
+          "target": "named_pipe",
+          "label": "Create Listener",
+          "type": "FileDrop"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Coerce Spooler Authentication",
+      "description": "Issue a malicious RPC notification request (RpcRemoteFindFirstPrinterChangeNotificationEx) to the Spooler, tricking it into connecting to the rogue Named Pipe.",
+      "command": "(PrintSpoofer internal RPC Trigger)",
+      "mitre": "T1134.001",
+      "status": "success",
+      "impact": "Spooler authenticates to the pipe using its own SYSTEM context.",
+      "visibilityChanges": {
+        "showNodes": [],
+        "showEdges": [
+          "e_rpc_trigger",
+          "e_spooler_connects"
+        ]
+      },
+      "newEdges": [
+        {
+          "id": "e_rpc_trigger",
+          "source": "printspoofer",
+          "target": "spoolsv",
+          "label": "Send RPC Request",
+          "type": "NetworkConnection"
+        },
+        {
+          "id": "e_spooler_connects",
+          "source": "spoolsv",
+          "target": "named_pipe",
+          "label": "Authenticate (SYSTEM)",
+          "type": "Exploitation"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Token Theft & Initialization",
+      "description": "Exploit calls ImpersonateNamedPipeClient(), captures the raw SYSTEM token, duplicates it, and initiates a reverse shell process wrapper with CreateProcessAsUser().",
+      "command": "(PrintSpoofer Token Application)",
+      "mitre": "T1134.002",
+      "status": "success",
+      "impact": "Interactive system-level shell obtained.",
+      "visibilityChanges": {
+        "showNodes": [
+          "token",
+          "cmd_system"
+        ],
+        "showEdges": [
+          "e_steal_token",
+          "e_spawn_cmd"
+        ]
+      },
+      "newEdges": [
+        {
+          "id": "e_steal_token",
+          "source": "named_pipe",
+          "target": "token",
+          "label": "Impersonate Client",
+          "type": "CredentialDiscovery"
+        },
+        {
+          "id": "e_spawn_cmd",
+          "source": "token",
+          "target": "cmd_system",
+          "label": "CreateProcessAsUser()",
+          "type": "ProcessSpawn"
+        }
+      ]
+    }
+  ]
+}
