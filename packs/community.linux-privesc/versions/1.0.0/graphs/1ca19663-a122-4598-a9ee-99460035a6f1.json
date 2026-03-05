@@ -1,0 +1,15 @@
+{
+  "title": "Run pspy (Process Snooping)",
+  "version": "2.0",
+  "viewport": {
+    "zoom": 1,
+    "pan": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": true,
+  "entities": [],
+  "steps": []
+}

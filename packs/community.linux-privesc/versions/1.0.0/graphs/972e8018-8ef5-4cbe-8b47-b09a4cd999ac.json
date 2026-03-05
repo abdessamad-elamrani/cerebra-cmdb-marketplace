@@ -1,0 +1,241 @@
+{
+  "title": "Cronjob Wildcard Expansion (Globbing) Command Injection",
+  "version": "3.0",
+  "tags": [
+    "Tar",
+    "Checkpoints",
+    "Command_Injection",
+    "Globbing",
+    "Cronjob",
+    "Local_Privesc"
+  ],
+  "entities": [
+    {
+      "id": "target_os",
+      "label": "Target Server",
+      "icon": "IconLinux",
+      "type": "container",
+      "members": [
+        "attacker_session",
+        "writable_directory",
+        "payload_script",
+        "deceptive_filename_flags",
+        "cron_daemon",
+        "tar_process",
+        "root_subshell"
+      ],
+      "position": {
+        "x": 109.93634882681346,
+        "y": -17.502419635008636
+      }
+    },
+    {
+      "id": "attacker_session",
+      "label": "Attacker Shell",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": -87.14988560645352,
+        "y": 103.5797820732439
+      }
+    },
+    {
+      "id": "writable_directory",
+      "label": "Writable Directory",
+      "icon": "IconDatabase",
+      "type": "node",
+      "position": {
+        "x": 271.4504633643636,
+        "y": -178.5858311607655
+      }
+    },
+    {
+      "id": "cron_daemon",
+      "label": "Cron Daemon",
+      "icon": "IconService",
+      "type": "node",
+      "position": {
+        "x": -90.0072589050257,
+        "y": -180.01451781005164
+      }
+    },
+    {
+      "id": "tar_process",
+      "label": "Tar Execution",
+      "icon": "IconProcess",
+      "type": "node",
+      "position": {
+        "x": 185.72926440719613,
+        "y": -61.43352591930339
+      }
+    },
+    {
+      "id": "payload_script",
+      "label": "Payload (shell.sh)",
+      "icon": "IconInfectedCode",
+      "type": "node",
+      "position": {
+        "x": 182.87189110862386,
+        "y": 119.2953352153912
+      }
+    },
+    {
+      "id": "deceptive_filename_flags",
+      "label": "Spoofed Files (Flags)",
+      "icon": "IconMalware",
+      "type": "node",
+      "position": {
+        "x": -45.00362945251284,
+        "y": -65.71958586716181
+      }
+    },
+    {
+      "id": "root_subshell",
+      "label": "Root Execution Context",
+      "icon": "IconInfectedTerminal",
+      "type": "node",
+      "position": {
+        "x": 282.8799565586526,
+        "y": 120.00967854003436
+      }
+    }
+  ],
+  "visibility": {
+    "target_os": {
+      "start": 0,
+      "end": 100
+    },
+    "attacker_session": {
+      "start": 0,
+      "end": 100
+    },
+    "writable_directory": {
+      "start": 0,
+      "end": 100
+    },
+    "cron_daemon": {
+      "start": 0,
+      "end": 100
+    },
+    "tar_process": {
+      "start": 4,
+      "end": 100
+    },
+    "payload_script": {
+      "start": 1,
+      "end": 100
+    },
+    "deceptive_filename_flags": {
+      "start": 2,
+      "end": 100
+    },
+    "root_subshell": {
+      "start": 7,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Drop Payload",
+      "mitre": {
+        "id": "T1059.004",
+        "tactic": "Execution",
+        "technique": "Command and Scripting Interpreter: Unix Shell"
+      },
+      "type": "edge",
+      "from": "attacker_session",
+      "to": "payload_script",
+      "description": "Attacker writes the malicious shell.sh logic to disk",
+      "cli": "echo 'cp /bin/bash /tmp/bash && chmod +s /tmp/bash' > shell.sh"
+    },
+    {
+      "id": 2,
+      "name": "Drop Malicious Names",
+      "mitre": {
+        "id": "T1036.004",
+        "tactic": "Defense Evasion",
+        "technique": "Masquerading: Task/Service Name"
+      },
+      "type": "edge",
+      "from": "attacker_session",
+      "to": "deceptive_filename_flags",
+      "description": "Attacker creates empty files whose names strictly mimic tar command-line flags",
+      "cli": "touch \"--checkpoint=1\" && touch \"--checkpoint-action=exec=sh shell.sh\""
+    },
+    {
+      "id": 3,
+      "name": "Execution Trigger",
+      "mitre": {
+        "id": "T1053.003",
+        "tactic": "Execution",
+        "technique": "Scheduled Task/Job: Cron"
+      },
+      "type": "edge",
+      "from": "cron_daemon",
+      "to": "writable_directory",
+      "description": "Cron daemon schedules the task and spawns /bin/sh -c 'tar *'"
+    },
+    {
+      "id": 4,
+      "name": "Shell Globbing Expands *",
+      "mitre": {
+        "id": "T1059.004",
+        "tactic": "Execution",
+        "technique": "Command and Scripting Interpreter: Unix Shell"
+      },
+      "type": "edge",
+      "from": "writable_directory",
+      "to": "tar_process",
+      "description": "The shell reads the malicious filenames and passes them directly to tar as argv strings"
+    },
+    {
+      "id": 5,
+      "name": "Argument Ingestion",
+      "mitre": {
+        "id": "T1059.004",
+        "tactic": "Execution",
+        "technique": "Command and Scripting Interpreter: Unix Shell"
+      },
+      "type": "edge",
+      "from": "tar_process",
+      "to": "deceptive_filename_flags",
+      "description": "tar parses the - prefixed filenames as CLI flags, registering the checkpoint action"
+    },
+    {
+      "id": 6,
+      "name": "Subshell Execution",
+      "mitre": {
+        "id": "T1059.004",
+        "tactic": "Execution",
+        "technique": "Command and Scripting Interpreter: Unix Shell"
+      },
+      "type": "edge",
+      "from": "tar_process",
+      "to": "payload_script",
+      "description": "tar reaches the checkpoint and spawns sh to execute the payload"
+    },
+    {
+      "id": 7,
+      "name": "Root Inheritance",
+      "mitre": {
+        "id": "T1068",
+        "tactic": "Privilege Escalation",
+        "technique": "Exploitation for Privilege Escalation"
+      },
+      "type": "edge",
+      "from": "payload_script",
+      "to": "root_subshell",
+      "description": "The script executes with the parent's EUID 0, yielding root control"
+    }
+  ],
+  "viewport": {
+    "zoom": 1.3999999999999986,
+    "pan": {
+      "x": 530.609292894084,
+      "y": 382.94876716552386
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

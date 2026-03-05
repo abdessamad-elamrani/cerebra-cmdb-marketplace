@@ -1,0 +1,204 @@
+{
+  "title": "Sudo Context LD_PRELOAD Dynamic Linker Constructor Hijack",
+  "version": "3.0",
+  "viewport": {
+    "zoom": 1.23,
+    "pan": {
+      "x": 685.6187160565305,
+      "y": 374.06506142249464
+    }
+  },
+  "stepInfoPosition": {
+    "x": 837.3316040039062,
+    "y": 854.2940673828125
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "tags": [
+    "Sudo",
+    "LD_PRELOAD",
+    "Dynamic_Linker",
+    "GCC",
+    "Local_Privesc",
+    "Shared_Object"
+  ],
+  "entities": [
+    {
+      "id": "target_os",
+      "label": "Target OS Environment",
+      "position": {
+        "x": 6.69145950948257,
+        "y": -84.70196451059508
+      },
+      "icon": "IconLinux",
+      "type": "container",
+      "members": [
+        "ssh_session",
+        "malicious_so",
+        "sudo_boundary",
+        "ld_linux_linker",
+        "intended_binary",
+        "root_shell"
+      ]
+    },
+    {
+      "id": "ssh_session",
+      "label": "Attacker Shell",
+      "position": {
+        "x": 96.4966033958634,
+        "y": -186.4916661953466
+      },
+      "icon": "IconTerminal",
+      "type": "node"
+    },
+    {
+      "id": "malicious_so",
+      "label": "Payload (/tmp/evil.so)",
+      "position": {
+        "x": 258.41006789631115,
+        "y": -8.840143834190616
+      },
+      "icon": "IconInfectedCode",
+      "type": "node"
+    },
+    {
+      "id": "sudo_boundary",
+      "label": "Sudo Execution",
+      "position": {
+        "x": -142.7757422197156,
+        "y": -139.2012669535799
+      },
+      "icon": "IconFirewall",
+      "type": "node"
+    },
+    {
+      "id": "ld_linux_linker",
+      "label": "ld-linux.so",
+      "position": {
+        "x": -261.19398946753273,
+        "y": -7.912262825843538
+      },
+      "icon": "IconService",
+      "type": "node"
+    },
+    {
+      "id": "intended_binary",
+      "label": "Intended Binary",
+      "position": {
+        "x": -261.027148877346,
+        "y": -164.85374227836374
+      },
+      "icon": "IconProcess",
+      "type": "node"
+    },
+    {
+      "id": "root_shell",
+      "label": "Root Shell",
+      "position": {
+        "x": 161.50184593838188,
+        "y": -147.73854083346046
+      },
+      "icon": "IconInfectedTerminal",
+      "type": "node"
+    }
+  ],
+  "visibility": {
+    "target_os": {
+      "start": 0,
+      "end": 100
+    },
+    "ssh_session": {
+      "start": 0,
+      "end": 100
+    },
+    "sudo_boundary": {
+      "start": 0,
+      "end": 100
+    },
+    "ld_linux_linker": {
+      "start": 0,
+      "end": 100
+    },
+    "intended_binary": {
+      "start": 0,
+      "end": 100
+    },
+    "malicious_so": {
+      "start": 1,
+      "end": 100
+    },
+    "root_shell": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Payload Compilation",
+      "mitre": {
+        "id": "T1574.006",
+        "tactic": "Privilege Escalation",
+        "technique": "Hijack Execution Flow: Dynamic Linker Hijacking"
+      },
+      "type": "edge",
+      "from": "ssh_session",
+      "to": "malicious_so",
+      "description": "Attacker uses GCC to build -fPIC -shared payload",
+      "cli": "gcc -fPIC -shared -o /tmp/evil.so evil.c -nostartfiles"
+    },
+    {
+      "id": 2,
+      "name": "Execute Sudo",
+      "mitre": {
+        "id": "T1548.003",
+        "tactic": "Privilege Escalation",
+        "technique": "Abuse Elevation Control Mechanism: Sudo and Sudo Caching"
+      },
+      "type": "edge",
+      "from": "ssh_session",
+      "to": "sudo_boundary",
+      "description": "Executes sudo LD_PRELOAD=/tmp/evil.so <cmd>",
+      "cli": "sudo LD_PRELOAD=/tmp/evil.so find"
+    },
+    {
+      "id": 3,
+      "name": "Environment Preservation",
+      "mitre": {
+        "id": "T1574.006",
+        "tactic": "Privilege Escalation",
+        "technique": "Hijack Execution Flow: Dynamic Linker Hijacking"
+      },
+      "type": "edge",
+      "from": "sudo_boundary",
+      "to": "ld_linux_linker",
+      "description": "Sudo transitions EUID=0, but passes the tainted LD_PRELOAD to the linker"
+    },
+    {
+      "id": 4,
+      "name": "Linker Preemption",
+      "mitre": {
+        "id": "T1574.006",
+        "tactic": "Privilege Escalation",
+        "technique": "Hijack Execution Flow: Dynamic Linker Hijacking"
+      },
+      "type": "edge",
+      "from": "ld_linux_linker",
+      "to": "malicious_so",
+      "description": "Linker parses LD_PRELOAD and maps the evil shared library, overriding intended binary mapping"
+    },
+    {
+      "id": 5,
+      "name": "Constructor Trigger",
+      "mitre": {
+        "id": "T1059.004",
+        "tactic": "Execution",
+        "technique": "Command and Scripting Interpreter: Unix Shell"
+      },
+      "type": "edge",
+      "from": "malicious_so",
+      "to": "root_shell",
+      "description": "The _init constructor executes system('/bin/bash'), granting an interactive root shell"
+    }
+  ]
+}

