@@ -1,0 +1,246 @@
+{
+  "title": "Commit Validation Job Tracking and Partial Commit Control",
+  "description": "Validate candidate configuration, inspect PAN-OS job records, and commit full or partial configuration scope with explicit queue awareness.",
+  "version": "3.0",
+  "shortDescription": "Commit validation and queue control",
+  "tags": [
+    "system",
+    "debugging",
+    "logging"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This runbook controls how Palo Alto candidate configuration becomes running configuration using <span style='color:#ef4444;font-weight:bold;'>#validate full</span>, <span style='color:#ef4444;font-weight:bold;'>#show jobs all</span>, <span style='color:#ef4444;font-weight:bold;'>#show jobs id</span>, and <span style='color:#ef4444;font-weight:bold;'>#commit partial</span>.</p><ol><li><strong>Validate first:</strong> run the candidate configuration through PAN-OS validation before activation.</li><li><strong>Inspect queue state:</strong> review job IDs, warnings, and completion status from the job subsystem.</li><li><strong>Activate carefully:</strong> commit full scope or only the intended partial scope to reduce blast radius.</li></ol>",
+    "commandsBlock": "# Step 1: Validate candidate configuration\n> configure\n# validate full\n\n# Step 2: Review job queue state\n> show jobs all\n> show jobs id <job-id>\n\n# Step 3: Commit validated changes\n> configure\n# commit\n# commit partial admin <admin> vsys <vsys-name> device-and-network excluded\n# commit partial device-and-network excluded",
+    "prerequisites": [
+      "CLI configuration privileges on the firewall or Panorama node",
+      "Existing candidate configuration changes to validate or commit"
+    ],
+    "attackerGains": [
+      "Validation status and warnings",
+      "Commit queue visibility",
+      "Controlled activation of configuration scope"
+    ],
+    "detectionNotes": [
+      "Audit all validation and commit activity",
+      "Unexpected partial commits deserve change-control review"
+    ],
+    "extraInfo": [
+      "Source - docs/sources-runbooks/paloalto/commit-configuration-changes.md:14-101",
+      "Generated via runbook-graph-generator skill"
+    ]
+  },
+  "entities": [
+    {
+      "id": "operator_environment",
+      "label": "Operator Environment",
+      "icon": "IconTerminal",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "operator_console",
+        "commit_report"
+      ],
+      "position": {
+        "x": 236.54865870478255,
+        "y": -72.78826360889887
+      }
+    },
+    {
+      "id": "control_plane",
+      "label": "PAN-OS Control Plane",
+      "icon": "IconFirewall",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "candidate_configuration",
+        "validation_engine",
+        "job_queue",
+        "running_configuration"
+      ],
+      "position": {
+        "x": -252.96326345480264,
+        "y": 191.21931955981483
+      }
+    },
+    {
+      "id": "operator_console",
+      "label": "Admin CLI Session",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 236.54865870478255,
+        "y": -85.28826360889887
+      }
+    },
+    {
+      "id": "commit_report",
+      "label": "Validation / Commit Report",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": 130.11150333296646,
+        "y": 4.718995296126863
+      }
+    },
+    {
+      "id": "candidate_configuration",
+      "label": "Candidate Configuration",
+      "icon": "IconCode",
+      "type": "node",
+      "position": {
+        "x": -77.84177561868034,
+        "y": 129.0724584971221
+      }
+    },
+    {
+      "id": "validation_engine",
+      "label": "Validation Engine",
+      "icon": "IconCheck",
+      "type": "node",
+      "position": {
+        "x": -133.56055494083915,
+        "y": 251.22516701108557
+      }
+    },
+    {
+      "id": "job_queue",
+      "label": "Job Queue",
+      "icon": "IconProcess",
+      "type": "node",
+      "position": {
+        "x": -328.57628256839484,
+        "y": 179.07649122213638
+      }
+    },
+    {
+      "id": "running_configuration",
+      "label": "Running Configuration",
+      "icon": "IconService",
+      "type": "node",
+      "position": {
+        "x": -433.58475129092494,
+        "y": 106.21347210854415
+      }
+    }
+  ],
+  "visibility": {
+    "operator_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "control_plane": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_console": {
+      "start": 0,
+      "end": 100
+    },
+    "candidate_configuration": {
+      "start": 0,
+      "end": 100
+    },
+    "validation_engine": {
+      "start": 0,
+      "end": 100
+    },
+    "job_queue": {
+      "start": 0,
+      "end": 100
+    },
+    "running_configuration": {
+      "start": 0,
+      "end": 100
+    },
+    "commit_report": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Enter Candidate Config Context",
+      "type": "edge",
+      "from": "operator_console",
+      "to": "candidate_configuration",
+      "icon": "IconCode",
+      "tooltip": "PAN-OS separates candidate configuration from the running state to support controlled validation and commit.",
+      "description": "The operator enters configuration mode and targets the candidate configuration that is awaiting activation.",
+      "cli": "> configure"
+    },
+    {
+      "id": 2,
+      "name": "Validate Candidate Configuration",
+      "type": "edge",
+      "from": "candidate_configuration",
+      "to": "validation_engine",
+      "icon": "IconCheck",
+      "tooltip": "Validation catches commit failures before they affect the running configuration.",
+      "description": "The candidate configuration is submitted to the PAN-OS validation engine for syntax and semantic verification.",
+      "cli": "# validate full"
+    },
+    {
+      "id": 3,
+      "name": "Queue Validation Job",
+      "type": "edge",
+      "from": "validation_engine",
+      "to": "job_queue",
+      "icon": "IconProcess",
+      "tooltip": "The queue provides visibility into pending, running, completed, and failed validation work.",
+      "description": "PAN-OS assigns a job ID and tracks the validation operation through the management job queue."
+    },
+    {
+      "id": 4,
+      "name": "Review Validation Results",
+      "type": "edge",
+      "from": "job_queue",
+      "to": "commit_report",
+      "icon": "IconData",
+      "tooltip": "This step exposes dependency warnings and queue status before any running-config change occurs.",
+      "description": "The operator inspects job output, warnings, and completion state to confirm whether the candidate configuration is safe to activate.",
+      "cli": "> show jobs all\n> show jobs id <job-id>"
+    },
+    {
+      "id": 5,
+      "name": "Activate Full or Partial Scope",
+      "type": "edge",
+      "from": "candidate_configuration",
+      "to": "running_configuration",
+      "icon": "IconUpload",
+      "tooltip": "Partial commit limits what is activated when multiple admins or configuration domains are involved.",
+      "description": "Validated candidate changes are committed into the running configuration, either as a full commit or a restricted partial commit.",
+      "cli": "# commit\n# commit partial admin <admin> vsys <vsys-name> device-and-network excluded\n# commit partial device-and-network excluded"
+    },
+    {
+      "id": 6,
+      "name": "Track Commit Execution",
+      "type": "edge",
+      "from": "running_configuration",
+      "to": "job_queue",
+      "icon": "IconProcess",
+      "tooltip": "Commit operations are queued and processed alongside other long-running management tasks.",
+      "description": "The commit engine runs through the job subsystem until the configuration reaches a terminal success or failure state."
+    },
+    {
+      "id": 7,
+      "name": "Confirm Final Commit Outcome",
+      "type": "edge",
+      "from": "job_queue",
+      "to": "operator_console",
+      "icon": "IconCheck",
+      "tooltip": "The workflow ends only after the queue shows a definitive final result.",
+      "description": "The operator confirms whether the commit completed successfully and whether any follow-up correction is needed.",
+      "cli": "> show jobs all\n> show jobs id <job-id>"
+    }
+  ],
+  "viewport": {
+    "zoom": 0.99,
+    "pan": {
+      "x": 651.3248866489946,
+      "y": 249.19536795479905
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

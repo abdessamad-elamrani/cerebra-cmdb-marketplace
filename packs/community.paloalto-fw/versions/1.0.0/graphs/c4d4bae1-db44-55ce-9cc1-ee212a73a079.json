@@ -1,0 +1,257 @@
+{
+  "title": "IPSec Tunnel Gateway and Security Association Troubleshooting",
+  "description": "Inspect gateway definitions, IKE phase 1, IPSec phase 2, tunnel inventory, and tunnel mode to isolate the failing VPN layer.",
+  "version": "3.0",
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "shortDescription": "IPSec tunnel health graph",
+  "tags": [
+    "ipsec",
+    "network",
+    "debugging"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This runbook checks Palo Alto VPN health with <span style='color:#ef4444;font-weight:bold;'>#show vpn flow</span>, <span style='color:#ef4444;font-weight:bold;'>#show vpn gateway</span>, <span style='color:#ef4444;font-weight:bold;'>#show vpn ike-sa</span>, <span style='color:#ef4444;font-weight:bold;'>#show vpn ipsec-sa</span>, and <span style='color:#ef4444;font-weight:bold;'>#show vpn tunnel</span>.</p><ol><li><strong>Establish scope:</strong> inspect VPN counters and configured gateways.</li><li><strong>Split the fault domain:</strong> treat IKE phase 1 and IPSec phase 2 as separate health checks.</li><li><strong>Verify tunnel definition:</strong> confirm tunnel inventory and mode if configuration mismatch is suspected.</li></ol>",
+    "commandsBlock": "# Step 1: Review VPN counters and gateways\n> show vpn flow\n> show vpn gateway\n\n# Step 2: Inspect phase 1 and phase 2 state\n> show vpn ike-sa\n> show vpn ipsec-sa\n\n# Step 3: Verify tunnel inventory and mode\n> show vpn tunnel\n> set network tunnel ipsec <name_of_tunnel> ipsec-mode [tunnel | transport]",
+    "prerequisites": [
+      "CLI access to the firewall",
+      "Knowledge of the relevant tunnel or gateway when making targeted checks"
+    ],
+    "attackerGains": [
+      "Gateway and tunnel inventory",
+      "IKE and IPSec security-association visibility",
+      "Tunnel-mode confirmation"
+    ],
+    "detectionNotes": [
+      "VPN inspection is low-noise management activity and should be protected by strict admin access policy",
+      "Configuration changes to tunnel mode should remain under formal change control"
+    ],
+    "extraInfo": [
+      "Source - docs/sources-runbooks/paloalto/cli-cheat-sheet-networking.md:74-115",
+      "Generated via runbook-graph-generator skill"
+    ]
+  },
+  "entities": [
+    {
+      "id": "operator_environment",
+      "label": "Operator Environment",
+      "position": {
+        "x": 411.2644048046473,
+        "y": 231.21038678721808
+      },
+      "icon": "IconTerminal",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "operator_console",
+        "vpn_report"
+      ]
+    },
+    {
+      "id": "local_vpn_system",
+      "label": "Local Palo Alto VPN System",
+      "position": {
+        "x": 736.0195809105708,
+        "y": 243.69443028737425
+      },
+      "icon": "IconFirewall",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "vpn_gateway",
+        "ike_phase1",
+        "ipsec_phase2",
+        "tunnel_inventory"
+      ]
+    },
+    {
+      "id": "remote_peer_environment",
+      "label": "Remote VPN Peer",
+      "position": {
+        "x": 406.5039370229275,
+        "y": 532.0468156151057
+      },
+      "icon": "IconVPN",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "remote_peer"
+      ]
+    },
+    {
+      "id": "operator_console",
+      "label": "Admin CLI Session",
+      "position": {
+        "x": 31.03886057474817,
+        "y": 308.0183650371399
+      },
+      "icon": "IconTerminal",
+      "type": "node"
+    },
+    {
+      "id": "vpn_report",
+      "label": "VPN Health Report",
+      "position": {
+        "x": 380.85419924241455,
+        "y": 102.83946636984795
+      },
+      "icon": "IconData",
+      "type": "node"
+    },
+    {
+      "id": "vpn_gateway",
+      "label": "VPN Gateway",
+      "position": {
+        "x": 736.0195809105708,
+        "y": 231.19443028737425
+      },
+      "icon": "IconVPN",
+      "type": "node"
+    },
+    {
+      "id": "ike_phase1",
+      "label": "IKE Phase 1 SA",
+      "position": {
+        "x": 1000.6195809105706,
+        "y": 359.2944302873742
+      },
+      "icon": "IconKey",
+      "type": "node"
+    },
+    {
+      "id": "ipsec_phase2",
+      "label": "IPSec Phase 2 SA",
+      "position": {
+        "x": 1000.6195809105706,
+        "y": 487.39443028737423
+      },
+      "icon": "IconLock",
+      "type": "node"
+    },
+    {
+      "id": "tunnel_inventory",
+      "label": "Tunnel Inventory",
+      "position": {
+        "x": 1000.6195809105706,
+        "y": 231.19443028737425
+      },
+      "icon": "IconData",
+      "type": "node"
+    },
+    {
+      "id": "remote_peer",
+      "label": "Remote Gateway Peer",
+      "position": {
+        "x": 406.5039370229275,
+        "y": 519.5468156151057
+      },
+      "icon": "IconVPN",
+      "type": "node"
+    }
+  ],
+  "visibility": {
+    "operator_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "local_vpn_system": {
+      "start": 0,
+      "end": 100
+    },
+    "remote_peer_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_console": {
+      "start": 0,
+      "end": 100
+    },
+    "vpn_gateway": {
+      "start": 0,
+      "end": 100
+    },
+    "ike_phase1": {
+      "start": 2,
+      "end": 100
+    },
+    "ipsec_phase2": {
+      "start": 3,
+      "end": 100
+    },
+    "tunnel_inventory": {
+      "start": 4,
+      "end": 100
+    },
+    "remote_peer": {
+      "start": 0,
+      "end": 100
+    },
+    "vpn_report": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Query VPN Counters and Gateways",
+      "type": "edge",
+      "from": "operator_console",
+      "to": "vpn_gateway",
+      "icon": "IconSearch",
+      "tooltip": "This provides the starting point before isolating phase 1, phase 2, or tunnel-definition problems.",
+      "description": "The operator checks overall VPN counters and the configured gateway list to frame the tunnel investigation.",
+      "cli": "> show vpn flow\n> show vpn gateway"
+    },
+    {
+      "id": 2,
+      "name": "Negotiate IKE Phase 1",
+      "type": "edge",
+      "from": "remote_peer",
+      "to": "ike_phase1",
+      "icon": "IconKey",
+      "tooltip": "Phase 1 health must be understood before blaming the tunnel for data-plane failure.",
+      "description": "The remote peer participates in phase 1 negotiation and the firewall exposes the resulting IKE security-association state.",
+      "cli": "> show vpn ike-sa"
+    },
+    {
+      "id": 3,
+      "name": "Establish IPSec Phase 2",
+      "type": "edge",
+      "from": "remote_peer",
+      "to": "ipsec_phase2",
+      "icon": "IconLock",
+      "tooltip": "Phase 2 can fail independently even when phase 1 appears healthy.",
+      "description": "The remote peer and firewall negotiate protected IPSec SAs for data traffic after phase 1 succeeds.",
+      "cli": "> show vpn ipsec-sa"
+    },
+    {
+      "id": 4,
+      "name": "Review Tunnel Inventory and Mode",
+      "type": "edge",
+      "from": "vpn_gateway",
+      "to": "tunnel_inventory",
+      "icon": "IconData",
+      "tooltip": "Tunnel inventory and mode verification closes the gap between live SA state and local configuration.",
+      "description": "The firewall exposes the configured auto-key tunnels and their mode so the operator can confirm deployment intent.",
+      "cli": "> show vpn tunnel\n> set network tunnel ipsec <name_of_tunnel> ipsec-mode [tunnel | transport]"
+    },
+    {
+      "id": 5,
+      "name": "Assemble VPN Health Evidence",
+      "type": "edge",
+      "from": "tunnel_inventory",
+      "to": "vpn_report",
+      "icon": "IconData",
+      "tooltip": "This gives the operator a clear view of which VPN layer is failing.",
+      "description": "Gateway, phase 1, phase 2, and tunnel-definition evidence are combined into a single VPN health report."
+    }
+  ],
+  "viewport": {
+    "zoom": 0.84,
+    "pan": {
+      "x": 130.50177026818778,
+      "y": 38.026127531892485
+    }
+  }
+}

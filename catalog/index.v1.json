@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-03-05T22:08:54.457Z",
+  "generatedAt": "2026-03-05T22:09:23.105Z",
   "packs": [
     {
       "packId": "cerebra.fortigate",
@@ -88,6 +88,14 @@
       "displayName": "osint-ops",
       "latestVersion": "1.0.0",
       "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.osint-ops/versions/1.0.0/manifest.v1.json"
+    },
+    {
+      "packId": "community.paloalto-fw",
+      "publisher": "community",
+      "slug": "paloalto-fw",
+      "displayName": "paloalto-fw",
+      "latestVersion": "1.0.0",
+      "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.paloalto-fw/versions/1.0.0/manifest.v1.json"
     }
   ]
 }

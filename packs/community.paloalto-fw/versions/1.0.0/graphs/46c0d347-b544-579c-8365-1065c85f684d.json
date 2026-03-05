@@ -1,0 +1,287 @@
+{
+  "title": "Advanced Routing and Dynamic Peer Inspection",
+  "version": "3.0",
+  "description": "Inspect logical-router state, FIB/RIB behavior, path monitoring, and dynamic peer health across OSPF, OSPFv3, and BGP.",
+  "shortDescription": "Advanced routing inspection",
+  "tags": [
+    "routing",
+    "network",
+    "debugging"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This runbook inspects Palo Alto advanced routing with <span style='color:#ef4444;font-weight:bold;'>#show advanced-routing fib</span>, <span style='color:#ef4444;font-weight:bold;'>#show advanced-routing route</span>, <span style='color:#ef4444;font-weight:bold;'>#show advanced-routing logical-router</span>, <span style='color:#ef4444;font-weight:bold;'>#show advanced-routing ospf</span>, and <span style='color:#ef4444;font-weight:bold;'>#show advanced-routing bgp</span>.</p><ol><li><strong>Start with forwarding:</strong> inspect FIB and RIB state for the destination or address family in question.</li><li><strong>Confirm logical-router health:</strong> review logical-router resources and path-monitor data.</li><li><strong>Split by protocol:</strong> inspect OSPF, OSPFv3, and BGP state separately so control-plane issues are not conflated.</li></ol>",
+    "commandsBlock": "# Step 1: Inspect FIB and route state\n> show advanced-routing fib\n> show advanced-routing route destination <ip/netmask>\n> show advanced-routing logical-router <logical-router-name>\n> show advanced-routing resource logical-router <logical-router-name>\n> show advanced-routing static-route-path-monitor\n\n# Step 2: Inspect dynamic protocols\n> show advanced-routing ospf neighbor\n> show advanced-routing ospfv3 neighbor\n> show advanced-routing bgp summary logical-router <logical-router-name>\n> show advanced-routing bgp peer detail peer-name <peer-name> logical-router <logical-router-name>\n> show advanced-routing bgp peer received-routes peer-name <peer-name> afi <ipv4|ipv6|both> logical-router <logical-router-name>\n> show advanced-routing bgp peer filtered-routes peer-name <peer-name> afi <ipv4|ipv6|both> logical-router <logical-router-name>\n> show advanced-routing bgp peer advertised-routes peer-name <peer-name> afi <ipv4|ipv6|both> logical-router <logical-router-name>\n> show advanced-routing bgp route afi <ipv4|ipv6|both> logical-router <logical-router-name>",
+    "extraInfo": [
+      "Source - docs/sources-runbooks/paloalto/cli-cheat-sheet-networking.md:234-427",
+      "Generated via runbook-graph-generator skill"
+    ],
+    "prerequisites": [
+      "CLI access to the firewall",
+      "Knowledge of the logical router, peer, or destination under investigation"
+    ],
+    "attackerGains": [
+      "Deep route and peer-state visibility",
+      "Understanding of whether the fault is forwarding, path-monitor, or dynamic control-plane related"
+    ],
+    "detectionNotes": [
+      "Advanced routing inspection is read-only but reveals sensitive internal topology and route-policy behavior",
+      "Administrative access to routing state should remain tightly controlled"
+    ]
+  },
+  "entities": [
+    {
+      "id": "operator_environment",
+      "type": "container",
+      "label": "Operator Environment",
+      "icon": "IconTerminal",
+      "style": "dashed_border",
+      "members": [
+        "operator_console",
+        "routing_report"
+      ],
+      "position": {
+        "x": 501.2,
+        "y": 193.45
+      }
+    },
+    {
+      "id": "routing_domain",
+      "type": "container",
+      "label": "Logical Routing Domain",
+      "icon": "IconRouter",
+      "style": "dashed_border",
+      "members": [
+        "logical_router",
+        "rib_state",
+        "fib_state",
+        "path_monitor"
+      ],
+      "position": {
+        "x": 560,
+        "y": 448.6
+      }
+    },
+    {
+      "id": "dynamic_peer_plane",
+      "type": "container",
+      "label": "Dynamic Peer Plane",
+      "icon": "IconNetwork",
+      "style": "dashed_border",
+      "members": [
+        "ospf_neighbors",
+        "ospfv3_neighbors",
+        "bgp_peers"
+      ],
+      "position": {
+        "x": 67.54999999999995,
+        "y": 129.39999999999998
+      }
+    },
+    {
+      "id": "operator_console",
+      "type": "node",
+      "label": "Admin CLI Session",
+      "icon": "IconTerminal",
+      "position": {
+        "x": 596.75,
+        "y": 193.45
+      }
+    },
+    {
+      "id": "routing_report",
+      "type": "node",
+      "label": "Routing Analysis Report",
+      "icon": "IconData",
+      "position": {
+        "x": 405.65,
+        "y": 193.45
+      }
+    },
+    {
+      "id": "logical_router",
+      "type": "node",
+      "label": "Logical Router",
+      "icon": "IconRouter",
+      "position": {
+        "x": 67.54999999999995,
+        "y": 384.55
+      }
+    },
+    {
+      "id": "rib_state",
+      "type": "node",
+      "label": "RIB State",
+      "icon": "IconData",
+      "position": {
+        "x": 861.35,
+        "y": 448.6
+      }
+    },
+    {
+      "id": "fib_state",
+      "type": "node",
+      "label": "FIB State",
+      "icon": "IconData",
+      "position": {
+        "x": 1052.45,
+        "y": 448.6
+      }
+    },
+    {
+      "id": "path_monitor",
+      "type": "node",
+      "label": "Path Monitor",
+      "icon": "IconAlert",
+      "position": {
+        "x": 67.54999999999995,
+        "y": 512.65
+      }
+    },
+    {
+      "id": "ospf_neighbors",
+      "type": "node",
+      "label": "OSPF / OSPFv3 Neighbors",
+      "icon": "IconNetwork",
+      "position": {
+        "x": 67.54999999999995,
+        "y": 65.35
+      }
+    },
+    {
+      "id": "bgp_peers",
+      "type": "node",
+      "label": "BGP Peers and Routes",
+      "icon": "IconRouter",
+      "position": {
+        "x": 67.54999999999995,
+        "y": 193.45
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "type": "edge",
+      "name": "Inspect RIB for Target Prefix",
+      "from": "operator_console",
+      "to": "rib_state",
+      "icon": "IconSearch",
+      "description": "The operator queries advanced route state to determine which route source is selected for the affected destination.",
+      "cli": "> show advanced-routing route destination <ip/netmask>",
+      "tooltip": "This starts the investigation at the route-selection layer rather than at the protocol layer."
+    },
+    {
+      "id": 2,
+      "type": "edge",
+      "name": "Validate Forwarding Installation",
+      "from": "rib_state",
+      "to": "fib_state",
+      "icon": "IconData",
+      "description": "The firewall's selected route is translated into forwarding state inside the FIB.",
+      "cli": "> show advanced-routing fib",
+      "tooltip": "FIB inspection confirms whether the route is actually installed for forwarding."
+    },
+    {
+      "id": 3,
+      "type": "edge",
+      "name": "Review Logical Router Resources",
+      "from": "logical_router",
+      "to": "routing_report",
+      "icon": "IconData",
+      "description": "Logical-router status and resource information are collected to determine whether the routing domain itself is healthy.",
+      "cli": "> show advanced-routing logical-router <logical-router-name>\n> show advanced-routing resource logical-router <logical-router-name>",
+      "tooltip": "Logical-router health is a separate concern from individual protocol adjacency."
+    },
+    {
+      "id": 4,
+      "type": "edge",
+      "name": "Expose Path Monitor State",
+      "from": "path_monitor",
+      "to": "routing_report",
+      "icon": "IconAlert",
+      "description": "Static-route path-monitor evidence is added to the report to catch path-health issues outside protocol adjacency.",
+      "cli": "> show advanced-routing static-route-path-monitor",
+      "tooltip": "Path-monitor failure can remove otherwise valid-looking routes from service."
+    },
+    {
+      "id": 5,
+      "type": "edge",
+      "name": "Inspect OSPF Neighbor Health",
+      "from": "ospf_neighbors",
+      "to": "routing_report",
+      "icon": "IconNetwork",
+      "description": "OSPF and OSPFv3 neighbor evidence is collected to verify adjacency and LSDB health.",
+      "cli": "> show advanced-routing ospf neighbor\n> show advanced-routing ospfv3 neighbor",
+      "tooltip": "This isolates dynamic control-plane issues related to OSPF family protocols."
+    },
+    {
+      "id": 6,
+      "type": "edge",
+      "name": "Inspect BGP Route Exchange",
+      "from": "bgp_peers",
+      "to": "routing_report",
+      "icon": "IconRouter",
+      "description": "BGP summary, peer detail, and route views reveal whether routes are being received, filtered, advertised, or dampened as expected.",
+      "cli": "> show advanced-routing bgp summary logical-router <logical-router-name>\n> show advanced-routing bgp peer detail peer-name <peer-name> logical-router <logical-router-name>\n> show advanced-routing bgp peer received-routes peer-name <peer-name> afi <ipv4|ipv6|both> logical-router <logical-router-name>\n> show advanced-routing bgp peer filtered-routes peer-name <peer-name> afi <ipv4|ipv6|both> logical-router <logical-router-name>\n> show advanced-routing bgp peer advertised-routes peer-name <peer-name> afi <ipv4|ipv6|both> logical-router <logical-router-name>\n> show advanced-routing bgp route afi <ipv4|ipv6|both> logical-router <logical-router-name>",
+      "tooltip": "This is the main control-plane branch for external route exchange and route-policy verification."
+    },
+    {
+      "id": 7,
+      "type": "edge",
+      "name": "Deliver Routing Conclusion",
+      "from": "routing_report",
+      "to": "operator_console",
+      "icon": "IconCheck",
+      "description": "The combined forwarding, logical-router, path-monitor, and protocol evidence is returned to the operator as a routing conclusion.",
+      "tooltip": "The operator can now decide whether the incident is caused by route installation, peer health, or route-policy behavior."
+    }
+  ],
+  "visibility": {
+    "operator_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "routing_domain": {
+      "start": 0,
+      "end": 100
+    },
+    "dynamic_peer_plane": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_console": {
+      "start": 0,
+      "end": 100
+    },
+    "logical_router": {
+      "start": 0,
+      "end": 100
+    },
+    "rib_state": {
+      "start": 1,
+      "end": 100
+    },
+    "fib_state": {
+      "start": 2,
+      "end": 100
+    },
+    "path_monitor": {
+      "start": 0,
+      "end": 100
+    },
+    "ospf_neighbors": {
+      "start": 0,
+      "end": 100
+    },
+    "bgp_peers": {
+      "start": 0,
+      "end": 100
+    },
+    "routing_report": {
+      "start": 3,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}
