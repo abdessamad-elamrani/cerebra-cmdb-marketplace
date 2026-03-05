@@ -1,0 +1,106 @@
+{
+  "title": "Session Enum (wkssvc)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "type": "container",
+      "icon": "IconTerminal",
+      "members": [
+        "enum_tool",
+        "session_map"
+      ],
+      "position": {
+        "x": 421.05,
+        "y": 137
+      }
+    },
+    {
+      "id": "enum_tool",
+      "label": "PsLoggedon.exe",
+      "type": "node",
+      "icon": "IconCode",
+      "position": {
+        "x": 421.05,
+        "y": 72.95
+      }
+    },
+    {
+      "id": "session_map",
+      "label": "Identity Topology",
+      "type": "node",
+      "icon": "IconData",
+      "position": {
+        "x": 421.05,
+        "y": 201.05
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "target_endpoint"
+      ],
+      "position": {
+        "x": 82.94999999999999,
+        "y": 201.05
+      }
+    },
+    {
+      "id": "target_endpoint",
+      "label": "Target Workstation / Server",
+      "type": "node",
+      "icon": "IconWorkstation",
+      "position": {
+        "x": 82.94999999999999,
+        "y": 201.05
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch Session Enumeration Tool",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "enum_tool",
+      "description": "The attacker starts PsLoggedon against the remote host to identify active users.",
+      "cli": "PsLoggedon.exe \\\\files04"
+    },
+    {
+      "id": 2,
+      "name": "Reach Remote Session Query Path",
+      "type": "edge",
+      "from": "enum_tool",
+      "to": "corporate_network",
+      "description": "The session-enumeration tool reaches the corporate network path used to query the remote host."
+    },
+    {
+      "id": 3,
+      "name": "Query Remote Session State",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "target_endpoint",
+      "description": "The target endpoint is asked to return user-session information relevant to current or recent logons."
+    },
+    {
+      "id": 4,
+      "name": "Build Identity Topology",
+      "type": "edge",
+      "from": "target_endpoint",
+      "to": "session_map",
+      "description": "The returned session data is organized into an identity map for lateral-movement targeting."
+    }
+  ],
+  "visibility": {
+    "session_map": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

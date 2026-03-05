@@ -1,0 +1,207 @@
+{
+  "title": "SharpHound Collection & BloodHound Analysis",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_infrastructure",
+      "label": "Attacker Environment",
+      "type": "container",
+      "icon": "IconKali",
+      "members": [
+        "bloodhound_ui",
+        "neo4j_db"
+      ],
+      "position": {
+        "x": 770.35,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "target_shell",
+      "label": "Compromised Domain Shell",
+      "type": "container",
+      "icon": "IconTerminal",
+      "members": [
+        "sharphound_script",
+        "zip_archive"
+      ],
+      "position": {
+        "x": 204.39999999999998,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "sharphound_script",
+      "label": "SharpHound Collector",
+      "type": "node",
+      "icon": "IconCode",
+      "position": {
+        "x": 72.09999999999997,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "zip_archive",
+      "label": "BloodHound.zip",
+      "type": "node",
+      "icon": "IconData",
+      "position": {
+        "x": 336.7,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "neo4j_db",
+      "label": "Neo4j Database",
+      "type": "node",
+      "icon": "IconDatabase",
+      "position": {
+        "x": 674.8,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "bloodhound_ui",
+      "label": "BloodHound Graph",
+      "type": "node",
+      "icon": "IconBrowser",
+      "position": {
+        "x": 865.9000000000001,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller",
+        "domain_workstations"
+      ],
+      "position": {
+        "x": 72.09999999999997,
+        "y": 323.55
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer",
+      "position": {
+        "x": 72.09999999999997,
+        "y": 259.5
+      }
+    },
+    {
+      "id": "domain_workstations",
+      "label": "Domain Endpoints",
+      "type": "node",
+      "icon": "IconWorkstation",
+      "position": {
+        "x": 72.09999999999997,
+        "y": 387.6
+      }
+    }
+  ],
+  "visibility": {
+    "zip_archive": {
+      "start": 5,
+      "end": 100
+    },
+    "neo4j_db": {
+      "start": 6,
+      "end": 100
+    },
+    "bloodhound_ui": {
+      "start": 8,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Load SharpHound Collector",
+      "type": "edge",
+      "from": "target_shell",
+      "to": "sharphound_script",
+      "description": "The attacker loads SharpHound into the compromised domain shell so the collector cmdlets become available.",
+      "cli": "Import-Module .\\Sharphound.ps1"
+    },
+    {
+      "id": 2,
+      "name": "Reach Corporate Domain Topology",
+      "type": "edge",
+      "from": "sharphound_script",
+      "to": "corporate_network",
+      "description": "The collector reaches the corporate network scope that includes directory services and domain endpoints."
+    },
+    {
+      "id": 3,
+      "name": "LDAP Structural Mapping",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "SharpHound queries LDAP to extract domain users, groups, computers, trusts, and ACL relationships.",
+      "cli": "Invoke-BloodHound -CollectionMethod All",
+      "mitre": {
+        "id": "T1087.002",
+        "tactic": "Discovery",
+        "technique": "Account Discovery: Domain Account"
+      }
+    },
+    {
+      "id": 4,
+      "name": "Session and Rights Enumeration",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_workstations",
+      "description": "SharpHound sweeps reachable endpoints over SMB/RPC to capture sessions, local admin relationships, and host-level graph edges."
+    },
+    {
+      "id": 5,
+      "name": "Generate Collection Archive",
+      "type": "edge",
+      "from": "sharphound_script",
+      "to": "zip_archive",
+      "description": "Collected JSON data is normalized and compressed into a SharpHound zip archive."
+    },
+    {
+      "id": 6,
+      "name": "Start Neo4j Backend",
+      "type": "edge",
+      "from": "attacker_infrastructure",
+      "to": "neo4j_db",
+      "description": "The attacker starts the Neo4j graph database that BloodHound uses as its backend store.",
+      "cli": "sudo neo4j start"
+    },
+    {
+      "id": 7,
+      "name": "Exfiltrate and Import Archive",
+      "type": "edge",
+      "from": "zip_archive",
+      "to": "neo4j_db",
+      "description": "The SharpHound archive is transferred to the attacker environment and ingested into Neo4j for graph analysis."
+    },
+    {
+      "id": 8,
+      "name": "Launch BloodHound Client",
+      "type": "edge",
+      "from": "attacker_infrastructure",
+      "to": "bloodhound_ui",
+      "description": "The attacker opens the BloodHound interface and connects it to the local Neo4j instance.",
+      "cli": "bloodhound"
+    },
+    {
+      "id": 9,
+      "name": "Analyze Attack Paths",
+      "type": "edge",
+      "from": "neo4j_db",
+      "to": "bloodhound_ui",
+      "description": "BloodHound renders shortest paths, delegation edges, ACL abuse routes, and other privilege-escalation opportunities."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

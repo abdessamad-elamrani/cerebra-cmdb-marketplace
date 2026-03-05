@@ -1,0 +1,140 @@
+{
+  "title": "Malicious SCF/URL Drop (Responder)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Responder Instance",
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "responder_tool",
+        "captured_hash"
+      ],
+      "position": {
+        "x": 248.12481671164758,
+        "y": -83.54106235902881
+      }
+    },
+    {
+      "id": "responder_tool",
+      "label": "Responder",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 142.36675126161907,
+        "y": -111.1585606247308
+      }
+    },
+    {
+      "id": "captured_hash",
+      "label": "Victim NTLMv2",
+      "icon": "IconKey",
+      "type": "node",
+      "position": {
+        "x": 342.3828821616761,
+        "y": -80.92356409332682
+      }
+    },
+    {
+      "id": "corporate_share",
+      "label": "Corporate File Server",
+      "icon": "IconServer",
+      "type": "container",
+      "members": [
+        "malicious_scf"
+      ],
+      "position": {
+        "x": -216.3295032784306,
+        "y": -22.25457593653472
+      }
+    },
+    {
+      "id": "malicious_scf",
+      "label": "@mine.scf",
+      "icon": "IconCode",
+      "type": "node",
+      "position": {
+        "x": -296.1809043741898,
+        "y": -18.474193188855665
+      }
+    },
+    {
+      "id": "victim_machine",
+      "label": "Victim Workstation",
+      "icon": "IconWorkstation",
+      "type": "node",
+      "position": {
+        "x": -80.62665741707724,
+        "y": 104.65960337793689
+      }
+    }
+  ],
+  "visibility": {
+    "captured_hash": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Start Responder Listener",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "responder_tool",
+      "description": "The attacker launches Responder and prepares to capture inbound authentication attempts.",
+      "cli": "sudo responder -I eth2 -v"
+    },
+    {
+      "id": 2,
+      "name": "Drop Coercion Artifact",
+      "mitre": {
+        "id": "T1187",
+        "tactic": "Credential Access",
+        "technique": "Forced Authentication"
+      },
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "corporate_share",
+      "description": "A malicious SCF or URL file referencing the attacker UNC path is written to a share the victim can browse."
+    },
+    {
+      "id": 3,
+      "name": "Victim Browses Shared Folder",
+      "type": "edge",
+      "from": "victim_machine",
+      "to": "malicious_scf",
+      "description": "A victim opens the shared folder and Explorer processes the malicious artifact."
+    },
+    {
+      "id": 4,
+      "name": "Victim Authenticates to Attacker",
+      "type": "edge",
+      "from": "victim_machine",
+      "to": "responder_tool",
+      "description": "When Explorer follows the remote UNC path, the victim workstation automatically attempts SMB authentication to the attacker."
+    },
+    {
+      "id": 5,
+      "name": "Capture NTLM Challenge-Response",
+      "type": "edge",
+      "from": "responder_tool",
+      "to": "captured_hash",
+      "description": "Responder records the victim's NTLM challenge-response material for later cracking or relay."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.29,
+    "pan": {
+      "x": 531.4958059659851,
+      "y": 335.49846756449455
+    }
+  },
+  "stepInfoPosition": {
+    "x": 759.1157531738281,
+    "y": 774.7807006835938
+  }
+}

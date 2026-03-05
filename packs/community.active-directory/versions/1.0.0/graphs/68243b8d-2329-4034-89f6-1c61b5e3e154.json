@@ -1,0 +1,81 @@
+{
+  "title": "Meterpreter Incognito Token Impersonate",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "target_host",
+      "label": "Compromised Terminal Server",
+      "type": "container",
+      "icon": "IconServer",
+      "members": [
+        "meterpreter_session",
+        "lsass_memory",
+        "victim_token"
+      ],
+      "position": {
+        "x": 273,
+        "y": 76
+      }
+    },
+    {
+      "id": "meterpreter_session",
+      "label": "Meterpreter Process (SYSTEM)",
+      "type": "node",
+      "icon": "IconTerminal",
+      "position": {
+        "x": 81.9,
+        "y": 76
+      }
+    },
+    {
+      "id": "lsass_memory",
+      "label": "LSASS / API",
+      "type": "node",
+      "icon": "IconWindows",
+      "position": {
+        "x": 273,
+        "y": 76
+      }
+    },
+    {
+      "id": "victim_token",
+      "label": "Domain Admin Token",
+      "type": "node",
+      "icon": "IconKey",
+      "position": {
+        "x": 464.1,
+        "y": 76
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Operate Existing Meterpreter Session",
+      "type": "edge",
+      "from": "target_host",
+      "to": "meterpreter_session",
+      "description": "The attacker works inside an existing Meterpreter foothold on the compromised Windows host."
+    },
+    {
+      "id": 2,
+      "name": "Enumerate Available Tokens",
+      "type": "edge",
+      "from": "meterpreter_session",
+      "to": "lsass_memory",
+      "description": "The Incognito extension queries available user tokens currently accessible from the session.",
+      "cli": "load incognito\nlist_tokens -u"
+    },
+    {
+      "id": 3,
+      "name": "Impersonate Selected Token",
+      "type": "edge",
+      "from": "lsass_memory",
+      "to": "victim_token",
+      "description": "A selected token is duplicated and applied so the attacker can act under that user context.",
+      "cli": "impersonate_token marvel\\fcastle"
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

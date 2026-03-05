@@ -1,0 +1,89 @@
+{
+  "title": "Native AD Enum (net user)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Host",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "attacker_shell"
+      ],
+      "position": {
+        "x": 421.05,
+        "y": 76
+      }
+    },
+    {
+      "id": "attacker_shell",
+      "label": "cmd.exe (net.exe)",
+      "type": "node",
+      "icon": "IconTerminal",
+      "position": {
+        "x": 421.05,
+        "y": 76
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": 82.94999999999999,
+        "y": 76
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer",
+      "position": {
+        "x": 82.94999999999999,
+        "y": 76
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch Native Domain Query",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "attacker_shell",
+      "description": "The attacker uses built-in net.exe commands from a Windows shell to query domain users and groups.",
+      "cli": "net user /domain\nnet user jeffadmin /domain\nnet group /domain\nnet group \"Sales Department\" /domain"
+    },
+    {
+      "id": 2,
+      "name": "Reach Domain Services",
+      "type": "edge",
+      "from": "attacker_shell",
+      "to": "corporate_network",
+      "description": "The native query interfaces reach the corporate network path that fronts the domain directory service."
+    },
+    {
+      "id": 3,
+      "name": "Request Directory Data",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The Domain Controller receives the request for user and group information."
+    },
+    {
+      "id": 4,
+      "name": "Return User and Group Listing",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "attacker_shell",
+      "description": "The directory service returns domain user, group, and group-membership information to the operator."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

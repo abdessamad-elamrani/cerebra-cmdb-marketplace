@@ -1,0 +1,127 @@
+{
+  "title": "Password Spraying (PowerShell)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Toolkit",
+      "icon": "IconTerminal",
+      "type": "container",
+      "members": [
+        "spray_tool",
+        "valid_credentials"
+      ],
+      "position": {
+        "x": 343,
+        "y": 71.45
+      }
+    },
+    {
+      "id": "spray_tool",
+      "label": "Invoke-PasswordSpray",
+      "icon": "IconCode",
+      "type": "node",
+      "position": {
+        "x": 78.39999999999998,
+        "y": 71.45
+      }
+    },
+    {
+      "id": "valid_credentials",
+      "label": "Cracked AD Credentials",
+      "icon": "IconKey",
+      "type": "node",
+      "position": {
+        "x": 607.6,
+        "y": 71.45
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": 343,
+        "y": 262.55
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (KDC)",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": 343,
+        "y": 262.55
+      }
+    }
+  ],
+  "visibility": {
+    "valid_credentials": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Initialize Spray Workflow",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "spray_tool",
+      "description": "The attacker prepares the password-spraying script from a PowerShell-capable environment.",
+      "cli": "net accounts\npowershell -ep bypass"
+    },
+    {
+      "id": 2,
+      "name": "Check Lockout Thresholds",
+      "type": "edge",
+      "from": "spray_tool",
+      "to": "corporate_network",
+      "description": "The attacker validates password policy and prepares the spray cadence against the corporate authentication environment."
+    },
+    {
+      "id": 3,
+      "name": "Reach Domain Authentication Path",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The spray script reaches the Domain Controller that will validate the candidate password attempts."
+    },
+    {
+      "id": 4,
+      "name": "Submit Horizontal Password Spray",
+      "mitre": {
+        "id": "T1110.003",
+        "tactic": "Credential Access",
+        "technique": "Brute Force: Password Spraying"
+      },
+      "type": "edge",
+      "from": "spray_tool",
+      "to": "domain_controller",
+      "description": "A single password candidate is tested across many domain accounts.",
+      "cli": ".\\Spray-Passwords.ps1 -Pass Nexus123! -Admin"
+    },
+    {
+      "id": 5,
+      "name": "Return Successful Credentials",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "valid_credentials",
+      "description": "Accounts that accept the sprayed password are returned as valid credentials for later use."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.47,
+    "pan": {
+      "x": 583.5,
+      "y": 354.5
+    }
+  }
+}

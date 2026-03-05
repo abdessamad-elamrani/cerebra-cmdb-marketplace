@@ -1,0 +1,118 @@
+{
+  "title": "Basic AD Enum (PowerView)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "icon": "IconWorkstation",
+      "type": "container",
+      "members": [
+        "powerview_tool",
+        "ad_data"
+      ],
+      "position": {
+        "x": 421.05,
+        "y": 137
+      }
+    },
+    {
+      "id": "powerview_tool",
+      "label": "PowerView Module",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 421.05,
+        "y": 72.95
+      }
+    },
+    {
+      "id": "ad_data",
+      "label": "AD Object Output",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": 421.05,
+        "y": 201.05
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": 82.94999999999999,
+        "y": 201.05
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (LDAP)",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": 82.94999999999999,
+        "y": 201.05
+      }
+    }
+  ],
+  "visibility": {
+    "ad_data": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Load PowerView Module",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "powerview_tool",
+      "description": "The attacker imports PowerView into the current PowerShell session to enable AD reconnaissance cmdlets.",
+      "cli": "Import-Module .\\PowerView.ps1"
+    },
+    {
+      "id": 2,
+      "name": "Reach Corporate LDAP Services",
+      "type": "edge",
+      "from": "powerview_tool",
+      "to": "corporate_network",
+      "description": "The PowerView module reaches the domain's LDAP service path for broad object discovery."
+    },
+    {
+      "id": 3,
+      "name": "Query Core AD Object Sets",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "Domain, user, group, and computer objects are requested through PowerView's LDAP-backed queries.",
+      "cli": "Get-NetDomain\nGet-NetUser | select cn,pwdlastset,lastlogon\nGet-NetGroup | select cn\nGet-NetGroup \"Sales Department\" | select member\nGet-NetComputer"
+    },
+    {
+      "id": 4,
+      "name": "Return Broad AD Recon Output",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "ad_data",
+      "description": "The Domain Controller returns the requested object data so the attacker can build a baseline recon snapshot."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.33,
+    "pan": {
+      "x": 585.561825261881,
+      "y": 356.09816906325875
+    }
+  },
+  "stepInfoPosition": {
+    "x": 886.1157531738281,
+    "y": 840.7807006835938
+  }
+}

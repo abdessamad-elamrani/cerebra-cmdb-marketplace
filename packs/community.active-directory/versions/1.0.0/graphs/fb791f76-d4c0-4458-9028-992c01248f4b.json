@@ -1,0 +1,123 @@
+{
+  "title": "LLMNR Poisoning (Responder)",
+  "version": "3.0",
+  "viewport": {
+    "zoom": 1.37,
+    "pan": {
+      "x": 650.5796827998306,
+      "y": 407.8020416934851
+    }
+  },
+  "stepInfoPosition": {
+    "x": 818.3316040039062,
+    "y": 802.5403442382812
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": true,
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "position": {
+        "x": -203.31825727936442,
+        "y": -14.13011524195526
+      },
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "responder_tool",
+        "stolen_hash"
+      ]
+    },
+    {
+      "id": "responder_tool",
+      "label": "Responder",
+      "position": {
+        "x": -126.53090912412661,
+        "y": -85.76597298140969
+      },
+      "icon": "IconTerminal",
+      "type": "node"
+    },
+    {
+      "id": "stolen_hash",
+      "label": "NTLMv2 Hash",
+      "position": {
+        "x": -271.10560543460224,
+        "y": 32.50574249749918
+      },
+      "icon": "IconKey",
+      "type": "node"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Subnet",
+      "position": {
+        "x": 234.79565177009215,
+        "y": -120.49705260338158
+      },
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "victim_workstation"
+      ]
+    },
+    {
+      "id": "victim_workstation",
+      "label": "Victim Endpoint",
+      "position": {
+        "x": 234.79565177009215,
+        "y": -132.99705260338158
+      },
+      "icon": "IconWorkstation",
+      "type": "node"
+    }
+  ],
+  "visibility": {
+    "stolen_hash": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Start Responder Listener",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "responder_tool",
+      "description": "The attacker launches Responder on the victim subnet and prepares to answer fallback name-resolution traffic.",
+      "cli": "sudo responder -I eth2 -dwv"
+    },
+    {
+      "id": 2,
+      "name": "Victim Broadcasts Failed Name Lookup",
+      "type": "edge",
+      "from": "victim_workstation",
+      "to": "corporate_network",
+      "description": "A victim fails standard name resolution and falls back to LLMNR/NBNS broadcast requests.",
+      "cli": "dir \\\\invalid_server"
+    },
+    {
+      "id": 3,
+      "name": "Poison Reply and Trigger SMB Authentication",
+      "mitre": {
+        "id": "T1557.001",
+        "tactic": "Credential Access",
+        "technique": "Adversary-in-the-Middle: LLMNR/NBT-NS Poisoning and SMB Relay"
+      },
+      "type": "edge",
+      "from": "responder_tool",
+      "to": "victim_workstation",
+      "description": "Responder answers the broadcast and convinces the victim to connect back to the attacker-controlled service."
+    },
+    {
+      "id": 4,
+      "name": "Capture NTLMv2 Material",
+      "type": "edge",
+      "from": "victim_workstation",
+      "to": "stolen_hash",
+      "description": "The victim attempts SMB authentication and the NTLMv2 challenge-response material is captured for later cracking."
+    }
+  ]
+}

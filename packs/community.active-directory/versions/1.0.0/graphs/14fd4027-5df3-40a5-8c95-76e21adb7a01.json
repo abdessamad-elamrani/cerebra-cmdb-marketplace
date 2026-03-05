@@ -1,0 +1,130 @@
+{
+  "title": "DCSync Remote Credential Dump (SecretsDump)",
+  "version": "3.0",
+  "viewport": {
+    "zoom": 1.33,
+    "pan": {
+      "x": 587.3615268608144,
+      "y": 343.7554845481166
+    }
+  },
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "position": {
+        "x": -120.82198213994393,
+        "y": 8.855079574448979
+      },
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "impacket_tool",
+        "domain_hashes"
+      ]
+    },
+    {
+      "id": "impacket_tool",
+      "label": "impacket-secretsdump",
+      "position": {
+        "x": -50.959633507755285,
+        "y": -92.1544937082636
+      },
+      "icon": "IconTerminal",
+      "type": "node"
+    },
+    {
+      "id": "domain_hashes",
+      "label": "All AD Hashes",
+      "position": {
+        "x": -214.68433077213257,
+        "y": 84.86465285716154
+      },
+      "icon": "IconData",
+      "type": "node"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "position": {
+        "x": 271.68748506379194,
+        "y": -71.68865272623997
+      },
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "position": {
+        "x": 271.68748506379194,
+        "y": -84.18865272623997
+      },
+      "icon": "IconServer",
+      "type": "node"
+    }
+  ],
+  "visibility": {
+    "domain_hashes": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch SecretsDump",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "impacket_tool",
+      "description": "The attacker starts Impacket secretsdump with DCSync-oriented parameters and privileged domain credentials.",
+      "cli": "impacket-secretsdump -just-dc-ntlm marvel/fcastle:Password1@10.0.2.72"
+    },
+    {
+      "id": 2,
+      "name": "Open Replication Channel",
+      "type": "edge",
+      "from": "impacket_tool",
+      "to": "corporate_network",
+      "description": "The tool reaches the remote DC replication interface over the network using the supplied credential context."
+    },
+    {
+      "id": 3,
+      "name": "Request DCSync Replication Data",
+      "mitre": {
+        "id": "T1003.006",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: DCSync"
+      },
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "A DRSUAPI replication request asks the Domain Controller to replicate credential material as though the attacker were an authorized replica."
+    },
+    {
+      "id": 4,
+      "name": "Return Replicated Hashes",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "impacket_tool",
+      "description": "The Domain Controller returns replicated password data across the authorized replication channel."
+    },
+    {
+      "id": 5,
+      "name": "Store Domain Credential Archive",
+      "type": "edge",
+      "from": "impacket_tool",
+      "to": "domain_hashes",
+      "description": "The attacker stores the replicated domain hashes for later cracking or direct credential abuse."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "stepInfoPosition": {
+    "x": 931.5,
+    "y": 717.75
+  }
+}

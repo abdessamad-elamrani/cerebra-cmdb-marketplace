@@ -1,0 +1,136 @@
+{
+  "title": "Golden Ticket Forgery",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Environment",
+      "icon": "IconTerminal",
+      "type": "container",
+      "members": [
+        "mimikatz_tool",
+        "krbtgt_hash"
+      ],
+      "position": {
+        "x": 127.45102278317178,
+        "y": -136.01637637505718
+      }
+    },
+    {
+      "id": "mimikatz_tool",
+      "label": "mimikatz.exe",
+      "icon": "IconCode",
+      "type": "node",
+      "position": {
+        "x": 72.38120396793843,
+        "y": -195.73426064911754
+      }
+    },
+    {
+      "id": "krbtgt_hash",
+      "label": "Stolen krbtgt Hash",
+      "icon": "IconKey",
+      "type": "node",
+      "position": {
+        "x": 372.08279365528176,
+        "y": -105.84431325781628
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller",
+        "target_resource"
+      ],
+      "position": {
+        "x": -301.7074555640767,
+        "y": 175.1990418102822
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (KDC)",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": -203.97078111411957,
+        "y": 152.7128992044949
+      }
+    },
+    {
+      "id": "target_resource",
+      "label": "Any Admin Share",
+      "icon": "IconFolder",
+      "type": "node",
+      "position": {
+        "x": -418.9441300140339,
+        "y": 172.68518441606955
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch Mimikatz Ticket Workflow",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "mimikatz_tool",
+      "description": "The attacker uses Mimikatz from a privileged environment to forge Kerberos ticket material."
+    },
+    {
+      "id": 2,
+      "name": "Obtain krbtgt Secret Material",
+      "type": "edge",
+      "from": "mimikatz_tool",
+      "to": "krbtgt_hash",
+      "description": "The krbtgt hash and domain SID are extracted for use in ticket forgery.",
+      "cli": "lsadump::lsa /inject /name:krbtgt"
+    },
+    {
+      "id": 3,
+      "name": "Reach KDC Trust Boundary",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "corporate_network",
+      "description": "The attacker positions the forged-ticket session to interact with domain services and protected resources."
+    },
+    {
+      "id": 4,
+      "name": "Present Forged TGT to KDC",
+      "mitre": {
+        "id": "T1558.001",
+        "tactic": "Persistence",
+        "technique": "Steal or Forge Kerberos Tickets: Golden Ticket"
+      },
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "A forged TGT is presented to the Domain Controller for Kerberos-backed access.",
+      "cli": "kerberos::golden /User:Administrator /domain:marvel.local /sid:<SID> /krbtgt:<hash> /id:500 /ptt"
+    },
+    {
+      "id": 5,
+      "name": "Access Protected Resource",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "target_resource",
+      "description": "The KDC trusts the forged ticket and grants access to the targeted domain resource."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 0.89,
+    "pan": {
+      "x": 583.5,
+      "y": 354.5
+    }
+  },
+  "stepInfoPosition": {
+    "x": 712.1157531738281,
+    "y": 725.7807006835938
+  }
+}

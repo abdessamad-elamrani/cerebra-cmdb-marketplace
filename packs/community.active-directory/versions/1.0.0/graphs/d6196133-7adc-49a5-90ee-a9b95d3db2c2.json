@@ -1,0 +1,141 @@
+{
+  "title": "Share Discovery (Invoke-ShareFinder)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "icon": "IconWorkstation",
+      "type": "container",
+      "members": [
+        "sharefinder_tool",
+        "readable_shares"
+      ],
+      "position": {
+        "x": -285.6527850683267,
+        "y": -82.67660491252559
+      }
+    },
+    {
+      "id": "sharefinder_tool",
+      "label": "Invoke-ShareFinder",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": -263.324404006206,
+        "y": -149.7963945044643
+      }
+    },
+    {
+      "id": "readable_shares",
+      "label": "Accessible UNC Paths",
+      "icon": "IconFolder",
+      "type": "node",
+      "position": {
+        "x": -299.4811661304473,
+        "y": -40.556815320586885
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller",
+        "target_endpoints"
+      ],
+      "position": {
+        "x": 260.61763586209514,
+        "y": -122.20241702443856
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": 381.6808572108977,
+        "y": -191.21149925553507
+      }
+    },
+    {
+      "id": "target_endpoints",
+      "label": "All Domain Computers",
+      "icon": "IconWorkstation",
+      "type": "node",
+      "position": {
+        "x": 129.48404745544335,
+        "y": -42.89637051686137
+      }
+    }
+  ],
+  "visibility": {
+    "readable_shares": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch Share Discovery Workflow",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "sharefinder_tool",
+      "description": "The attacker starts PowerView share discovery from the compromised endpoint.",
+      "cli": "Find-DomainShare\nInvoke-ShareFinder -Verbose -CheckShareAccess"
+    },
+    {
+      "id": 2,
+      "name": "Reach Corporate Directory Services",
+      "type": "edge",
+      "from": "sharefinder_tool",
+      "to": "corporate_network",
+      "description": "The share-discovery workflow reaches the domain environment to identify remote computers worth probing."
+    },
+    {
+      "id": 3,
+      "name": "Map Candidate Computers",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The Domain Controller provides computer targets used for the subsequent SMB sweep."
+    },
+    {
+      "id": 4,
+      "name": "Test Readable Shares on Endpoints",
+      "type": "edge",
+      "from": "sharefinder_tool",
+      "to": "target_endpoints",
+      "description": "Remote SMB shares are probed and the current user's read access is validated.",
+      "cli": "Invoke-ShareFinder -Verbose -CheckShareAccess"
+    },
+    {
+      "id": 5,
+      "name": "Return Accessible UNC Paths",
+      "type": "edge",
+      "from": "target_endpoints",
+      "to": "readable_shares",
+      "description": "The attacker receives the set of UNC paths that are immediately readable and worth browsing."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.02,
+    "pan": {
+      "x": 583.5,
+      "y": 354.5
+    }
+  },
+  "stepInfoPosition": {
+    "x": 654.1147003173828,
+    "y": 741.7120971679688
+  },
+  "stepInfoSize": {
+    "width": 567.9968872070312,
+    "height": 164.18186950683594
+  }
+}

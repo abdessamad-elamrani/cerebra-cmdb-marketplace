@@ -1,0 +1,151 @@
+{
+  "title": "Enumerate Domain Users with PowerView",
+  "version": "3.0",
+  "viewport": {
+    "zoom": 0.68,
+    "pan": {
+      "x": 719.0188438077048,
+      "y": 378.8405938018202
+    }
+  },
+  "edgeLabelFontSize": 14,
+  "entityLabelFontSize": 21,
+  "containerTitleFontSize": 27,
+  "entityIconSize": 94,
+  "containerPaddingSize": 82,
+  "edgeCurveScale": 198,
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "entities": [
+    {
+      "id": "attacker_environment",
+      "label": "Attacker Environment",
+      "position": {
+        "x": -537.8662492516324,
+        "y": -65.09071489203433
+      },
+      "icon": "IconKali",
+      "type": "container",
+      "width": 450,
+      "height": 380,
+      "members": [
+        "attacker_machine",
+        "powerview_script",
+        "harvested_users"
+      ]
+    },
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Shell",
+      "position": {
+        "x": -714.0818897816756,
+        "y": -265.75535842058275
+      },
+      "icon": "IconTerminal",
+      "type": "node"
+    },
+    {
+      "id": "powerview_script",
+      "label": "PowerView.ps1",
+      "position": {
+        "x": -368.1506087215892,
+        "y": 84.5739286365141
+      },
+      "icon": "IconInfectedCode",
+      "type": "node"
+    },
+    {
+      "id": "harvested_users",
+      "label": "Domain Users List",
+      "position": {
+        "x": -622.3485882937161,
+        "y": -32.64426537776826
+      },
+      "icon": "IconStolenCredential",
+      "type": "node"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "position": {
+        "x": 244.20057038473954,
+        "y": -155.14418368935833
+      },
+      "icon": "IconNetwork",
+      "type": "container",
+      "width": 380,
+      "height": 300,
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (AD)",
+      "position": {
+        "x": 244.20057038473954,
+        "y": -180.64418368935833
+      },
+      "icon": "IconServer",
+      "type": "node"
+    }
+  ],
+  "visibility": {
+    "harvested_users": {
+      "start": 6,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Operate in Attacker Environment",
+      "type": "edge",
+      "from": "attacker_environment",
+      "to": "attacker_machine",
+      "description": "The attacker uses a prepared shell inside the attacker-controlled environment to begin LDAP reconnaissance."
+    },
+    {
+      "id": 2,
+      "name": "Load PowerView Module",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "powerview_script",
+      "description": "The attacker bypasses execution policy and loads the PowerView script into memory.",
+      "cli": "Set-ExecutionPolicy Bypass -Scope Process -Force\nImport-Module .\\PowerView.ps1"
+    },
+    {
+      "id": 3,
+      "name": "Reach Corporate LDAP Services",
+      "type": "edge",
+      "from": "powerview_script",
+      "to": "corporate_network",
+      "description": "PowerView reaches the corporate LDAP service path exposed by the domain environment."
+    },
+    {
+      "id": 4,
+      "name": "LDAP User Query",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The Domain Controller receives the LDAP request for user objects and selected attributes.",
+      "cli": "Get-DomainUser -Properties name, samaccountname, badpwdcount"
+    },
+    {
+      "id": 5,
+      "name": "LDAP Response Data",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "powerview_script",
+      "description": "The DC fulfills the read request, returning the requested attributes for each matching user."
+    },
+    {
+      "id": 6,
+      "name": "Exfiltrate User Data",
+      "type": "edge",
+      "from": "powerview_script",
+      "to": "harvested_users",
+      "description": "Usernames and failed-login data are consolidated for later password-spray planning."
+    }
+  ]
+}

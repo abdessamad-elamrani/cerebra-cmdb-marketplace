@@ -1,0 +1,106 @@
+{
+  "title": "Enumerate Logged On Users (Get-NetLoggedon)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Shell",
+      "type": "container",
+      "icon": "IconTerminal",
+      "members": [
+        "powerview_script",
+        "active_sessions"
+      ],
+      "position": {
+        "x": 421.05,
+        "y": 137
+      }
+    },
+    {
+      "id": "powerview_script",
+      "label": "PowerView.ps1",
+      "type": "node",
+      "icon": "IconCode",
+      "position": {
+        "x": 421.05,
+        "y": 72.95
+      }
+    },
+    {
+      "id": "active_sessions",
+      "label": "Logged On Users List",
+      "type": "node",
+      "icon": "IconData",
+      "position": {
+        "x": 421.05,
+        "y": 201.05
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "target_machine"
+      ],
+      "position": {
+        "x": 82.94999999999999,
+        "y": 201.05
+      }
+    },
+    {
+      "id": "target_machine",
+      "label": "Target Host (Spiderman)",
+      "type": "node",
+      "icon": "IconServer",
+      "position": {
+        "x": 82.94999999999999,
+        "y": 201.05
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Load PowerView Module",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "powerview_script",
+      "description": "The attacker operates in a PowerView-capable PowerShell session before issuing the remote session query."
+    },
+    {
+      "id": 2,
+      "name": "Reach Target Network Segment",
+      "type": "edge",
+      "from": "powerview_script",
+      "to": "corporate_network",
+      "description": "The session-enumeration request reaches the corporate network path that contains the target host."
+    },
+    {
+      "id": 3,
+      "name": "Query Remote Session Data",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "target_machine",
+      "description": "A remote session enumeration request asks the target machine which user sessions are currently exposed.",
+      "cli": "Get-NetSession -ComputerName COMPUTERNAME -Verbose"
+    },
+    {
+      "id": 4,
+      "name": "Return Active Session List",
+      "type": "edge",
+      "from": "target_machine",
+      "to": "active_sessions",
+      "description": "The remote host returns its active session information to help the attacker identify useful user presence."
+    }
+  ],
+  "visibility": {
+    "active_sessions": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

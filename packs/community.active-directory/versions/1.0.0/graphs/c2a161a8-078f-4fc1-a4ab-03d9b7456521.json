@@ -1,0 +1,90 @@
+{
+  "title": "Local User Environment Enumeration",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "target_machine",
+      "label": "Compromised Host",
+      "icon": "IconWorkstation",
+      "type": "container",
+      "members": [
+        "attacker_shell",
+        "os_environment"
+      ],
+      "position": {
+        "x": 46.68452380952402,
+        "y": 5.773809523809522
+      }
+    },
+    {
+      "id": "attacker_shell",
+      "label": "Attacker Shell",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": -190.1785714285715,
+        "y": 24.404761904761934
+      }
+    },
+    {
+      "id": "os_environment",
+      "label": "Windows OS API",
+      "icon": "IconWindows",
+      "type": "node",
+      "position": {
+        "x": 275.04761904761955,
+        "y": -37.85714285714288
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Operate in Current Session",
+      "type": "edge",
+      "from": "target_machine",
+      "to": "attacker_shell",
+      "description": "The attacker uses the existing shell on the compromised Windows host to inspect the current user context."
+    },
+    {
+      "id": 2,
+      "name": "Query Identity and Group Context",
+      "mitre": {
+        "id": "T1033",
+        "tactic": "Discovery",
+        "technique": "System Owner/User Discovery"
+      },
+      "type": "edge",
+      "from": "attacker_shell",
+      "to": "os_environment",
+      "description": "Built-in Windows commands query token identity, user SID, group membership, and session environment details.",
+      "cli": "whoami\nwhoami /user\nwhoami /groups\necho USERNAME=%USERNAME%\necho USERDOMAIN=%USERDOMAIN%\necho LOGONSERVER=%LOGONSERVER%"
+    },
+    {
+      "id": 3,
+      "name": "Return Session Context",
+      "type": "edge",
+      "from": "os_environment",
+      "to": "attacker_shell",
+      "description": "Windows returns the active username, SID, group memberships, domain context, and logon-server values to the operator."
+    }
+  ],
+  "viewport": {
+    "zoom": 1.3999999999999986,
+    "pan": {
+      "x": 547.8666666666675,
+      "y": 350.7458333333334
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "edgeCurveScale": 240,
+  "stepInfoPosition": {
+    "x": 710.5,
+    "y": 720.5
+  },
+  "stepInfoSize": {
+    "width": 626,
+    "height": 167.5
+  }
+}

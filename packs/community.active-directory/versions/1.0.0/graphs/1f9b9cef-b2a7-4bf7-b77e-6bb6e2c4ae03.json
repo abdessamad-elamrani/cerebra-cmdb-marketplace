@@ -1,0 +1,118 @@
+{
+  "title": "ACL Enum (PowerView)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "icon": "IconWorkstation",
+      "type": "container",
+      "members": [
+        "powerview_tool",
+        "acl_data"
+      ],
+      "position": {
+        "x": 200.47834338057947,
+        "y": 5.348885642551664
+      }
+    },
+    {
+      "id": "powerview_tool",
+      "label": "PowerView (Get-ObjectAcl)",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 261.16801608204605,
+        "y": -82.31846677634074
+      }
+    },
+    {
+      "id": "acl_data",
+      "label": "Resolved ACE Entries",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": 160.5147373065333,
+        "y": 50.5954782733746
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": -194.42428207919536,
+        "y": 58.95129098937538
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (LDAP)",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": -194.42428207919536,
+        "y": 40.45129098937538
+      }
+    }
+  ],
+  "visibility": {
+    "acl_data": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Load PowerView Module",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "powerview_tool",
+      "description": "The attacker imports PowerView to begin ACL-focused Active Directory reconnaissance.",
+      "cli": "Import-Module .\\PowerView.ps1"
+    },
+    {
+      "id": 2,
+      "name": "Reach Corporate LDAP Services",
+      "type": "edge",
+      "from": "powerview_tool",
+      "to": "corporate_network",
+      "description": "The ACL query reaches the directory service path used to read target object security descriptors."
+    },
+    {
+      "id": 3,
+      "name": "Query Target Object Security Descriptor",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The Domain Controller returns the raw ACL data for the chosen object.",
+      "cli": "Get-ObjectAcl -Identity stephanie\nGet-ObjectAcl -Identity \"Management Department\""
+    },
+    {
+      "id": 4,
+      "name": "Resolve Dangerous Rights and Principals",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "acl_data",
+      "description": "Raw ACE entries are translated into human-readable principals and permissions such as GenericAll."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.55,
+    "pan": {
+      "x": 583.5,
+      "y": 354.5
+    }
+  },
+  "stepInfoPosition": {
+    "x": 717.1157531738281,
+    "y": 825.7807006835938
+  }
+}

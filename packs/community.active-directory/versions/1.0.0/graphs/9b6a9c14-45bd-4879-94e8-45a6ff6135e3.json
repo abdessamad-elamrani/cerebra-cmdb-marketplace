@@ -1,0 +1,113 @@
+{
+  "title": "Advanced LDAP Filtering",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "powershell_process",
+        "ad_results"
+      ],
+      "position": {
+        "x": 217,
+        "y": 78.94999999999999
+      }
+    },
+    {
+      "id": "powershell_process",
+      "label": "PowerShell Script",
+      "type": "node",
+      "icon": "IconTerminal",
+      "position": {
+        "x": 84.69999999999999,
+        "y": 71.07499999999999
+      }
+    },
+    {
+      "id": "ad_results",
+      "label": "LDAP Query Results",
+      "type": "node",
+      "icon": "IconData",
+      "position": {
+        "x": 349.3,
+        "y": 86.825
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": 84.69999999999999,
+        "y": 277.925
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer",
+      "position": {
+        "x": 84.69999999999999,
+        "y": 277.925
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Start Reusable LDAP Workflow",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "powershell_process",
+      "description": "The attacker prepares a PowerShell-based LDAP helper that accepts arbitrary filter input for targeted AD searches."
+    },
+    {
+      "id": 2,
+      "name": "Define Parameterized Search Helper",
+      "type": "edge",
+      "from": "powershell_process",
+      "to": "ad_results",
+      "description": "The reusable helper wraps DirectorySearcher logic and prepares to receive caller-controlled filter expressions."
+    },
+    {
+      "id": 3,
+      "name": "Reach Corporate LDAP Services",
+      "type": "edge",
+      "from": "powershell_process",
+      "to": "corporate_network",
+      "description": "The helper reaches the domain LDAP service path used to resolve custom filters."
+    },
+    {
+      "id": 4,
+      "name": "Submit Custom LDAP Filter",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The supplied LDAP filter is executed against the Domain Controller for a targeted subset of directory objects."
+    },
+    {
+      "id": 5,
+      "name": "Return Targeted Result Set",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "ad_results",
+      "description": "Only the objects matching the custom LDAP filter are returned to the attacker for analysis."
+    }
+  ],
+  "visibility": {
+    "ad_results": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

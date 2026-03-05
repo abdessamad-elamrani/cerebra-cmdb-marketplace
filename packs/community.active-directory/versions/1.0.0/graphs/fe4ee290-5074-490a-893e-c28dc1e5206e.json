@@ -1,0 +1,87 @@
+{
+  "title": "PowerShell Fix Colors (PSReadLine)",
+  "version": "3.0",
+  "viewport": {
+    "zoom": 1.899999999999999,
+    "pan": {
+      "x": 604.9950556437174,
+      "y": 321.80386962890583
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Operator Terminal",
+      "icon": "IconTerminal",
+      "type": "container",
+      "members": [
+        "powershell_host",
+        "psreadline_module",
+        "restored_console"
+      ],
+      "position": {
+        "x": 182,
+        "y": 137
+      }
+    },
+    {
+      "id": "powershell_host",
+      "label": "PowerShell Session",
+      "icon": "IconCode",
+      "type": "node",
+      "position": {
+        "x": 86.45,
+        "y": 137
+      }
+    },
+    {
+      "id": "psreadline_module",
+      "label": "PSReadLine Module",
+      "icon": "IconCode",
+      "type": "node",
+      "position": {
+        "x": 277.55,
+        "y": 72.95
+      }
+    },
+    {
+      "id": "restored_console",
+      "label": "Readable Console Output",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": 277.55,
+        "y": 201.05
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Use Existing PowerShell Session",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "powershell_host",
+      "description": "The operator is working in a PowerShell session where PSReadLine is causing prompt or color rendering issues."
+    },
+    {
+      "id": 2,
+      "name": "Unload PSReadLine",
+      "type": "edge",
+      "from": "powershell_host",
+      "to": "psreadline_module",
+      "description": "The session unloads PSReadLine, removing its advanced line-editing and redraw hooks from the current process.",
+      "cli": "Remove-Module PSReadLine"
+    },
+    {
+      "id": 3,
+      "name": "Resume With Basic Rendering",
+      "type": "edge",
+      "from": "powershell_host",
+      "to": "restored_console",
+      "description": "PowerShell continues with simpler console behavior so text becomes readable and commands can be entered reliably."
+    }
+  ]
+}

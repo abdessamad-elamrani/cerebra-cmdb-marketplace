@@ -1,0 +1,118 @@
+{
+  "title": "DCSync (Mimikatz)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "icon": "IconWorkstation",
+      "type": "container",
+      "members": [
+        "mimikatz_tool",
+        "dumped_hashes"
+      ],
+      "position": {
+        "x": -176.0141951920503,
+        "y": 1.165752582330093
+      }
+    },
+    {
+      "id": "mimikatz_tool",
+      "label": "mimikatz.exe",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": -176.0141951920503,
+        "y": -11.334247417669907
+      }
+    },
+    {
+      "id": "dumped_hashes",
+      "label": "Target Hashes (krbtgt)",
+      "icon": "IconKey",
+      "type": "node",
+      "position": {
+        "x": -250.02016362507146,
+        "y": 0
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "position": {
+        "x": 254.4492795363917,
+        "y": -41.86863938672981
+      },
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (KDC)",
+      "position": {
+        "x": 254.44927953639169,
+        "y": -54.36863938672981
+      },
+      "icon": "IconServer",
+      "type": "node"
+    }
+  ],
+  "visibility": {
+    "dumped_hashes": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch Mimikatz DCSync Request",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "mimikatz_tool",
+      "description": "The attacker starts Mimikatz and prepares a DCSync request for a chosen domain account.",
+      "cli": "lsadump::dcsync /user:corp\\dave"
+    },
+    {
+      "id": 2,
+      "name": "Reach Replication Service Path",
+      "type": "edge",
+      "from": "mimikatz_tool",
+      "to": "corporate_network",
+      "description": "The DCSync client reaches the domain replication path exposed by the Domain Controller."
+    },
+    {
+      "id": 3,
+      "name": "Request Replicated Account Material",
+      "mitre": {
+        "id": "T1003.006",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: DCSync"
+      },
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The Domain Controller receives the DCSync request for the targeted user."
+    },
+    {
+      "id": 4,
+      "name": "Return Replicated Hash Output",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "dumped_hashes",
+      "description": "The requested NTLM and key material is returned to the attacker for later abuse."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.32,
+    "pan": {
+      "x": 625.0799999999999,
+      "y": 341.19
+    }
+  }
+}

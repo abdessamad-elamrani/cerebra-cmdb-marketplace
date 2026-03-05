@@ -1,0 +1,114 @@
+{
+  "title": "SPN Discovery (PowerView)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "icon": "IconWorkstation",
+      "type": "container",
+      "members": [
+        "powerview_tool",
+        "spn_objects"
+      ],
+      "position": {
+        "x": 201.34074103846808,
+        "y": -35.146710605644444
+      }
+    },
+    {
+      "id": "powerview_tool",
+      "label": "PowerView (Get-NetUser)",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 201.34074103846808,
+        "y": -53.646710605644444
+      }
+    },
+    {
+      "id": "spn_objects",
+      "label": "Service Account Pipeline",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": 177.49775854707056,
+        "y": 100.67037051923407
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": -131.798708771892,
+        "y": -8.65450783742497
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (LDAP)",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": -148.3563355020291,
+        "y": 14.570711522520734
+      }
+    }
+  ],
+  "visibility": {
+    "spn_objects": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Load PowerView Module",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "powerview_tool",
+      "description": "The attacker imports PowerView into the current PowerShell session for targeted SPN discovery.",
+      "cli": "Import-Module .\\PowerView.ps1"
+    },
+    {
+      "id": 2,
+      "name": "Reach Corporate LDAP Services",
+      "type": "edge",
+      "from": "powerview_tool",
+      "to": "corporate_network",
+      "description": "The targeted SPN query reaches the domain service path for LDAP-backed account discovery."
+    },
+    {
+      "id": 3,
+      "name": "Query SPN-Bearing User Accounts",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "A targeted LDAP filter requests user objects that have populated servicePrincipalName attributes.",
+      "cli": "Get-NetUser -SPN | select samaccountname,serviceprincipalname"
+    },
+    {
+      "id": 4,
+      "name": "Return Service Account Pipeline",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "spn_objects",
+      "description": "The Domain Controller returns the filtered set of SPN-bearing user objects for attacker review."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.5069560666785302,
+    "pan": {
+      "x": 583.5259778784479,
+      "y": 353.9653772061735
+    }
+  }
+}

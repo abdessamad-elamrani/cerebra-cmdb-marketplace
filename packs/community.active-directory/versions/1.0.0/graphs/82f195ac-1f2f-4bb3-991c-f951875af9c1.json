@@ -1,0 +1,130 @@
+{
+  "title": "Pass-The-Ticket (Mimikatz)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Host",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "mimikatz_tool",
+        "kirbi_file"
+      ],
+      "position": {
+        "x": 217,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "mimikatz_tool",
+      "label": "mimikatz.exe",
+      "type": "node",
+      "icon": "IconTerminal",
+      "position": {
+        "x": 84.69999999999999,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "kirbi_file",
+      "label": "Stolen .kirbi TGT",
+      "type": "node",
+      "icon": "IconKey",
+      "position": {
+        "x": 349.3,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller",
+        "target_resource"
+      ],
+      "position": {
+        "x": 84.69999999999999,
+        "y": 323.55
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer",
+      "position": {
+        "x": 84.69999999999999,
+        "y": 259.5
+      }
+    },
+    {
+      "id": "target_resource",
+      "label": "Any Network Resource",
+      "type": "node",
+      "icon": "IconFolder",
+      "position": {
+        "x": 84.69999999999999,
+        "y": 387.6
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Export Cached Tickets",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "mimikatz_tool",
+      "description": "The attacker launches Mimikatz on the compromised host to work with cached Kerberos ticket material."
+    },
+    {
+      "id": 2,
+      "name": "Write .kirbi Ticket to Disk",
+      "type": "edge",
+      "from": "mimikatz_tool",
+      "to": "kirbi_file",
+      "description": "Cached tickets are exported from memory and saved as .kirbi files.",
+      "cli": "sekurlsa::tickets /export",
+      "mitre": {
+        "id": "T1558",
+        "tactic": "Credential Access",
+        "technique": "Steal or Forge Kerberos Tickets"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Inject Selected Ticket",
+      "type": "edge",
+      "from": "kirbi_file",
+      "to": "mimikatz_tool",
+      "description": "A selected .kirbi ticket is injected into the current session for reuse.",
+      "cli": "kerberos::ptt <ticket>.kirbi",
+      "mitre": {
+        "id": "T1550.003",
+        "tactic": "Lateral Movement",
+        "technique": "Use Alternate Authentication Material: Pass the Ticket"
+      }
+    },
+    {
+      "id": 4,
+      "name": "Reach Kerberos Trust Boundary",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "corporate_network",
+      "description": "The compromised host uses the injected ticket while reaching out to domain-backed services."
+    },
+    {
+      "id": 5,
+      "name": "Access Protected Resource",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "target_resource",
+      "description": "The injected ticket is accepted and the attacker gains Kerberos-backed access to the protected resource."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

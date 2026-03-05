@@ -1,0 +1,114 @@
+{
+  "title": "Search User Groups (.NET LDAP)",
+  "version": "3.0",
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Compromised Endpoint",
+      "type": "container",
+      "icon": "IconWorkstation",
+      "members": [
+        "powershell_process",
+        "memberof_array"
+      ],
+      "position": {
+        "x": 217,
+        "y": 78.94999999999999
+      }
+    },
+    {
+      "id": "powershell_process",
+      "label": "PowerShell (.NET Searcher)",
+      "type": "node",
+      "icon": "IconTerminal",
+      "position": {
+        "x": 84.69999999999999,
+        "y": 71.07499999999999
+      }
+    },
+    {
+      "id": "memberof_array",
+      "label": "memberOf Properties",
+      "type": "node",
+      "icon": "IconData",
+      "position": {
+        "x": 349.3,
+        "y": 86.825
+      }
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "type": "container",
+      "icon": "IconNetwork",
+      "members": [
+        "domain_controller"
+      ],
+      "position": {
+        "x": 84.69999999999999,
+        "y": 277.925
+      }
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "type": "node",
+      "icon": "IconServer",
+      "position": {
+        "x": 84.69999999999999,
+        "y": 277.925
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "name": "Start Targeted Group Lookup",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "powershell_process",
+      "description": "The attacker uses PowerShell and .NET LDAP classes to resolve a single user's group memberships."
+    },
+    {
+      "id": 2,
+      "name": "Create Directory Search Context",
+      "type": "edge",
+      "from": "powershell_process",
+      "to": "memberof_array",
+      "description": "PowerShell prepares the local search context used for a targeted LDAP lookup."
+    },
+    {
+      "id": 3,
+      "name": "Reach Corporate LDAP Services",
+      "type": "edge",
+      "from": "powershell_process",
+      "to": "corporate_network",
+      "description": "The custom DirectorySearcher reaches the domain's LDAP service path."
+    },
+    {
+      "id": 4,
+      "name": "Query Specific User Object",
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "An LDAP filter requests the AD object for the chosen user account.",
+      "cli": "$dirsearcher.filter=\"name=jeffadmin\"\n$result = $dirsearcher.FindAll()"
+    },
+    {
+      "id": 5,
+      "name": "Return Group Membership Array",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "memberof_array",
+      "description": "The directory returns the target user object and its memberOf attributes for local review."
+    }
+  ],
+  "visibility": {
+    "memberof_array": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

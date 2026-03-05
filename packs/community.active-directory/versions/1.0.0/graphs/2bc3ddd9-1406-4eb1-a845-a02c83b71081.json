@@ -1,0 +1,118 @@
+{
+  "title": "DCSync (secretsdump)",
+  "version": "3.0",
+  "viewport": {
+    "zoom": 1.23,
+    "pan": {
+      "x": 583,
+      "y": 354
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "entities": [
+    {
+      "id": "attacker_machine",
+      "label": "Attacker Arsenal (Linux)",
+      "position": {
+        "x": 421.05,
+        "y": 137
+      },
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "secretsdump_tool",
+        "domain_hashes"
+      ]
+    },
+    {
+      "id": "secretsdump_tool",
+      "label": "secretsdump.py",
+      "position": {
+        "x": 421.05,
+        "y": 72.95
+      },
+      "icon": "IconTerminal",
+      "type": "node"
+    },
+    {
+      "id": "domain_hashes",
+      "label": "NTDS.DIT Hash Dump",
+      "position": {
+        "x": 421.05,
+        "y": 201.05
+      },
+      "icon": "IconKey",
+      "type": "node"
+    },
+    {
+      "id": "corporate_network",
+      "label": "Corporate Network",
+      "position": {
+        "x": 82.94999999999999,
+        "y": 201.05
+      },
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "domain_controller"
+      ]
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller (KDC)",
+      "position": {
+        "x": 82.94999999999999,
+        "y": 201.05
+      },
+      "icon": "IconServer",
+      "type": "node"
+    }
+  ],
+  "visibility": {
+    "domain_hashes": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Launch secretsdump DCSync Request",
+      "type": "edge",
+      "from": "attacker_machine",
+      "to": "secretsdump_tool",
+      "description": "The attacker starts secretsdump from Linux to request replicated credential material.",
+      "cli": "impacket-secretsdump -just-dc-user dave corp.com/jeffadmin:<password>@192.168.50.70"
+    },
+    {
+      "id": 2,
+      "name": "Reach Replication Service Path",
+      "type": "edge",
+      "from": "secretsdump_tool",
+      "to": "corporate_network",
+      "description": "The remote DCSync client reaches the Domain Controller's replication service path over the network."
+    },
+    {
+      "id": 3,
+      "name": "Request Targeted Credential Material",
+      "mitre": {
+        "id": "T1003.006",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping: DCSync"
+      },
+      "type": "edge",
+      "from": "corporate_network",
+      "to": "domain_controller",
+      "description": "The Domain Controller receives the targeted DCSync request for the selected account."
+    },
+    {
+      "id": 4,
+      "name": "Return Domain Hash Dump",
+      "type": "edge",
+      "from": "domain_controller",
+      "to": "domain_hashes",
+      "description": "The requested hash and key material is returned to the attacker for later abuse."
+    }
+  ]
+}
