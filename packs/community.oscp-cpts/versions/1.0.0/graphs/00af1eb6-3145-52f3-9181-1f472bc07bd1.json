@@ -1,0 +1,200 @@
+{
+  "title": "SSH Local/Remote/Dynamic Port Forwarding",
+  "description": "This runbook operationalizes SSH Local/Remote/Dynamic Port Forwarding using #ssh . It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments. Builds forward and reverse tunnels plus SOCKS transport for deeper network access.",
+  "version": "3.0",
+  "shortDescription": "SSH Local/Remote/Dynamic Port Forwarding",
+  "tags": [
+    "oscp-cpts",
+    "phase:pivoting",
+    "domain:offensive",
+    "tool:ssh",
+    "focus:pivoting"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This runbook operationalizes <strong>SSH Local/Remote/Dynamic Port Forwarding</strong> using <span style='color:#ef4444;font-weight:bold;'>#ssh</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Builds forward and reverse tunnels plus SOCKS transport for deeper network access.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:7; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:23</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style='color:#3b82f6;font-weight:bold;'>TCP 80</span>, <span style='color:#3b82f6;font-weight:bold;'>TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>ssh -L 1234:localhost:3306 &lt;USER&gt;@&lt;PIVOT_IP&gt;\nssh -R &lt;PIVOT_IP&gt;:8080:0.0.0.0:80 &lt;USER&gt;@&lt;TARGET_IP&gt; -vN\nssh -D 9050 &lt;USER&gt;@&lt;PIVOT_IP&gt;</code></pre>",
+    "commandsBlock": "ssh -L 1234:localhost:3306 <USER>@<PIVOT_IP>\nssh -R <PIVOT_IP>:8080:0.0.0.0:80 <USER>@<TARGET_IP> -vN\nssh -D 9050 <USER>@<PIVOT_IP>",
+    "prerequisites": [
+      "authorized scope, operator shell access, and protocol reachability on TCP 80 , TCP 443 ."
+    ],
+    "attackerGains": [
+      "validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression."
+    ],
+    "detectionNotes": [
+      "monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry."
+    ],
+    "extraInfo": [
+      "primary references are in local source corpus entries linked from runbook-list.md ; e.g., docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:7; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:23 .",
+      "Generated via runbook-graph-generator skill"
+    ]
+  },
+  "entities": [
+    {
+      "id": "operator_environment",
+      "label": "Operator Environment",
+      "icon": "IconKali",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "operator_node",
+        "execution_toolchain"
+      ],
+      "position": {
+        "x": 145.6172297911176,
+        "y": 130.68202022805372
+      }
+    },
+    {
+      "id": "target_environment",
+      "label": "Target Environment",
+      "icon": "IconCloud",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "target_surface"
+      ],
+      "position": {
+        "x": -268.951420122693,
+        "y": 60.48224805051102
+      }
+    },
+    {
+      "id": "evidence_pipeline",
+      "label": "Evidence Pipeline",
+      "icon": "IconData",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "evidence_artifacts"
+      ],
+      "position": {
+        "x": 236.10552792407827,
+        "y": -134.47401532191228
+      }
+    },
+    {
+      "id": "operator_node",
+      "label": "Operator Workstation",
+      "icon": "IconKali",
+      "type": "node",
+      "position": {
+        "x": 73.90866328825896,
+        "y": 89.47748645020938
+      }
+    },
+    {
+      "id": "execution_toolchain",
+      "label": "Execution Toolchain (ssh)",
+      "icon": "IconPenetrationTool",
+      "type": "node",
+      "position": {
+        "x": 219.32579629397628,
+        "y": 134.88655400589803
+      }
+    },
+    {
+      "id": "target_surface",
+      "label": "Target Surface",
+      "icon": "IconServer",
+      "type": "node",
+      "position": {
+        "x": -268.951420122693,
+        "y": 47.98224805051102
+      }
+    },
+    {
+      "id": "evidence_artifacts",
+      "label": "Evidence Artifacts",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": 283.30933481649174,
+        "y": -165.37549936471754
+      }
+    }
+  ],
+  "visibility": {
+    "operator_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "target_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "evidence_pipeline": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_node": {
+      "start": 0,
+      "end": 100
+    },
+    "target_surface": {
+      "start": 0,
+      "end": 100
+    },
+    "execution_toolchain": {
+      "start": 1,
+      "end": 100
+    },
+    "evidence_artifacts": {
+      "start": 3,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Preparation and Target Validation",
+      "type": "edge",
+      "from": "operator_node",
+      "to": "target_surface",
+      "icon": "IconProcess",
+      "tooltip": "Early validation reduces noise and prevents invalid follow-on actions against unreachable or mismatched targets.",
+      "description": "Operator initializes the workflow and verifies prerequisites for SSH Local/Remote/Dynamic Port Forwarding.",
+      "cli": "ssh -L 1234:localhost:3306 <USER>@<PIVOT_IP>"
+    },
+    {
+      "id": 2,
+      "name": "Primary Execution",
+      "type": "edge",
+      "from": "execution_toolchain",
+      "to": "target_surface",
+      "icon": "IconPenetrationTool",
+      "tooltip": "The technique leverages service behavior, protocol assumptions, or misconfiguration to extract actionable state.",
+      "description": "Main command path executes against the target service or domain component.",
+      "cli": "ssh -R <PIVOT_IP>:8080:0.0.0.0:80 <USER>@<TARGET_IP> -vN"
+    },
+    {
+      "id": 3,
+      "name": "Expansion and Verification",
+      "type": "edge",
+      "from": "target_surface",
+      "to": "evidence_artifacts",
+      "icon": "IconData",
+      "tooltip": "Secondary checks reduce false positives and expose deeper privilege or access pathways.",
+      "description": "Follow-up commands validate initial findings and expand result coverage.",
+      "cli": "ssh -D 9050 <USER>@<PIVOT_IP>"
+    },
+    {
+      "id": 4,
+      "name": "Consolidation for Follow-On Operations",
+      "type": "edge",
+      "from": "evidence_artifacts",
+      "to": "operator_node",
+      "icon": "IconCheck",
+      "tooltip": "Structured artifact capture enables deterministic downstream runbooks and profile ingestion.",
+      "description": "Final command stage consolidates output for cracking, pivoting, reporting, or escalation decisions.",
+      "cli": "ssh -D 9050 <USER>@<PIVOT_IP>"
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.2499999999999996,
+    "pan": {
+      "x": 515.5710432722763,
+      "y": 320.06607633023646
+    }
+  }
+}

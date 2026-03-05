@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-03-05T22:06:56.719Z",
+  "generatedAt": "2026-03-05T22:07:13.636Z",
   "packs": [
     {
       "packId": "cerebra.fortigate",
@@ -72,6 +72,14 @@
       "displayName": "linux-privesc",
       "latestVersion": "1.0.0",
       "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.linux-privesc/versions/1.0.0/manifest.v1.json"
+    },
+    {
+      "packId": "community.oscp-cpts",
+      "publisher": "community",
+      "slug": "oscp-cpts",
+      "displayName": "oscp-cpts",
+      "latestVersion": "1.0.0",
+      "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.oscp-cpts/versions/1.0.0/manifest.v1.json"
     }
   ]
 }

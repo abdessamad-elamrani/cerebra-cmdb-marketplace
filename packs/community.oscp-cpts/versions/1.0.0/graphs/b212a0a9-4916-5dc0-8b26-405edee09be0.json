@@ -1,0 +1,204 @@
+{
+  "title": "Proxychains Operational Pivoting",
+  "description": "This runbook operationalizes Proxychains Operational Pivoting using #proxychains . It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments. Routes tooling and interactive protocols through SOCKS pivots for internal reach.",
+  "version": "3.0",
+  "shortDescription": "Proxychains Operational Pivoting",
+  "tags": [
+    "oscp-cpts",
+    "phase:pivoting",
+    "domain:windows",
+    "tool:proxychains",
+    "focus:pivoting"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This runbook operationalizes <strong>Proxychains Operational Pivoting</strong> using <span style='color:#ef4444;font-weight:bold;'>#proxychains</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Routes tooling and interactive protocols through SOCKS pivots for internal reach.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:14; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:15</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style='color:#3b82f6;font-weight:bold;'>TCP 3389</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>proxychains nmap -v -Pn -sT &lt;INTERNAL_HOST&gt;\nproxychains msfconsole\nproxychains xfreerdp /v:&lt;TARGET&gt; /u:&lt;USER&gt; /p:&lt;PASS&gt;</code></pre>",
+    "commandsBlock": "proxychains nmap -v -Pn -sT <INTERNAL_HOST>\nproxychains msfconsole\nproxychains xfreerdp /v:<TARGET> /u:<USER> /p:<PASS>",
+    "prerequisites": [
+      "authorized scope, operator shell access, and protocol reachability on TCP 3389 ."
+    ],
+    "attackerGains": [
+      "validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression."
+    ],
+    "detectionNotes": [
+      "monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry."
+    ],
+    "extraInfo": [
+      "primary references are in local source corpus entries linked from runbook-list.md ; e.g., docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:14; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:15 .",
+      "Generated via runbook-graph-generator skill"
+    ]
+  },
+  "entities": [
+    {
+      "id": "operator_environment",
+      "label": "Operator Environment",
+      "icon": "IconKali",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "operator_node",
+        "execution_toolchain"
+      ],
+      "position": {
+        "x": 51.873913489965986,
+        "y": -230.0229067064019
+      }
+    },
+    {
+      "id": "target_environment",
+      "label": "Target Environment",
+      "icon": "IconCloud",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "target_surface"
+      ],
+      "position": {
+        "x": -468.82496644756634,
+        "y": 138.90009315744405
+      }
+    },
+    {
+      "id": "evidence_pipeline",
+      "label": "Evidence Pipeline",
+      "icon": "IconData",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "evidence_artifacts"
+      ],
+      "position": {
+        "x": -28.301960576581024,
+        "y": 173.6045935819966
+      }
+    },
+    {
+      "id": "operator_node",
+      "label": "Operator Workstation",
+      "icon": "IconKali",
+      "type": "node",
+      "position": {
+        "x": 232.9754343465238,
+        "y": -255.638326489121
+      }
+    },
+    {
+      "id": "execution_toolchain",
+      "label": "Execution Toolchain (proxychains)",
+      "icon": "IconPenetrationTool",
+      "type": "node",
+      "position": {
+        "x": -131.22760736659183,
+        "y": -241.40748692368277
+      }
+    },
+    {
+      "id": "target_surface",
+      "label": "Windows Target Surface",
+      "icon": "IconWindows",
+      "type": "node",
+      "position": {
+        "x": -468.82496644756634,
+        "y": 126.40009315744405
+      }
+    },
+    {
+      "id": "evidence_artifacts",
+      "label": "Evidence Artifacts",
+      "icon": "IconData",
+      "type": "node",
+      "position": {
+        "x": -28.301960576581024,
+        "y": 161.1045935819966
+      }
+    }
+  ],
+  "visibility": {
+    "operator_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "target_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "evidence_pipeline": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_node": {
+      "start": 0,
+      "end": 100
+    },
+    "target_surface": {
+      "start": 0,
+      "end": 100
+    },
+    "execution_toolchain": {
+      "start": 1,
+      "end": 100
+    },
+    "evidence_artifacts": {
+      "start": 3,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Preparation and Target Validation",
+      "type": "edge",
+      "from": "operator_node",
+      "to": "target_surface",
+      "icon": "IconProcess",
+      "tooltip": "Early validation reduces noise and prevents invalid follow-on actions against unreachable or mismatched targets.",
+      "description": "Operator initializes the workflow and verifies prerequisites for Proxychains Operational Pivoting.",
+      "cli": "proxychains nmap -v -Pn -sT <INTERNAL_HOST>"
+    },
+    {
+      "id": 2,
+      "name": "Primary Execution",
+      "type": "edge",
+      "from": "execution_toolchain",
+      "to": "target_surface",
+      "icon": "IconPenetrationTool",
+      "tooltip": "The technique leverages service behavior, protocol assumptions, or misconfiguration to extract actionable state.",
+      "description": "Main command path executes against the target service or domain component.",
+      "cli": "proxychains msfconsole"
+    },
+    {
+      "id": 3,
+      "name": "Expansion and Verification",
+      "type": "edge",
+      "from": "target_surface",
+      "to": "evidence_artifacts",
+      "icon": "IconData",
+      "tooltip": "Secondary checks reduce false positives and expose deeper privilege or access pathways.",
+      "description": "Follow-up commands validate initial findings and expand result coverage.",
+      "cli": "proxychains xfreerdp /v:<TARGET> /u:<USER> /p:<PASS>"
+    },
+    {
+      "id": 4,
+      "name": "Consolidation for Follow-On Operations",
+      "type": "edge",
+      "from": "evidence_artifacts",
+      "to": "operator_node",
+      "icon": "IconCheck",
+      "tooltip": "Structured artifact capture enables deterministic downstream runbooks and profile ingestion.",
+      "description": "Final command stage consolidates output for cracking, pivoting, reporting, or escalation decisions.",
+      "cli": "proxychains xfreerdp /v:<TARGET> /u:<USER> /p:<PASS>"
+    }
+  ],
+  "viewport": {
+    "zoom": 1.02,
+    "pan": {
+      "x": 614.8550482613708,
+      "y": 364.3597569056911
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "stepInfoPosition": {
+    "x": 874.402099609375,
+    "y": 773.6150512695312
+  }
+}

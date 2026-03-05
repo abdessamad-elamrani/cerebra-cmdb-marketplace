@@ -1,0 +1,193 @@
+{
+  "title": "Ligolo-ng TUN Pivot and Route Injection",
+  "version": "3.0",
+  "description": "This runbook operationalizes Ligolo-ng TUN Pivot and Route Injection using #ip . It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments. Creates tun-based pivoting without SOCKS limitations for deeper internal operations.",
+  "shortDescription": "Ligolo-ng TUN Pivot and Route Injection",
+  "tags": [
+    "oscp-cpts",
+    "phase:pivoting",
+    "domain:offensive",
+    "tool:ip",
+    "focus:pivoting"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This runbook operationalizes <strong>Ligolo-ng TUN Pivot and Route Injection</strong> using <span style='color:#ef4444;font-weight:bold;'>#ip</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Creates tun-based pivoting without SOCKS limitations for deeper internal operations.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/dollarboysushil-oscp-cpts-notes/pivoting-and-tunneling/ligolo-ng.md:27; docs/sources-runbooks/oscp-cpts/p0/dollarboysushil-oscp-cpts-notes/pivoting-and-tunneling/ligolo-ng.md:29</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style='color:#3b82f6;font-weight:bold;'>TCP 80</span>, <span style='color:#3b82f6;font-weight:bold;'>TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>sudo ip tuntap add user &lt;user&gt; mode tun ligolo\nsudo ip link set ligolo up\nsudo ip route add &lt;INTERNAL_CIDR&gt; dev ligolo</code></pre>",
+    "commandsBlock": "sudo ip tuntap add user <user> mode tun ligolo\nsudo ip link set ligolo up\nsudo ip route add <INTERNAL_CIDR> dev ligolo",
+    "extraInfo": [
+      "primary references are in local source corpus entries linked from runbook-list.md ; e.g., docs/sources-runbooks/oscp-cpts/p0/dollarboysushil-oscp-cpts-notes/pivoting-and-tunneling/ligolo-ng.md:27; docs/sources-runbooks/oscp-cpts/p0/dollarboysushil-oscp-cpts-notes/pivoting-and-tunneling/ligolo-ng.md:29 .",
+      "Generated via runbook-graph-generator skill"
+    ],
+    "prerequisites": [
+      "authorized scope, operator shell access, and protocol reachability on TCP 80 , TCP 443 ."
+    ],
+    "attackerGains": [
+      "validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression."
+    ],
+    "detectionNotes": [
+      "monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry."
+    ]
+  },
+  "entities": [
+    {
+      "id": "operator_environment",
+      "type": "container",
+      "label": "Operator Environment",
+      "icon": "IconKali",
+      "style": "dashed_border",
+      "members": [
+        "operator_node",
+        "execution_toolchain"
+      ],
+      "position": {
+        "x": 74.89999999999998,
+        "y": 177.5
+      }
+    },
+    {
+      "id": "target_environment",
+      "type": "container",
+      "label": "Target Environment",
+      "icon": "IconCloud",
+      "style": "dashed_border",
+      "members": [
+        "target_surface"
+      ],
+      "position": {
+        "x": 413,
+        "y": 229.475
+      }
+    },
+    {
+      "id": "evidence_pipeline",
+      "type": "container",
+      "label": "Evidence Pipeline",
+      "icon": "IconData",
+      "style": "dashed_border",
+      "members": [
+        "evidence_artifacts"
+      ],
+      "position": {
+        "x": 751.1,
+        "y": 173.825
+      }
+    },
+    {
+      "id": "operator_node",
+      "type": "node",
+      "label": "Operator Workstation",
+      "icon": "IconKali",
+      "position": {
+        "x": 74.89999999999998,
+        "y": 109.77499999999999
+      }
+    },
+    {
+      "id": "execution_toolchain",
+      "type": "node",
+      "label": "Execution Toolchain (ip)",
+      "icon": "IconPenetrationTool",
+      "position": {
+        "x": 74.89999999999998,
+        "y": 245.22500000000002
+      }
+    },
+    {
+      "id": "target_surface",
+      "type": "node",
+      "label": "Target Surface",
+      "icon": "IconServer",
+      "position": {
+        "x": 413,
+        "y": 229.475
+      }
+    },
+    {
+      "id": "evidence_artifacts",
+      "type": "node",
+      "label": "Evidence Artifacts",
+      "icon": "IconData",
+      "position": {
+        "x": 751.1,
+        "y": 173.825
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "type": "edge",
+      "name": "Preparation and Target Validation",
+      "from": "operator_node",
+      "to": "target_surface",
+      "icon": "IconProcess",
+      "description": "Operator initializes the workflow and verifies prerequisites for Ligolo-ng TUN Pivot and Route Injection.",
+      "cli": "sudo ip tuntap add user <user> mode tun ligolo",
+      "tooltip": "Early validation reduces noise and prevents invalid follow-on actions against unreachable or mismatched targets."
+    },
+    {
+      "id": 2,
+      "type": "edge",
+      "name": "Primary Execution",
+      "from": "execution_toolchain",
+      "to": "target_surface",
+      "icon": "IconPenetrationTool",
+      "description": "Main command path executes against the target service or domain component.",
+      "cli": "sudo ip link set ligolo up",
+      "tooltip": "The technique leverages service behavior, protocol assumptions, or misconfiguration to extract actionable state."
+    },
+    {
+      "id": 3,
+      "type": "edge",
+      "name": "Expansion and Verification",
+      "from": "target_surface",
+      "to": "evidence_artifacts",
+      "icon": "IconData",
+      "description": "Follow-up commands validate initial findings and expand result coverage.",
+      "cli": "sudo ip route add <INTERNAL_CIDR> dev ligolo",
+      "tooltip": "Secondary checks reduce false positives and expose deeper privilege or access pathways."
+    },
+    {
+      "id": 4,
+      "type": "edge",
+      "name": "Consolidation for Follow-On Operations",
+      "from": "evidence_artifacts",
+      "to": "operator_node",
+      "icon": "IconCheck",
+      "description": "Final command stage consolidates output for cracking, pivoting, reporting, or escalation decisions.",
+      "cli": "sudo ip route add <INTERNAL_CIDR> dev ligolo",
+      "tooltip": "Structured artifact capture enables deterministic downstream runbooks and profile ingestion."
+    }
+  ],
+  "visibility": {
+    "operator_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "target_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "evidence_pipeline": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_node": {
+      "start": 0,
+      "end": 100
+    },
+    "target_surface": {
+      "start": 0,
+      "end": 100
+    },
+    "execution_toolchain": {
+      "start": 1,
+      "end": 100
+    },
+    "evidence_artifacts": {
+      "start": 3,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}
