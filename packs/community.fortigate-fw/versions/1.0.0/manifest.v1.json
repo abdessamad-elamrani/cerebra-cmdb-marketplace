@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "packId": "community.fortigate-fw",
+  "version": "1.0.0",
+  "profile": {
+    "file": "profile.json",
+    "sha256": "0874c5fbb7945c88bcd9a44064180a785ec569d2e5baa45dbb6d39dca374750f"
+  }
+}
