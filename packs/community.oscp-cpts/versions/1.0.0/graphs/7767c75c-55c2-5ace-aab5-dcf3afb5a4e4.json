@@ -1,0 +1,193 @@
+{
+  "title": "Kerbrute User Enumeration for Valid Accounts",
+  "version": "3.0",
+  "description": "This runbook operationalizes Kerbrute User Enumeration for Valid Accounts using #kerbrute . It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments. Finds valid domain usernames and pre-auth edge cases before spraying/roasting.",
+  "shortDescription": "Kerbrute User Enumeration for Valid Accounts",
+  "tags": [
+    "oscp-cpts",
+    "phase:recon",
+    "domain:offensive",
+    "tool:kerbrute",
+    "focus:credentials"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This runbook operationalizes <strong>Kerbrute User Enumeration for Valid Accounts</strong> using <span style='color:#ef4444;font-weight:bold;'>#kerbrute</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Finds valid domain usernames and pre-auth edge cases before spraying/roasting.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:321; docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:3340</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style='color:#3b82f6;font-weight:bold;'>TCP/UDP 88</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>kerbrute userenum -d inlanefreight.local --dc 172.16.5.5 /opt/jsmith.txt\n./kerbrute userenum -d &lt;DOMAIN&gt; --dc &lt;DOMAIN&gt; /PATH/TO/FILE/&lt;USERNAMES&gt;\nkerbrute userenum --dc IP -d DOMAIN users.txt</code></pre>",
+    "commandsBlock": "kerbrute userenum -d inlanefreight.local --dc 172.16.5.5 /opt/jsmith.txt\n./kerbrute userenum -d <DOMAIN> --dc <DOMAIN> /PATH/TO/FILE/<USERNAMES>\nkerbrute userenum --dc IP -d DOMAIN users.txt",
+    "extraInfo": [
+      "primary references are in local source corpus entries linked from runbook-list.md ; e.g., docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:321; docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:3340 .",
+      "Generated via runbook-graph-generator skill"
+    ],
+    "prerequisites": [
+      "authorized scope, operator shell access, and protocol reachability on TCP/UDP 88 ."
+    ],
+    "attackerGains": [
+      "validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression."
+    ],
+    "detectionNotes": [
+      "monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry."
+    ]
+  },
+  "entities": [
+    {
+      "id": "operator_environment",
+      "type": "container",
+      "label": "Operator Environment",
+      "icon": "IconKali",
+      "style": "dashed_border",
+      "members": [
+        "operator_node",
+        "execution_toolchain"
+      ],
+      "position": {
+        "x": 74.89999999999998,
+        "y": 177.5
+      }
+    },
+    {
+      "id": "target_environment",
+      "type": "container",
+      "label": "Target Environment",
+      "icon": "IconCloud",
+      "style": "dashed_border",
+      "members": [
+        "target_surface"
+      ],
+      "position": {
+        "x": 413,
+        "y": 229.475
+      }
+    },
+    {
+      "id": "evidence_pipeline",
+      "type": "container",
+      "label": "Evidence Pipeline",
+      "icon": "IconData",
+      "style": "dashed_border",
+      "members": [
+        "evidence_artifacts"
+      ],
+      "position": {
+        "x": 751.1,
+        "y": 173.825
+      }
+    },
+    {
+      "id": "operator_node",
+      "type": "node",
+      "label": "Operator Workstation",
+      "icon": "IconKali",
+      "position": {
+        "x": 74.89999999999998,
+        "y": 109.77499999999999
+      }
+    },
+    {
+      "id": "execution_toolchain",
+      "type": "node",
+      "label": "Execution Toolchain (kerbrute)",
+      "icon": "IconPenetrationTool",
+      "position": {
+        "x": 74.89999999999998,
+        "y": 245.22500000000002
+      }
+    },
+    {
+      "id": "target_surface",
+      "type": "node",
+      "label": "Target Surface",
+      "icon": "IconServer",
+      "position": {
+        "x": 413,
+        "y": 229.475
+      }
+    },
+    {
+      "id": "evidence_artifacts",
+      "type": "node",
+      "label": "Evidence Artifacts",
+      "icon": "IconData",
+      "position": {
+        "x": 751.1,
+        "y": 173.825
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "type": "edge",
+      "name": "Preparation and Target Validation",
+      "from": "operator_node",
+      "to": "target_surface",
+      "icon": "IconProcess",
+      "description": "Operator initializes the workflow and verifies prerequisites for Kerbrute User Enumeration for Valid Accounts.",
+      "cli": "kerbrute userenum -d inlanefreight.local --dc 172.16.5.5 /opt/jsmith.txt",
+      "tooltip": "Early validation reduces noise and prevents invalid follow-on actions against unreachable or mismatched targets."
+    },
+    {
+      "id": 2,
+      "type": "edge",
+      "name": "Primary Execution",
+      "from": "execution_toolchain",
+      "to": "target_surface",
+      "icon": "IconSearch",
+      "description": "Main command path executes against the target service or domain component.",
+      "cli": "./kerbrute userenum -d <DOMAIN> --dc <DOMAIN> /PATH/TO/FILE/<USERNAMES>",
+      "tooltip": "The technique leverages service behavior, protocol assumptions, or misconfiguration to extract actionable state."
+    },
+    {
+      "id": 3,
+      "type": "edge",
+      "name": "Expansion and Verification",
+      "from": "target_surface",
+      "to": "evidence_artifacts",
+      "icon": "IconData",
+      "description": "Follow-up commands validate initial findings and expand result coverage.",
+      "cli": "kerbrute userenum --dc IP -d DOMAIN users.txt",
+      "tooltip": "Secondary checks reduce false positives and expose deeper privilege or access pathways."
+    },
+    {
+      "id": 4,
+      "type": "edge",
+      "name": "Consolidation for Follow-On Operations",
+      "from": "evidence_artifacts",
+      "to": "operator_node",
+      "icon": "IconCheck",
+      "description": "Final command stage consolidates output for cracking, pivoting, reporting, or escalation decisions.",
+      "cli": "kerbrute userenum --dc IP -d DOMAIN users.txt",
+      "tooltip": "Structured artifact capture enables deterministic downstream runbooks and profile ingestion."
+    }
+  ],
+  "visibility": {
+    "operator_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "target_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "evidence_pipeline": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_node": {
+      "start": 0,
+      "end": 100
+    },
+    "target_surface": {
+      "start": 0,
+      "end": 100
+    },
+    "execution_toolchain": {
+      "start": 1,
+      "end": 100
+    },
+    "evidence_artifacts": {
+      "start": 3,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

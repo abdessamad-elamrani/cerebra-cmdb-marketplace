@@ -1,0 +1,193 @@
+{
+  "title": "enum4linux / enum4linux-ng SMB Domain Sweep",
+  "version": "3.0",
+  "description": "This runbook operationalizes enum4linux / enum4linux-ng SMB Domain Sweep using #enum4linux , #enum4linux-ng.py , #enum4linux-ng . It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments. Rapid unauthenticated SMB/domain recon for users, shares, and policy indicators.",
+  "shortDescription": "enum4linux / enum4linux-ng SMB Domain Sweep",
+  "tags": [
+    "oscp-cpts",
+    "phase:recon",
+    "domain:linux",
+    "tool:enum4linux",
+    "focus:enumeration"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This runbook operationalizes <strong>enum4linux / enum4linux-ng SMB Domain Sweep</strong> using <span style='color:#ef4444;font-weight:bold;'>#enum4linux</span> , <span style='color:#ef4444;font-weight:bold;'>#enum4linux-ng.py</span> , <span style='color:#ef4444;font-weight:bold;'>#enum4linux-ng</span>. It is designed for repeatable, high-signal execution in authorized OSCP/CPTS-style assessments.</p>\n<p>Rapid unauthenticated SMB/domain recon for users, shares, and policy indicators.</p>\n\n<ol>\n  <li><strong>Prepare scope and access:</strong> validate target reachability and select low-noise execution order.</li>\n  <li><strong>Execute core workflow:</strong> run the command chain to produce actionable security outcomes.</li>\n  <li><strong>Validate and operationalize output:</strong> confirm results, capture artifacts, and prepare follow-on actions.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> primary references are in local source corpus entries linked from <code>runbook-list.md</code>; e.g., <code>docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:85; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Attack Common Services.md:22</code>.</li>\n  <li><strong>Attack pre-requisite:</strong> authorized scope, operator shell access, and protocol reachability on <span style='color:#3b82f6;font-weight:bold;'>TCP 445</span>.</li>\n  <li><strong>What attacker gain:</strong> validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>enum4linux -a {IP}\n./enum4linux-ng.py 10.10.11.45 -A -C\nenum4linux-ng -A &lt;RHOST&gt;</code></pre>",
+    "commandsBlock": "enum4linux -a {IP}\n./enum4linux-ng.py 10.10.11.45 -A -C\nenum4linux-ng -A <RHOST>",
+    "extraInfo": [
+      "primary references are in local source corpus entries linked from runbook-list.md ; e.g., docs/sources-runbooks/oscp-cpts/p0/hackmd-oscp-pen200.md:85; docs/sources-runbooks/oscp-cpts/p0/0x1ceKing-HTB-Certified-Penetration-Testing-Specialist/cheatsheet/Attack Common Services.md:22 .",
+      "Generated via runbook-graph-generator skill"
+    ],
+    "prerequisites": [
+      "authorized scope, operator shell access, and protocol reachability on TCP 445 ."
+    ],
+    "attackerGains": [
+      "validated findings (access paths, credentials, execution context, or exposure evidence) enabling faster compromise progression."
+    ],
+    "detectionNotes": [
+      "monitor abnormal auth/enumeration bursts, enforce least privilege and hardening baselines, and alert on repeated tool-pattern telemetry."
+    ]
+  },
+  "entities": [
+    {
+      "id": "operator_environment",
+      "type": "container",
+      "label": "Operator Environment",
+      "icon": "IconKali",
+      "style": "dashed_border",
+      "members": [
+        "operator_node",
+        "execution_toolchain"
+      ],
+      "position": {
+        "x": 74.89999999999998,
+        "y": 177.5
+      }
+    },
+    {
+      "id": "target_environment",
+      "type": "container",
+      "label": "Target Environment",
+      "icon": "IconCloud",
+      "style": "dashed_border",
+      "members": [
+        "target_surface"
+      ],
+      "position": {
+        "x": 413,
+        "y": 229.475
+      }
+    },
+    {
+      "id": "evidence_pipeline",
+      "type": "container",
+      "label": "Evidence Pipeline",
+      "icon": "IconData",
+      "style": "dashed_border",
+      "members": [
+        "evidence_artifacts"
+      ],
+      "position": {
+        "x": 751.1,
+        "y": 173.825
+      }
+    },
+    {
+      "id": "operator_node",
+      "type": "node",
+      "label": "Operator Workstation",
+      "icon": "IconKali",
+      "position": {
+        "x": 74.89999999999998,
+        "y": 109.77499999999999
+      }
+    },
+    {
+      "id": "execution_toolchain",
+      "type": "node",
+      "label": "Execution Toolchain (enum4linux/enum4linux-ng.py/enum4linux-ng)",
+      "icon": "IconPenetrationTool",
+      "position": {
+        "x": 74.89999999999998,
+        "y": 245.22500000000002
+      }
+    },
+    {
+      "id": "target_surface",
+      "type": "node",
+      "label": "Linux Target Surface",
+      "icon": "IconLinux",
+      "position": {
+        "x": 413,
+        "y": 229.475
+      }
+    },
+    {
+      "id": "evidence_artifacts",
+      "type": "node",
+      "label": "Evidence Artifacts",
+      "icon": "IconData",
+      "position": {
+        "x": 751.1,
+        "y": 173.825
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "type": "edge",
+      "name": "Preparation and Target Validation",
+      "from": "operator_node",
+      "to": "target_surface",
+      "icon": "IconProcess",
+      "description": "Operator initializes the workflow and verifies prerequisites for enum4linux / enum4linux-ng SMB Domain Sweep.",
+      "cli": "enum4linux -a {IP}",
+      "tooltip": "Early validation reduces noise and prevents invalid follow-on actions against unreachable or mismatched targets."
+    },
+    {
+      "id": 2,
+      "type": "edge",
+      "name": "Primary Execution",
+      "from": "execution_toolchain",
+      "to": "target_surface",
+      "icon": "IconSearch",
+      "description": "Main command path executes against the target service or domain component.",
+      "cli": "./enum4linux-ng.py 10.10.11.45 -A -C",
+      "tooltip": "The technique leverages service behavior, protocol assumptions, or misconfiguration to extract actionable state."
+    },
+    {
+      "id": 3,
+      "type": "edge",
+      "name": "Expansion and Verification",
+      "from": "target_surface",
+      "to": "evidence_artifacts",
+      "icon": "IconData",
+      "description": "Follow-up commands validate initial findings and expand result coverage.",
+      "cli": "enum4linux-ng -A <RHOST>",
+      "tooltip": "Secondary checks reduce false positives and expose deeper privilege or access pathways."
+    },
+    {
+      "id": 4,
+      "type": "edge",
+      "name": "Consolidation for Follow-On Operations",
+      "from": "evidence_artifacts",
+      "to": "operator_node",
+      "icon": "IconCheck",
+      "description": "Final command stage consolidates output for cracking, pivoting, reporting, or escalation decisions.",
+      "cli": "enum4linux-ng -A <RHOST>",
+      "tooltip": "Structured artifact capture enables deterministic downstream runbooks and profile ingestion."
+    }
+  ],
+  "visibility": {
+    "operator_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "target_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "evidence_pipeline": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_node": {
+      "start": 0,
+      "end": 100
+    },
+    "target_surface": {
+      "start": 0,
+      "end": 100
+    },
+    "execution_toolchain": {
+      "start": 1,
+      "end": 100
+    },
+    "evidence_artifacts": {
+      "start": 3,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}
