@@ -1,0 +1,327 @@
+{
+  "title": "Hydra Proxy-Routed Credential Attack Workflow",
+  "version": "3.0",
+  "description": "Hydra authentication testing routed through external proxy infrastructure for segmented access, egress control, and route rotation.",
+  "shortDescription": "Hydra Proxy Workflow",
+  "tags": [
+    "password-cracking",
+    "hydra",
+    "proxy-routing",
+    "online-auth",
+    "credential-access"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This graph models Hydra credential testing when transport is forced through proxy infrastructure. It captures variable-based proxy selection (<code>HYDRA_PROXY_HTTP</code>, <code>HYDRA_PROXY</code>), optional proxy-pool rotation, and validation of successful credential outcomes.</p>",
+    "commandsBlock": "# Step 1: Define proxy route\n$ HYDRA_PROXY=connect://proxy.anonymizer.com:8000\n\n# Step 2: Optionally load proxy pool\n$ HYDRA_PROXY_HTTP='proxylist.txt' hydra -L users.txt -P pass.txt http-post-form://target\n\n# Step 3: Execute routed auth attempts\n$ HYDRA_PROXY=socks4://auth:pw@127.0.0.1:1080 hydra -L users.txt -P pass.txt rdp://target\n\n# Step 4: Validate outcomes\n$ hydra -L users.txt -P pass.txt ssh://target",
+    "extraInfo": [
+      "Hydra README/man proxy variable behavior",
+      "Proxy schemes: HTTP, CONNECT, SOCKS4"
+    ],
+    "prerequisites": [
+      "Reachable proxy infrastructure",
+      "Authorized credential testing scope for target services",
+      "Prepared user/password candidate sources"
+    ],
+    "attackerGains": [
+      "Operational access to segmented target services",
+      "Valid credentials from routed online authentication testing"
+    ],
+    "detectionNotes": [
+      "Monitor auth failures from unusual proxy-origin egress paths",
+      "Enforce MFA and lockout protections on target protocols",
+      "Detect repeated distributed login attempts via rotating proxies"
+    ],
+    "mitreCategories": [
+      "T1090.002",
+      "T1110.001",
+      "T1078"
+    ]
+  },
+  "entities": [
+    {
+      "id": "attacker_environment",
+      "type": "container",
+      "label": "Hydra Operator Environment",
+      "icon": "IconKali",
+      "members": [
+        "operator_node",
+        "candidate_sources",
+        "hydra_engine",
+        "discovered_credentials"
+      ],
+      "position": {
+        "x": 686,
+        "y": 132.45
+      }
+    },
+    {
+      "id": "transit_layer",
+      "type": "container",
+      "label": "Proxy Transit Layer",
+      "icon": "IconNetwork",
+      "members": [
+        "proxy_layer",
+        "proxy_pool"
+      ],
+      "position": {
+        "x": 421.4,
+        "y": 387.6
+      }
+    },
+    {
+      "id": "target_environment",
+      "type": "container",
+      "label": "Target Authentication Services",
+      "icon": "IconServer",
+      "members": [
+        "target_auth_service",
+        "auth_result_stream"
+      ],
+      "position": {
+        "x": 950.6,
+        "y": 387.6
+      }
+    },
+    {
+      "id": "operator_node",
+      "type": "node",
+      "label": "Operator Host",
+      "icon": "IconKali",
+      "position": {
+        "x": 325.84999999999997,
+        "y": 68.4
+      }
+    },
+    {
+      "id": "candidate_sources",
+      "type": "node",
+      "label": "Credential Candidate Sources",
+      "icon": "IconData",
+      "position": {
+        "x": 61.25,
+        "y": 196.5
+      }
+    },
+    {
+      "id": "hydra_engine",
+      "type": "node",
+      "label": "Hydra Engine",
+      "icon": "IconPenetrationTool",
+      "position": {
+        "x": 325.84999999999997,
+        "y": 196.5
+      }
+    },
+    {
+      "id": "proxy_layer",
+      "type": "node",
+      "label": "External Proxy Endpoint",
+      "icon": "IconSocks",
+      "position": {
+        "x": 516.95,
+        "y": 387.6
+      }
+    },
+    {
+      "id": "proxy_pool",
+      "type": "node",
+      "label": "Proxy List Pool",
+      "icon": "IconData",
+      "position": {
+        "x": 325.84999999999997,
+        "y": 387.6
+      }
+    },
+    {
+      "id": "target_auth_service",
+      "type": "node",
+      "label": "Target Auth Service",
+      "icon": "IconServer",
+      "position": {
+        "x": 855.05,
+        "y": 387.6
+      }
+    },
+    {
+      "id": "auth_result_stream",
+      "type": "node",
+      "label": "Auth Result Stream",
+      "icon": "IconCredential",
+      "position": {
+        "x": 1046.15,
+        "y": 387.6
+      }
+    },
+    {
+      "id": "discovered_credentials",
+      "type": "node",
+      "label": "Discovered Valid Credentials",
+      "icon": "IconStolenCredential",
+      "position": {
+        "x": 1310.75,
+        "y": 68.4
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "type": "edge",
+      "name": "Configure Proxy Routing Variables",
+      "from": "operator_node",
+      "to": "proxy_layer",
+      "icon": "IconProcess",
+      "cli": "HYDRA_PROXY=connect://proxy.anonymizer.com:8000",
+      "description": "Define runtime proxy transport settings used by Hydra modules.",
+      "mitre": {
+        "id": "T1090.002",
+        "tactic": "Command and Control",
+        "technique": "External Proxy"
+      }
+    },
+    {
+      "id": 2,
+      "type": "edge",
+      "name": "Load Credential Candidates",
+      "from": "candidate_sources",
+      "to": "hydra_engine",
+      "icon": "IconData",
+      "cli": "hydra -L users.txt -P pass.txt ssh://target",
+      "description": "Supply username/password candidates to the attack engine prior to routed authentication testing.",
+      "mitre": {
+        "id": "T1110.001",
+        "tactic": "Credential Access",
+        "technique": "Password Guessing"
+      }
+    },
+    {
+      "id": 3,
+      "type": "edge",
+      "name": "Enable Proxy Pool Rotation",
+      "from": "proxy_pool",
+      "to": "proxy_layer",
+      "icon": "IconNetwork",
+      "cli": "HYDRA_PROXY_HTTP='proxylist.txt' hydra -L users.txt -P pass.txt http-post-form://target",
+      "description": "Optionally rotate transport routes through a proxy list for campaign resilience.",
+      "mitre": {
+        "id": "T1090.002",
+        "tactic": "Command and Control",
+        "technique": "External Proxy"
+      }
+    },
+    {
+      "id": 4,
+      "type": "edge",
+      "name": "Forward Attempts to Proxy",
+      "from": "hydra_engine",
+      "to": "proxy_layer",
+      "icon": "IconSocks",
+      "cli": "HYDRA_PROXY=socks4://auth:pw@127.0.0.1:1080 hydra -L users.txt -P pass.txt rdp://target",
+      "description": "Hydra sends authentication attempts through configured proxy transport.",
+      "mitre": {
+        "id": "T1090.002",
+        "tactic": "Command and Control",
+        "technique": "External Proxy"
+      }
+    },
+    {
+      "id": 5,
+      "type": "edge",
+      "name": "Execute Remote Password Guessing",
+      "from": "proxy_layer",
+      "to": "target_auth_service",
+      "icon": "IconExploit",
+      "description": "Proxy-routed authentication attempts reach the target protocol endpoint.",
+      "mitre": {
+        "id": "T1110.001",
+        "tactic": "Credential Access",
+        "technique": "Password Guessing"
+      }
+    },
+    {
+      "id": 6,
+      "type": "edge",
+      "name": "Collect Authentication Outcomes",
+      "from": "target_auth_service",
+      "to": "auth_result_stream",
+      "icon": "IconCredential",
+      "description": "Success and failure responses are returned and parsed by module logic.",
+      "mitre": {
+        "id": "T1110.001",
+        "tactic": "Credential Access",
+        "technique": "Password Guessing"
+      }
+    },
+    {
+      "id": 7,
+      "type": "edge",
+      "name": "Extract Valid Credentials",
+      "from": "auth_result_stream",
+      "to": "discovered_credentials",
+      "icon": "IconStolenCredential",
+      "description": "Successful responses are promoted into validated credential findings.",
+      "mitre": {
+        "id": "T1078",
+        "tactic": "Initial Access",
+        "technique": "Valid Accounts"
+      }
+    },
+    {
+      "id": 8,
+      "type": "edge",
+      "name": "Return Results to Operator",
+      "from": "discovered_credentials",
+      "to": "operator_node",
+      "icon": "IconCheck",
+      "description": "Validated credentials are returned to the operator for controlled follow-on testing."
+    }
+  ],
+  "visibility": {
+    "attacker_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "transit_layer": {
+      "start": 0,
+      "end": 100
+    },
+    "target_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_node": {
+      "start": 0,
+      "end": 100
+    },
+    "candidate_sources": {
+      "start": 0,
+      "end": 100
+    },
+    "hydra_engine": {
+      "start": 0,
+      "end": 100
+    },
+    "proxy_layer": {
+      "start": 1,
+      "end": 100
+    },
+    "target_auth_service": {
+      "start": 0,
+      "end": 100
+    },
+    "proxy_pool": {
+      "start": 3,
+      "end": 100
+    },
+    "auth_result_stream": {
+      "start": 6,
+      "end": 100
+    },
+    "discovered_credentials": {
+      "start": 7,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

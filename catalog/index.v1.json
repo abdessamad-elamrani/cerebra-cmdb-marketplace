@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-03-05T22:09:23.105Z",
+  "generatedAt": "2026-03-05T22:09:37.843Z",
   "packs": [
     {
       "packId": "cerebra.fortigate",
@@ -96,6 +96,14 @@
       "displayName": "paloalto-fw",
       "latestVersion": "1.0.0",
       "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.paloalto-fw/versions/1.0.0/manifest.v1.json"
+    },
+    {
+      "packId": "community.password-cracking",
+      "publisher": "community",
+      "slug": "password-cracking",
+      "displayName": "password-cracking",
+      "latestVersion": "1.0.0",
+      "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.password-cracking/versions/1.0.0/manifest.v1.json"
     }
   ]
 }
