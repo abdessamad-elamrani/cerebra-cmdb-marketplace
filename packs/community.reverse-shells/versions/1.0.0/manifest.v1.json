@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "packId": "community.reverse-shells",
+  "version": "1.0.0",
+  "profile": {
+    "file": "profile.json",
+    "sha256": "62e19771d14c2228971d2cc1df12c263e1f96665e1167bfd1168a5022f9741df"
+  }
+}

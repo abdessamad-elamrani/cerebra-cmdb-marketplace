@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-03-05T22:09:54.016Z",
+  "generatedAt": "2026-03-05T22:10:07.279Z",
   "packs": [
     {
       "packId": "cerebra.fortigate",
@@ -112,6 +112,14 @@
       "displayName": "pivoting-tunneling",
       "latestVersion": "1.0.0",
       "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.pivoting-tunneling/versions/1.0.0/manifest.v1.json"
+    },
+    {
+      "packId": "community.reverse-shells",
+      "publisher": "community",
+      "slug": "reverse-shells",
+      "displayName": "reverse-shells",
+      "latestVersion": "1.0.0",
+      "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.reverse-shells/versions/1.0.0/manifest.v1.json"
     }
   ]
 }
