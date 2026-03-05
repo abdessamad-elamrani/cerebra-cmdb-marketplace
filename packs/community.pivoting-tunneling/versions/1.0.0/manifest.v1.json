@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "packId": "community.pivoting-tunneling",
+  "version": "1.0.0",
+  "profile": {
+    "file": "profile.json",
+    "sha256": "1bc5ac22f20552df9e2570d8ba40a3b4df6ef30a70bbc0a6dba27ed9789ee16b"
+  }
+}
