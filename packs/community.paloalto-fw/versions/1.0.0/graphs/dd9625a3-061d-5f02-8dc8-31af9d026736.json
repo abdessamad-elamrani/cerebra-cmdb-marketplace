@@ -1,0 +1,273 @@
+{
+  "title": "Targeted Rule-Based Packet Capture and Export",
+  "description": "Enable application-dump capture for a specific Palo Alto security rule, collect matching traffic, export the PCAP, and disable capture cleanly.",
+  "version": "3.0",
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "shortDescription": "Rule-scoped PCAP capture workflow",
+  "tags": [
+    "network",
+    "debugging",
+    "logging"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This runbook captures traffic that matches a specific Palo Alto security rule using <span style='color:#ef4444;font-weight:bold;'>#set application dump on rule</span>, then exports the resulting PCAP with <span style='color:#ef4444;font-weight:bold;'>#scp export filter-pcap</span> or <span style='color:#ef4444;font-weight:bold;'>#tftp export filter-pcap</span>.</p><ol><li><strong>Enable capture:</strong> bind application dump to the target rule and adjust unknown-capture behavior if needed.</li><li><strong>Collect evidence:</strong> allow the firewall to capture packets for flows that hit the monitored rule.</li><li><strong>Export and clean up:</strong> move the PCAP off-box and disable the capture state to reduce performance impact.</li></ol>",
+    "commandsBlock": "# Step 1: Enable rule-based capture\n> set application dump on rule <security-rule-name>\n\n# Step 2: Optionally reduce unknown capture noise\n> set application dump-unknown no\n> configure\n# set deviceconfig setting application dump-unknown off\n# commit\n\n# Step 3: Export packet capture\nscp export filter-pcap from <capture> to <username@host:path>\ntftp export filter-pcap from <capture> to <tftp-host>\n\n# Step 4: Disable capture\n> set application dump off",
+    "prerequisites": [
+      "CLI access to the firewall",
+      "Known security rule name to monitor",
+      "Reachable SCP or TFTP destination if exporting externally"
+    ],
+    "attackerGains": [
+      "Rule-scoped packet evidence",
+      "Exportable PCAP artifacts for offline analysis"
+    ],
+    "detectionNotes": [
+      "Packet capture is CPU-intensive and should be disabled promptly after collection",
+      "Restrict capture enablement and export rights to trusted administrators"
+    ],
+    "extraInfo": [
+      "Source - docs/sources-runbooks/paloalto/kb-pcap-specific-rule.md:23-117",
+      "Source - docs/sources-runbooks/paloalto/kb-export-pcap-cli.md:22-47",
+      "Source - docs/sources-runbooks/paloalto/take-packet-captures.md:11-15",
+      "Generated via runbook-graph-generator skill"
+    ]
+  },
+  "entities": [
+    {
+      "id": "operator_environment",
+      "label": "Operator Environment",
+      "position": {
+        "x": 686,
+        "y": 68.4
+      },
+      "icon": "IconTerminal",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "operator_console",
+        "capture_commands",
+        "pcap_artifact"
+      ]
+    },
+    {
+      "id": "firewall_system",
+      "label": "Palo Alto Firewall",
+      "position": {
+        "x": 612.5,
+        "y": 323.55
+      },
+      "icon": "IconFirewall",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "security_rule",
+        "packet_capture_engine",
+        "local_capture_store"
+      ]
+    },
+    {
+      "id": "evidence_destination",
+      "label": "Evidence Destination",
+      "position": {
+        "x": 1046.15,
+        "y": 259.5
+      },
+      "icon": "IconServer",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "remote_storage"
+      ]
+    },
+    {
+      "id": "operator_console",
+      "label": "Admin CLI Session",
+      "position": {
+        "x": 61.25,
+        "y": 68.4
+      },
+      "icon": "IconTerminal",
+      "type": "node"
+    },
+    {
+      "id": "capture_commands",
+      "label": "Capture Control Commands",
+      "position": {
+        "x": 252.34999999999997,
+        "y": 68.4
+      },
+      "icon": "IconCode",
+      "type": "node"
+    },
+    {
+      "id": "pcap_artifact",
+      "label": "Exported PCAP",
+      "position": {
+        "x": 1310.75,
+        "y": 68.4
+      },
+      "icon": "IconData",
+      "type": "node"
+    },
+    {
+      "id": "security_rule",
+      "label": "Monitored Security Rule",
+      "position": {
+        "x": 516.95,
+        "y": 259.5
+      },
+      "icon": "IconCheck",
+      "type": "node"
+    },
+    {
+      "id": "packet_capture_engine",
+      "label": "Application Dump Engine",
+      "position": {
+        "x": 516.95,
+        "y": 387.6
+      },
+      "icon": "IconProcess",
+      "type": "node"
+    },
+    {
+      "id": "local_capture_store",
+      "label": "Local Filter PCAP",
+      "position": {
+        "x": 708.05,
+        "y": 259.5
+      },
+      "icon": "IconData",
+      "type": "node"
+    },
+    {
+      "id": "remote_storage",
+      "label": "SCP / TFTP Target",
+      "position": {
+        "x": 1046.15,
+        "y": 259.5
+      },
+      "icon": "IconServer",
+      "type": "node"
+    }
+  ],
+  "visibility": {
+    "operator_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "firewall_system": {
+      "start": 0,
+      "end": 100
+    },
+    "evidence_destination": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_console": {
+      "start": 0,
+      "end": 100
+    },
+    "capture_commands": {
+      "start": 1,
+      "end": 100
+    },
+    "security_rule": {
+      "start": 0,
+      "end": 100
+    },
+    "packet_capture_engine": {
+      "start": 0,
+      "end": 100
+    },
+    "local_capture_store": {
+      "start": 4,
+      "end": 100
+    },
+    "remote_storage": {
+      "start": 0,
+      "end": 100
+    },
+    "pcap_artifact": {
+      "start": 6,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Prepare Capture Controls",
+      "type": "edge",
+      "from": "operator_console",
+      "to": "capture_commands",
+      "icon": "IconCode",
+      "tooltip": "This creates the operator-side control context for the packet-capture workflow.",
+      "description": "The operator opens a CLI session and prepares the rule-based capture commands.",
+      "cli": "> set application dump on rule <security-rule-name>"
+    },
+    {
+      "id": 2,
+      "name": "Bind Capture to Security Rule",
+      "type": "edge",
+      "from": "capture_commands",
+      "to": "security_rule",
+      "icon": "IconCheck",
+      "tooltip": "The capture scope is narrowed to traffic that hits the monitored rule.",
+      "description": "Application dump is enabled for the target security rule so that matching packets will be captured.",
+      "cli": "> set application dump on rule <security-rule-name>"
+    },
+    {
+      "id": 3,
+      "name": "Tune Capture Engine Behavior",
+      "type": "edge",
+      "from": "capture_commands",
+      "to": "packet_capture_engine",
+      "icon": "IconProcess",
+      "tooltip": "This step shapes how broadly the packet-capture engine records traffic.",
+      "description": "The operator disables unknown capture temporarily or persistently to reduce noisy packet collection.",
+      "cli": "> set application dump-unknown no\n> configure\n# set deviceconfig setting application dump-unknown off\n# commit"
+    },
+    {
+      "id": 4,
+      "name": "Capture Rule-Matched Traffic",
+      "type": "edge",
+      "from": "security_rule",
+      "to": "local_capture_store",
+      "icon": "IconData",
+      "tooltip": "The firewall records traffic evidence only after the rule-scoped capture setting is active.",
+      "description": "Packets that traverse the monitored rule are written into the firewall's local filter-pcap store."
+    },
+    {
+      "id": 5,
+      "name": "Export Capture Off-Box",
+      "type": "edge",
+      "from": "local_capture_store",
+      "to": "remote_storage",
+      "icon": "IconUpload",
+      "tooltip": "The PCAP leaves the firewall and becomes available for offline review.",
+      "description": "The firewall exports the selected capture stage to an SCP or TFTP destination for analysis or support escalation.",
+      "cli": "scp export filter-pcap from <capture> to <username@host:path>\ntftp export filter-pcap from <capture> to <tftp-host>"
+    },
+    {
+      "id": 6,
+      "name": "Retrieve Evidence Artifact",
+      "type": "edge",
+      "from": "remote_storage",
+      "to": "pcap_artifact",
+      "icon": "IconDownload",
+      "tooltip": "This closes the capture loop by showing the PCAP in the operator's workflow.",
+      "description": "The exported PCAP is now available as an evidence artifact for the operator or an external analysis workflow."
+    },
+    {
+      "id": 7,
+      "name": "Disable Capture State",
+      "type": "edge",
+      "from": "capture_commands",
+      "to": "packet_capture_engine",
+      "icon": "IconCheck",
+      "tooltip": "Leaving capture enabled longer than necessary can degrade firewall performance.",
+      "description": "The operator turns off application dump after sufficient evidence is collected.",
+      "cli": "> set application dump off"
+    }
+  ]
+}

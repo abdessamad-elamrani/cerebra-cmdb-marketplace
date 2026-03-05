@@ -1,0 +1,294 @@
+{
+  "title": "HA Cluster State and Session Synchronization Review",
+  "description": "Inspect PAN-OS high-availability cluster state, HA4 transport, sync health, and corrective cache or sync actions.",
+  "version": "3.0",
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "shortDescription": "HA state and sync review",
+  "tags": [
+    "ha",
+    "system",
+    "debugging",
+    "session"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This runbook reviews Palo Alto HA behavior with <span style='color:#ef4444;font-weight:bold;'>#show high-availability cluster state</span>, <span style='color:#ef4444;font-weight:bold;'>#show high-availability cluster session-synchronization</span>, and related HA4 and statistics commands.</p><ol><li><strong>Confirm cluster posture:</strong> inspect peer state, configuration, and flap history.</li><li><strong>Validate transport:</strong> check HA4 and HA4-backup health plus synchronization counters.</li><li><strong>Apply controlled recovery:</strong> clear stats, clear cache, or request sync-from only when the evidence supports it.</li></ol>",
+    "commandsBlock": "# Step 1: Review HA state and transport\n> show high-availability cluster all\n> show high-availability cluster state\n> show high-availability cluster flap-statistics\n> show high-availability cluster ha4-status\n> show high-availability cluster ha4-backup-status\n\n# Step 2: Review synchronization and counters\n> show high-availability cluster session-synchronization\n> show high-availability cluster statistics\n\n# Step 3: Apply corrective maintenance if needed\n> clear high-availability cluster statistics\n> request high-availability cluster clear-cache\n> request high-availability cluster sync-from",
+    "prerequisites": [
+      "CLI access to an HA-enabled Palo Alto cluster",
+      "Authority to run HA maintenance commands if remediation is needed"
+    ],
+    "attackerGains": [
+      "Cluster health visibility",
+      "HA transport and synchronization state",
+      "Corrective maintenance options"
+    ],
+    "detectionNotes": [
+      "HA maintenance actions should be tightly audited",
+      "Unexpected cache clears or sync requests can disrupt an otherwise healthy cluster"
+    ],
+    "extraInfo": [
+      "Source - docs/sources-runbooks/paloalto/cli-cheat-sheet-ha.md:11-82",
+      "Generated via runbook-graph-generator skill"
+    ]
+  },
+  "entities": [
+    {
+      "id": "operator_environment",
+      "label": "Operator Environment",
+      "position": {
+        "x": 204.47778734264148,
+        "y": 280.0558545987659
+      },
+      "icon": "IconTerminal",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "operator_console",
+        "ha_report"
+      ]
+    },
+    {
+      "id": "ha_cluster",
+      "label": "HA Cluster",
+      "position": {
+        "x": 741.2496721096426,
+        "y": 212.9088541380622
+      },
+      "icon": "IconFirewall",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "active_peer",
+        "passive_peer",
+        "session_sync_engine",
+        "session_cache"
+      ]
+    },
+    {
+      "id": "ha_transport",
+      "label": "HA Transport",
+      "position": {
+        "x": 773.464814835156,
+        "y": 521.1622106284428
+      },
+      "icon": "IconNetwork",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "ha4_link",
+        "cluster_statistics"
+      ]
+    },
+    {
+      "id": "operator_console",
+      "label": "Admin CLI Session",
+      "position": {
+        "x": 143.20468751716263,
+        "y": 155.00783181088812
+      },
+      "icon": "IconTerminal",
+      "type": "node"
+    },
+    {
+      "id": "ha_report",
+      "label": "HA Health Report",
+      "position": {
+        "x": 269.75088716812036,
+        "y": 380.10387738664366
+      },
+      "icon": "IconData",
+      "type": "node"
+    },
+    {
+      "id": "active_peer",
+      "label": "Active Peer",
+      "position": {
+        "x": 516.1496721096426,
+        "y": 144.2338541380622
+      },
+      "icon": "IconFirewall",
+      "type": "node"
+    },
+    {
+      "id": "passive_peer",
+      "label": "Passive Peer",
+      "position": {
+        "x": 971.8496721096426,
+        "y": 128.4838541380622
+      },
+      "icon": "IconFirewall",
+      "type": "node"
+    },
+    {
+      "id": "session_sync_engine",
+      "label": "Session Sync Engine",
+      "position": {
+        "x": 780.7496721096426,
+        "y": 128.4838541380622
+      },
+      "icon": "IconProcess",
+      "type": "node"
+    },
+    {
+      "id": "session_cache",
+      "label": "Session Cache",
+      "position": {
+        "x": 516.1496721096426,
+        "y": 272.3338541380622
+      },
+      "icon": "IconData",
+      "type": "node"
+    },
+    {
+      "id": "ha4_link",
+      "label": "HA4 / HA4 Backup",
+      "position": {
+        "x": 922.7189622653059,
+        "y": 502.66221062844284
+      },
+      "icon": "IconNetwork",
+      "type": "node"
+    },
+    {
+      "id": "cluster_statistics",
+      "label": "Cluster Counters",
+      "position": {
+        "x": 641.210667405006,
+        "y": 504.5302276041754
+      },
+      "icon": "IconData",
+      "type": "node"
+    }
+  ],
+  "visibility": {
+    "operator_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "ha_cluster": {
+      "start": 0,
+      "end": 100
+    },
+    "ha_transport": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_console": {
+      "start": 0,
+      "end": 100
+    },
+    "active_peer": {
+      "start": 0,
+      "end": 100
+    },
+    "passive_peer": {
+      "start": 0,
+      "end": 100
+    },
+    "session_sync_engine": {
+      "start": 0,
+      "end": 100
+    },
+    "session_cache": {
+      "start": 0,
+      "end": 100
+    },
+    "ha4_link": {
+      "start": 0,
+      "end": 100
+    },
+    "cluster_statistics": {
+      "start": 5,
+      "end": 100
+    },
+    "ha_report": {
+      "start": 7,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Query Cluster State",
+      "type": "edge",
+      "from": "operator_console",
+      "to": "active_peer",
+      "icon": "IconSearch",
+      "tooltip": "This establishes the baseline HA posture before transport or sync troubleshooting.",
+      "description": "The operator queries overall cluster configuration and current HA state from the active peer perspective.",
+      "cli": "> show high-availability cluster all\n> show high-availability cluster state"
+    },
+    {
+      "id": 2,
+      "name": "Inspect Flap History and HA4 Health",
+      "type": "edge",
+      "from": "active_peer",
+      "to": "ha4_link",
+      "icon": "IconNetwork",
+      "tooltip": "Transport instability often explains inconsistent failover behavior or missed state replication.",
+      "description": "Flap statistics and HA4 / HA4-backup status reveal whether peer communication is unstable or impaired.",
+      "cli": "> show high-availability cluster flap-statistics\n> show high-availability cluster ha4-status\n> show high-availability cluster ha4-backup-status"
+    },
+    {
+      "id": 3,
+      "name": "Replicate Session State Between Peers",
+      "type": "edge",
+      "from": "active_peer",
+      "to": "session_sync_engine",
+      "icon": "IconSession",
+      "tooltip": "This step represents the state-replication path that keeps failover continuity intact.",
+      "description": "The active peer pushes synchronized session information through the HA session-synchronization subsystem."
+    },
+    {
+      "id": 4,
+      "name": "Update Passive Peer Session View",
+      "type": "edge",
+      "from": "session_sync_engine",
+      "to": "passive_peer",
+      "icon": "IconData",
+      "tooltip": "Successful synchronization is the core requirement for seamless HA session continuity.",
+      "description": "Replicated session state is made available to the passive peer so it can assume traffic handling if failover occurs.",
+      "cli": "> show high-availability cluster session-synchronization"
+    },
+    {
+      "id": 5,
+      "name": "Expose Cluster Statistics",
+      "type": "edge",
+      "from": "ha4_link",
+      "to": "cluster_statistics",
+      "icon": "IconData",
+      "tooltip": "Counters help distinguish peer state issues from transport-side issues.",
+      "description": "HA transport behavior and cluster counters expose dropped packets and other sync-related anomalies.",
+      "cli": "> show high-availability cluster statistics"
+    },
+    {
+      "id": 6,
+      "name": "Apply Corrective HA Maintenance",
+      "type": "edge",
+      "from": "operator_console",
+      "to": "session_cache",
+      "icon": "IconCheck",
+      "tooltip": "Maintenance actions should be used only after state and transport evidence are understood.",
+      "description": "The operator clears statistics or session cache and requests synchronization if the evidence supports a maintenance intervention.",
+      "cli": "> clear high-availability cluster statistics\n> request high-availability cluster clear-cache\n> request high-availability cluster sync-from"
+    },
+    {
+      "id": 7,
+      "name": "Compile HA Health Report",
+      "type": "edge",
+      "from": "cluster_statistics",
+      "to": "ha_report",
+      "icon": "IconData",
+      "tooltip": "This closes the workflow with a clear operational conclusion about cluster stability.",
+      "description": "The combined cluster, transport, and synchronization output is consolidated into an HA health report for the operator."
+    }
+  ],
+  "viewport": {
+    "zoom": 1.08,
+    "pan": {
+      "x": -9.719354198475344,
+      "y": -6.319427058047324
+    }
+  }
+}

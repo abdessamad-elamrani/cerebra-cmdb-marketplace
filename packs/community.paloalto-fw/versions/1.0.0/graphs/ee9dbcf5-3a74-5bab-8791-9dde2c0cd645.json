@@ -1,0 +1,325 @@
+{
+  "title": "User-ID Mapping Identity Source and Authentication Log Triage",
+  "description": "Trace identity mappings from User-ID agents and external sources into the firewall cache, verify mapping provenance, and inspect authd evidence.",
+  "version": "3.0",
+  "shortDescription": "User-ID mapping triage",
+  "tags": [
+    "authentication",
+    "logging",
+    "debugging",
+    "network"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This runbook inspects how Palo Alto learns and uses identity with <span style='color:#ef4444;font-weight:bold;'>#show user user-id-agent state all</span>, <span style='color:#ef4444;font-weight:bold;'>#show user group-mapping statistics</span>, <span style='color:#ef4444;font-weight:bold;'>#show log userid</span>, and <span style='color:#ef4444;font-weight:bold;'>#less mp-log authd.log</span>.</p><ol><li><strong>Verify ingestion:</strong> confirm that User-ID agents and server-monitor paths are active.</li><li><strong>Confirm mapping state:</strong> inspect group and IP-to-user mapping caches.</li><li><strong>Prove origin:</strong> tie mappings back to sources such as Kerberos, GlobalProtect, or vpn-client style inputs.</li><li><strong>Correct stale state:</strong> review authd evidence and clear cache entries if needed.</li></ol>",
+    "commandsBlock": "# Step 1: Verify User-ID ingestion health\n> show user user-id-agent state all\n> show user server-monitor state all\n> show user server-monitor statistics\n\n# Step 2: Inspect group and IP-user mapping state\n> show user group-mapping statistics\n> show user group-mapping state all\n> show user ip-user-mapping all\n> show user ip-user-mapping ip <ip-address>\n\n# Step 3: Attribute mappings to a source\n> show log userid datasourcetype equal kerberos\n> show log userid datasourcetype equal globalprotect\n> show log userid datasource equal vpn-client\n\n# Step 4: Review logs and clear stale entries\n> less mp-log authd.log\nclear user-cache all\nclear user-cache ip <ip-address/netmask>",
+    "prerequisites": [
+      "CLI access to the firewall",
+      "A user, group, IP address, or identity source worth investigating"
+    ],
+    "attackerGains": [
+      "Visibility into identity-source health and provenance",
+      "Current IP-to-user and group-mapping state"
+    ],
+    "detectionNotes": [
+      "Identity queries are operationally quiet and should be controlled by management-plane access policy",
+      "Unexpected User-ID and authd inspection can expose sensitive user-context data"
+    ],
+    "extraInfo": [
+      "Source - docs/sources-runbooks/paloalto/cli-cheat-sheet-user-id.md:15-140",
+      "Source - docs/sources-runbooks/paloalto/cli-cheat-sheet-device-management.md:96-100",
+      "Generated via runbook-graph-generator skill"
+    ]
+  },
+  "entities": [
+    {
+      "id": "operator_environment",
+      "label": "Operator Environment",
+      "position": {
+        "x": 531.7921805849952,
+        "y": 132.02166672063072
+      },
+      "icon": "IconTerminal",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "operator_console",
+        "identity_report"
+      ]
+    },
+    {
+      "id": "identity_sources",
+      "label": "Identity Sources",
+      "position": {
+        "x": 72.09999999999997,
+        "y": 487.9949687585887
+      },
+      "icon": "IconCloud",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "kerberos_source",
+        "globalprotect_source",
+        "vpn_client_source"
+      ]
+    },
+    {
+      "id": "firewall_identity_plane",
+      "label": "PAN-OS Identity Plane",
+      "position": {
+        "x": 784.5074768927259,
+        "y": 505.93808415754006
+      },
+      "icon": "IconFirewall",
+      "type": "container",
+      "style": "dashed_border",
+      "members": [
+        "user_id_agents",
+        "server_monitor",
+        "group_mapping_engine",
+        "user_mapping_cache",
+        "authd_log"
+      ]
+    },
+    {
+      "id": "operator_console",
+      "label": "Admin CLI Session",
+      "position": {
+        "x": 267.4510902115514,
+        "y": 147.52241440990332
+      },
+      "icon": "IconTerminal",
+      "type": "node"
+    },
+    {
+      "id": "identity_report",
+      "label": "Identity Triage Report",
+      "position": {
+        "x": 790.133270958439,
+        "y": 91.52091903135812
+      },
+      "icon": "IconData",
+      "type": "node"
+    },
+    {
+      "id": "kerberos_source",
+      "label": "Kerberos Source",
+      "position": {
+        "x": 72.09999999999997,
+        "y": 347.39496875858873
+      },
+      "icon": "IconActiveDirectory",
+      "type": "node"
+    },
+    {
+      "id": "globalprotect_source",
+      "label": "GlobalProtect Source",
+      "position": {
+        "x": 72.09999999999997,
+        "y": 475.49496875858875
+      },
+      "icon": "IconVPN",
+      "type": "node"
+    },
+    {
+      "id": "vpn_client_source",
+      "label": "VPN Client Source",
+      "position": {
+        "x": 72.09999999999997,
+        "y": 603.5949687585887
+      },
+      "icon": "IconVPN",
+      "type": "node"
+    },
+    {
+      "id": "user_id_agents",
+      "label": "User-ID Agents",
+      "position": {
+        "x": 881.3074768927258,
+        "y": 301.2880841575399
+      },
+      "icon": "IconService",
+      "type": "node"
+    },
+    {
+      "id": "server_monitor",
+      "label": "Server Monitor",
+      "position": {
+        "x": 881.3074768927258,
+        "y": 429.38808415753994
+      },
+      "icon": "IconService",
+      "type": "node"
+    },
+    {
+      "id": "group_mapping_engine",
+      "label": "Group Mapping Engine",
+      "position": {
+        "x": 881.3074768927258,
+        "y": 685.5880841575402
+      },
+      "icon": "IconProcess",
+      "type": "node"
+    },
+    {
+      "id": "user_mapping_cache",
+      "label": "IP-User Mapping Cache",
+      "position": {
+        "x": 690.2074768927259,
+        "y": 685.5880841575402
+      },
+      "icon": "IconData",
+      "type": "node"
+    },
+    {
+      "id": "authd_log",
+      "label": "authd Log",
+      "position": {
+        "x": 881.3074768927258,
+        "y": 557.4880841575402
+      },
+      "icon": "IconData",
+      "type": "node"
+    }
+  ],
+  "visibility": {
+    "operator_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "identity_sources": {
+      "start": 0,
+      "end": 100
+    },
+    "firewall_identity_plane": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_console": {
+      "start": 0,
+      "end": 100
+    },
+    "kerberos_source": {
+      "start": 0,
+      "end": 100
+    },
+    "globalprotect_source": {
+      "start": 0,
+      "end": 100
+    },
+    "vpn_client_source": {
+      "start": 0,
+      "end": 100
+    },
+    "user_id_agents": {
+      "start": 0,
+      "end": 100
+    },
+    "server_monitor": {
+      "start": 0,
+      "end": 100
+    },
+    "group_mapping_engine": {
+      "start": 0,
+      "end": 100
+    },
+    "user_mapping_cache": {
+      "start": 0,
+      "end": 100
+    },
+    "authd_log": {
+      "start": 0,
+      "end": 100
+    },
+    "identity_report": {
+      "start": 6,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Query User-ID Ingestion Health",
+      "type": "edge",
+      "from": "operator_console",
+      "to": "user_id_agents",
+      "icon": "IconSearch",
+      "tooltip": "This is the first decision point before assuming a policy problem is actually a mapping problem.",
+      "description": "The operator checks User-ID agent and server-monitor health to confirm that identity data is being ingested at all.",
+      "cli": "> show user user-id-agent state all\n> show user server-monitor state all\n> show user server-monitor statistics"
+    },
+    {
+      "id": 2,
+      "name": "Populate and Maintain Mapping Cache",
+      "type": "edge",
+      "from": "kerberos_source",
+      "to": "user_mapping_cache",
+      "icon": "IconData",
+      "tooltip": "The cache is only meaningful if upstream sources are actually contributing user mappings.",
+      "description": "Identity events from sources such as Kerberos feed the firewall's IP-to-user mapping cache.",
+      "cli": "> show log userid datasourcetype equal kerberos"
+    },
+    {
+      "id": 3,
+      "name": "Record Additional VPN-Linked Identity Sources",
+      "type": "edge",
+      "from": "globalprotect_source",
+      "to": "user_mapping_cache",
+      "icon": "IconVPN",
+      "tooltip": "VPN identity sources can create or refresh mappings independently of directory ingestion.",
+      "description": "GlobalProtect-linked mappings also feed the same cache and can explain user-context differences from directory-only views.",
+      "cli": "> show log userid datasourcetype equal globalprotect"
+    },
+    {
+      "id": 4,
+      "name": "Track VPN Client Mapping Origin",
+      "type": "edge",
+      "from": "vpn_client_source",
+      "to": "user_mapping_cache",
+      "icon": "IconVPN",
+      "tooltip": "This helps prove which source path is actually populating the firewall's user-context state.",
+      "description": "vpn-client style mapping origin is inspected to determine whether remote-access sources are contributing user context.",
+      "cli": "> show log userid datasource equal vpn-client"
+    },
+    {
+      "id": 5,
+      "name": "Resolve Groups and User Context",
+      "type": "edge",
+      "from": "user_mapping_cache",
+      "to": "group_mapping_engine",
+      "icon": "IconProcess",
+      "tooltip": "User mappings and group mappings must both be healthy for identity-based policy to behave correctly.",
+      "description": "The firewall correlates user mappings with group-mapping state so identity-aware policy can evaluate users and groups correctly.",
+      "cli": "> show user group-mapping statistics\n> show user group-mapping state all\n> show user ip-user-mapping all\n> show user ip-user-mapping ip <ip-address>"
+    },
+    {
+      "id": 6,
+      "name": "Collect Triage Evidence",
+      "type": "edge",
+      "from": "group_mapping_engine",
+      "to": "identity_report",
+      "icon": "IconData",
+      "tooltip": "This step captures the firewall's current belief about users, groups, and source provenance.",
+      "description": "The operator pulls current mapping and group state into a troubleshooting report for the incident or change review."
+    },
+    {
+      "id": 7,
+      "name": "Inspect authd and Clear Stale Cache",
+      "type": "edge",
+      "from": "operator_console",
+      "to": "authd_log",
+      "icon": "IconSearch",
+      "tooltip": "This is the corrective step for stale or clearly incorrect identity state.",
+      "description": "The operator inspects authd evidence and, if required, clears stale mapping state from the cache.",
+      "cli": "> less mp-log authd.log\nclear user-cache all\nclear user-cache ip <ip-address/netmask>"
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 0.9107634186328321,
+    "pan": {
+      "x": 131.3352351542092,
+      "y": 5.465292525657873
+    }
+  }
+}

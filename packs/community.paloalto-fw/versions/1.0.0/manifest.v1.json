@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "packId": "community.paloalto-fw",
+  "version": "1.0.0",
+  "profile": {
+    "file": "profile.json",
+    "sha256": "231d58395ca8c1e0a455e8dc8b04e323efbb488a21b90e8ffadffd1b78a546e7"
+  },
+  "graphs": [
+    {
+      "commandId": "26679f8f-6ea8-5860-9d16-62e02be4c645",
+      "file": "graphs/26679f8f-6ea8-5860-9d16-62e02be4c645.json",
+      "sha256": "149c459691218e4858f5b7b87d6b7b60ce574cf1e178cb9aa2a236814bc11ce4"
+    },
+    {
+      "commandId": "275c7c01-3548-5cd8-a6ed-526e1ff42a43",
+      "file": "graphs/275c7c01-3548-5cd8-a6ed-526e1ff42a43.json",
+      "sha256": "14de196d4fdccdb0e5ee266ace066dd6df6753edebea5d274263e0a86ba60a28"
+    },
+    {
+      "commandId": "46c0d347-b544-579c-8365-1065c85f684d",
+      "file": "graphs/46c0d347-b544-579c-8365-1065c85f684d.json",
+      "sha256": "b5c5dcceced37f722d7bdf9a9645877b26bbd51b6208f370b1733b86e64dcff7"
+    },
+    {
+      "commandId": "c4d4bae1-db44-55ce-9cc1-ee212a73a079",
+      "file": "graphs/c4d4bae1-db44-55ce-9cc1-ee212a73a079.json",
+      "sha256": "bf5d5d47617049242c4d36fdf16833330b12a3264d80a6b5a0cae4e9cb818749"
+    },
+    {
+      "commandId": "dd9625a3-061d-5f02-8dc8-31af9d026736",
+      "file": "graphs/dd9625a3-061d-5f02-8dc8-31af9d026736.json",
+      "sha256": "5392ee462bf6051d3c1dc3146f361e6a6398e0547d59034fc3ef33846aa8988e"
+    },
+    {
+      "commandId": "ee9dbcf5-3a74-5bab-8791-9dde2c0cd645",
+      "file": "graphs/ee9dbcf5-3a74-5bab-8791-9dde2c0cd645.json",
+      "sha256": "bd8e9c4c7074d4054613db5bf5e7897fff3a5cc1aa6aadb37d30482f4d98eb0c"
+    }
+  ]
+}
