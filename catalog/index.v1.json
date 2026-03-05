@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-03-05T22:10:07.279Z",
+  "generatedAt": "2026-03-05T22:10:20.318Z",
   "packs": [
     {
       "packId": "cerebra.fortigate",
@@ -120,6 +120,14 @@
       "displayName": "reverse-shells",
       "latestVersion": "1.0.0",
       "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.reverse-shells/versions/1.0.0/manifest.v1.json"
+    },
+    {
+      "packId": "community.web-app-pentest",
+      "publisher": "community",
+      "slug": "web-app-pentest",
+      "displayName": "web-app-pentest",
+      "latestVersion": "1.0.0",
+      "manifestUrl": "https://raw.githubusercontent.com/abdessamad-elamrani/cerebra-cmdb-marketplace/main/packs/community.web-app-pentest/versions/1.0.0/manifest.v1.json"
     }
   ]
 }
