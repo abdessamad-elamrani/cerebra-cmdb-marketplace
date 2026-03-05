@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "packId": "community.password-cracking",
+  "version": "1.0.0",
+  "profile": {
+    "file": "profile.json",
+    "sha256": "7274c0e1d5c64513c36a0dc65e1434c5c70edf985cb19f40ddf0c485c0b446d2"
+  },
+  "graphs": [
+    {
+      "commandId": "22279552-6b9f-55d3-aa6f-d4edec6034a4",
+      "file": "graphs/22279552-6b9f-55d3-aa6f-d4edec6034a4.json",
+      "sha256": "93cb03009384aa107fd704c000c3314357232c0e67e8e50eecaff0d8c0af672a"
+    },
+    {
+      "commandId": "340c7d8f-f040-565f-95e4-b92e57120584",
+      "file": "graphs/340c7d8f-f040-565f-95e4-b92e57120584.json",
+      "sha256": "ad16df451b453c0aa0d3e88a6f397cd12757d36d5a9d2f18faa2f6a6b389b47b"
+    },
+    {
+      "commandId": "630e7bf5-7476-5f84-b7ce-f3e77f4965a8",
+      "file": "graphs/630e7bf5-7476-5f84-b7ce-f3e77f4965a8.json",
+      "sha256": "ca409705d95901feee533526ba8c2eb5a1434c3ef9a814a500c425d45c2da3df"
+    },
+    {
+      "commandId": "68bcfc04-5cf1-5a1f-9478-9b6d6c4eaabb",
+      "file": "graphs/68bcfc04-5cf1-5a1f-9478-9b6d6c4eaabb.json",
+      "sha256": "7386e72e0ef9207751c421c6144a822f3705202e45d9ed2f6246e93456c8ff46"
+    },
+    {
+      "commandId": "8c415940-3f70-5146-bdc8-5315f68b4ea3",
+      "file": "graphs/8c415940-3f70-5146-bdc8-5315f68b4ea3.json",
+      "sha256": "d03eca2960c4588c17fb7c541dd3c4adcfbc5a2c870e9c22136206cbb56f5aa5"
+    },
+    {
+      "commandId": "a84349d8-e5e1-554b-a043-5369cdc79f0a",
+      "file": "graphs/a84349d8-e5e1-554b-a043-5369cdc79f0a.json",
+      "sha256": "afa0195ad3cf0af0302a687ef828eb7684676853182199d150721e98292779dc"
+    },
+    {
+      "commandId": "cd1dac66-d8f4-523b-8438-1e6b57749884",
+      "file": "graphs/cd1dac66-d8f4-523b-8438-1e6b57749884.json",
+      "sha256": "346439f6b261f7cfa2ec8494c3a870e59b966a2ef12aae89dc56a55eebcbf300"
+    }
+  ]
+}

@@ -1,0 +1,291 @@
+{
+  "title": "Responder Staged Passive-to-Active Poisoning",
+  "version": "3.0",
+  "description": "Progressive Responder campaign moving from passive network observation to active poisoning and offline credential cracking.",
+  "shortDescription": "Responder Staged Campaign",
+  "tags": [
+    "password-cracking",
+    "responder",
+    "credential-capture",
+    "poisoning",
+    "collection"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This scenario models a staged Responder operation that starts in passive analysis mode, then escalates to active poisoning paths (including DHCPv6/WPAD controls), and finally routes captured artifacts into offline cracking. The structure emphasizes safe progression and visibility-first operation.</p>",
+    "commandsBlock": "# Step 1: Passive baseline\n$ sudo python3 Responder.py -I eth0 -A -v\n\n# Step 2: Enable stronger poisoning controls\n$ sudo python3 Responder.py -I eth0 --dhcpv6 -v\n$ sudo python3 Responder.py -I eth0 -Pvd\n\n# Step 3: Full active capture\n$ sudo python3 Responder.py -I eth0 -v\n\n# Step 4: Crack captured artifacts\n$ hashcat -m 5600 smb-ntlmv2.txt wordlist.txt",
+    "extraInfo": [
+      "Responder operational flags: -A, --dhcpv6, -Pvd",
+      "Offline cracking handoff with hashcat/john"
+    ],
+    "prerequisites": [
+      "Network position to influence victim name-resolution/auth behavior",
+      "Reachable victim services and authorized engagement scope",
+      "Prepared cracking inputs for captured hashes"
+    ],
+    "attackerGains": [
+      "Captured NetNTLM/Kerberos authentication material",
+      "Recovered credentials from offline cracking"
+    ],
+    "detectionNotes": [
+      "Disable LLMNR/NBT-NS where possible and enforce SMB signing",
+      "Monitor DHCPv6/WPAD anomalies and rogue responder fingerprints",
+      "Alert on abnormal authentication failures or destination changes"
+    ],
+    "mitreCategories": [
+      "T1040",
+      "T1557.003",
+      "T1557.001",
+      "T1110.002",
+      "T1078"
+    ]
+  },
+  "entities": [
+    {
+      "id": "attacker_environment",
+      "type": "container",
+      "label": "Attacker Responder Environment",
+      "icon": "IconKali",
+      "members": [
+        "operator_node",
+        "responder_engine",
+        "dhcpv6_wpad_module"
+      ],
+      "position": {
+        "x": 1215.2,
+        "y": 135.675
+      }
+    },
+    {
+      "id": "victim_network",
+      "type": "container",
+      "label": "Victim Endpoint Network",
+      "icon": "IconNetwork",
+      "members": [
+        "victim_endpoint_set"
+      ],
+      "position": {
+        "x": 61.25,
+        "y": 199.725
+      }
+    },
+    {
+      "id": "post_collection",
+      "type": "container",
+      "label": "Post-Collection Processing",
+      "icon": "IconData",
+      "members": [
+        "captured_artifacts",
+        "offline_crack_engine",
+        "recovered_credentials"
+      ],
+      "position": {
+        "x": 590.4499999999999,
+        "y": 255.375
+      }
+    },
+    {
+      "id": "operator_node",
+      "type": "node",
+      "label": "Operator Host",
+      "icon": "IconKali",
+      "position": {
+        "x": 1119.65,
+        "y": 199.725
+      }
+    },
+    {
+      "id": "responder_engine",
+      "type": "node",
+      "label": "Responder Engine",
+      "icon": "IconInfectedService",
+      "position": {
+        "x": 1310.75,
+        "y": 71.625
+      }
+    },
+    {
+      "id": "dhcpv6_wpad_module",
+      "type": "node",
+      "label": "DHCPv6/WPAD Poisoning Module",
+      "icon": "IconRouter",
+      "position": {
+        "x": 1310.75,
+        "y": 199.725
+      }
+    },
+    {
+      "id": "victim_endpoint_set",
+      "type": "node",
+      "label": "Victim Endpoints",
+      "icon": "IconWorkstation",
+      "position": {
+        "x": 61.25,
+        "y": 199.725
+      }
+    },
+    {
+      "id": "captured_artifacts",
+      "type": "node",
+      "label": "Captured Credential Artifacts",
+      "icon": "IconHash",
+      "position": {
+        "x": 399.34999999999997,
+        "y": 255.375
+      }
+    },
+    {
+      "id": "offline_crack_engine",
+      "type": "node",
+      "label": "Offline Crack Pipeline",
+      "icon": "IconTerminal",
+      "position": {
+        "x": 590.45,
+        "y": 255.375
+      }
+    },
+    {
+      "id": "recovered_credentials",
+      "type": "node",
+      "label": "Recovered Credentials",
+      "icon": "IconStolenCredential",
+      "position": {
+        "x": 781.55,
+        "y": 255.375
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "type": "edge",
+      "name": "Run Passive Analysis Mode",
+      "from": "victim_endpoint_set",
+      "to": "operator_node",
+      "icon": "IconSearch",
+      "cli": "sudo python3 Responder.py -I eth0 -A -v",
+      "description": "Observe ambient protocol and authentication behavior without active poisoning.",
+      "mitre": {
+        "id": "T1040",
+        "tactic": "Credential Access",
+        "technique": "Network Sniffing"
+      }
+    },
+    {
+      "id": 2,
+      "type": "edge",
+      "name": "Enable DHCPv6/WPAD Influence",
+      "from": "operator_node",
+      "to": "dhcpv6_wpad_module",
+      "icon": "IconProcess",
+      "cli": "sudo python3 Responder.py -I eth0 --dhcpv6 -v && sudo python3 Responder.py -I eth0 -Pvd",
+      "description": "Activate DHCPv6/WPAD attack paths to increase control over victim authentication routing.",
+      "mitre": {
+        "id": "T1557.003",
+        "tactic": "Credential Access",
+        "technique": "DHCP Spoofing"
+      }
+    },
+    {
+      "id": 3,
+      "type": "edge",
+      "name": "Execute Active Poisoning Capture",
+      "from": "victim_endpoint_set",
+      "to": "captured_artifacts",
+      "icon": "IconInfectedService",
+      "cli": "sudo python3 Responder.py -I eth0 -v",
+      "description": "Victim authentication is redirected to rogue services, yielding crackable credential artifacts.",
+      "mitre": {
+        "id": "T1557.001",
+        "tactic": "Credential Access",
+        "technique": "LLMNR/NBT-NS Poisoning and SMB Relay"
+      }
+    },
+    {
+      "id": 4,
+      "type": "edge",
+      "name": "Route Captures to Offline Cracking",
+      "from": "captured_artifacts",
+      "to": "offline_crack_engine",
+      "icon": "IconData",
+      "cli": "hashcat -m 5600 smb-ntlmv2.txt wordlist.txt",
+      "description": "Transfer captured protocol artifacts into offline cracking workflows.",
+      "mitre": {
+        "id": "T1110.002",
+        "tactic": "Credential Access",
+        "technique": "Password Cracking"
+      }
+    },
+    {
+      "id": 5,
+      "type": "edge",
+      "name": "Recover Plaintext Credentials",
+      "from": "offline_crack_engine",
+      "to": "recovered_credentials",
+      "icon": "IconStolenCredential",
+      "description": "Cracking outputs are converted into actionable credential records.",
+      "mitre": {
+        "id": "T1110.002",
+        "tactic": "Credential Access",
+        "technique": "Password Cracking"
+      }
+    },
+    {
+      "id": 6,
+      "type": "edge",
+      "name": "Deliver Valid Accounts",
+      "from": "recovered_credentials",
+      "to": "operator_node",
+      "icon": "IconCheck",
+      "description": "Recovered valid accounts are returned to operator control for authorized follow-on testing.",
+      "mitre": {
+        "id": "T1078",
+        "tactic": "Initial Access",
+        "technique": "Valid Accounts"
+      }
+    }
+  ],
+  "visibility": {
+    "attacker_environment": {
+      "start": 0,
+      "end": 100
+    },
+    "victim_network": {
+      "start": 0,
+      "end": 100
+    },
+    "post_collection": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_node": {
+      "start": 0,
+      "end": 100
+    },
+    "responder_engine": {
+      "start": 0,
+      "end": 100
+    },
+    "victim_endpoint_set": {
+      "start": 0,
+      "end": 100
+    },
+    "dhcpv6_wpad_module": {
+      "start": 2,
+      "end": 100
+    },
+    "captured_artifacts": {
+      "start": 3,
+      "end": 100
+    },
+    "offline_crack_engine": {
+      "start": 4,
+      "end": 100
+    },
+    "recovered_credentials": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}

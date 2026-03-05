@@ -1,0 +1,274 @@
+{
+  "title": "Kerberos KDC Dump Decryption and JtR Audit",
+  "version": "3.0",
+  "description": "KDC database dump and decryption workflow that extracts crackable etype material and audits credential strength with John the Ripper.",
+  "shortDescription": "KDC Dump Audit",
+  "tags": [
+    "password-cracking",
+    "kerberos",
+    "john-the-ripper",
+    "kdc-audit",
+    "credential-access"
+  ],
+  "metadata": {
+    "descriptionHtml": "<p>This scenario models privileged Kerberos database extraction from a KDC host, decryption/parsing of crackable etype records, and offline auditing via <span style='color:#ef4444;font-weight:bold;'>john</span>. It highlights the transition from encrypted KDC material to crack-ready hash artifacts.</p>",
+    "commandsBlock": "# Step 1: Export KDC data\n$ sudo kdb5_util dump -b7 kdc.dump\n$ cp /etc/krb5kdc/stash stash\n\n# Step 2: Decrypt and extract etype material\n$ hprop --database=kdc.dump --master-key=stash --source=mit-dump --decrypt --stdout | hpropd -n --print | grep -oP '23:\\K(.+?)(?=:)' > rc4.hex\n\n# Step 3: Normalize and crack\n$ tr '[:upper:]' '[:lower:]' < rc4.hex > hash\n$ john --format=krb5-23 hash\n$ OMP_NUM_THREADS=4 john --format=krb5-23 --test",
+    "extraInfo": [
+      "MIT/Heimdal utilities: kdb5_util, hprop, hpropd",
+      "John formats: krb5-23 and nt"
+    ],
+    "prerequisites": [
+      "Privileged access to KDC host and kerberos database files",
+      "Authorized audit scope with credential handling controls",
+      "Availability of stash/master-key material for decryption"
+    ],
+    "attackerGains": [
+      "Crackable Kerberos principal hash material",
+      "Recovered principal plaintexts when cracking succeeds"
+    ],
+    "detectionNotes": [
+      "Monitor privileged access to KDC database and stash files",
+      "Harden KDC hosts and restrict backup/export operations",
+      "Rotate credentials rapidly if audit reveals weak principals"
+    ],
+    "mitreCategories": [
+      "T1003",
+      "T1110.002",
+      "T1078"
+    ]
+  },
+  "entities": [
+    {
+      "id": "kdc_collection",
+      "type": "container",
+      "label": "KDC Collection Pipeline",
+      "icon": "IconDC",
+      "members": [
+        "kdc_host",
+        "dump_stash_artifacts",
+        "decryption_pipeline",
+        "extracted_hash_file"
+      ],
+      "position": {
+        "x": 346.84999999999997,
+        "y": 76
+      }
+    },
+    {
+      "id": "cracking_lab",
+      "type": "container",
+      "label": "Cracking Audit Lab",
+      "icon": "IconKali",
+      "members": [
+        "operator_node",
+        "jtr_audit_engine",
+        "recovered_principals"
+      ],
+      "position": {
+        "x": 1162.7,
+        "y": 76
+      }
+    },
+    {
+      "id": "kdc_host",
+      "type": "node",
+      "label": "KDC Host",
+      "icon": "IconDC",
+      "position": {
+        "x": 60.19999999999993,
+        "y": 76
+      }
+    },
+    {
+      "id": "dump_stash_artifacts",
+      "type": "node",
+      "label": "Dump and Stash Artifacts",
+      "icon": "IconDatabase",
+      "position": {
+        "x": 251.29999999999995,
+        "y": 76
+      }
+    },
+    {
+      "id": "decryption_pipeline",
+      "type": "node",
+      "label": "Decryption Pipeline",
+      "icon": "IconProcess",
+      "position": {
+        "x": 442.4,
+        "y": 76
+      }
+    },
+    {
+      "id": "extracted_hash_file",
+      "type": "node",
+      "label": "Extracted Hash File",
+      "icon": "IconHash",
+      "position": {
+        "x": 633.5,
+        "y": 76
+      }
+    },
+    {
+      "id": "operator_node",
+      "type": "node",
+      "label": "Audit Operator",
+      "icon": "IconKali",
+      "position": {
+        "x": 1353.8000000000002,
+        "y": 76
+      }
+    },
+    {
+      "id": "jtr_audit_engine",
+      "type": "node",
+      "label": "JtR Audit Engine",
+      "icon": "IconTerminal",
+      "position": {
+        "x": 971.6,
+        "y": 76
+      }
+    },
+    {
+      "id": "recovered_principals",
+      "type": "node",
+      "label": "Recovered Principals",
+      "icon": "IconStolenCredential",
+      "position": {
+        "x": 1162.7,
+        "y": 76
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "type": "edge",
+      "name": "Dump Kerberos Database and Stash",
+      "from": "kdc_host",
+      "to": "dump_stash_artifacts",
+      "icon": "IconDownload",
+      "cli": "sudo kdb5_util dump -b7 kdc.dump && cp /etc/krb5kdc/stash stash",
+      "description": "Export encrypted KDC data and key material required for downstream offline decryption.",
+      "mitre": {
+        "id": "T1003",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping"
+      }
+    },
+    {
+      "id": 2,
+      "type": "edge",
+      "name": "Decrypt and Parse Etype Records",
+      "from": "dump_stash_artifacts",
+      "to": "decryption_pipeline",
+      "icon": "IconProcess",
+      "cli": "hprop --database=kdc.dump --master-key=stash --source=mit-dump --decrypt --stdout | hpropd -n --print | grep -oP '23:\\K(.+?)(?=:)' > rc4.hex",
+      "description": "Transform raw dump content into targeted crackable Kerberos etype records.",
+      "mitre": {
+        "id": "T1003",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping"
+      }
+    },
+    {
+      "id": 3,
+      "type": "edge",
+      "name": "Normalize Extracted Hash Material",
+      "from": "decryption_pipeline",
+      "to": "extracted_hash_file",
+      "icon": "IconData",
+      "cli": "tr '[:upper:]' '[:lower:]' < rc4.hex > hash",
+      "description": "Canonicalize output format to ensure stable parser behavior in crack tools.",
+      "mitre": {
+        "id": "T1003",
+        "tactic": "Credential Access",
+        "technique": "OS Credential Dumping"
+      }
+    },
+    {
+      "id": 4,
+      "type": "edge",
+      "name": "Load Hashes into JtR",
+      "from": "extracted_hash_file",
+      "to": "jtr_audit_engine",
+      "icon": "IconTerminal",
+      "cli": "john --format=krb5-23 hash",
+      "description": "Feed extracted hash lines into John with matching format configuration.",
+      "mitre": {
+        "id": "T1110.002",
+        "tactic": "Credential Access",
+        "technique": "Password Cracking"
+      }
+    },
+    {
+      "id": 5,
+      "type": "edge",
+      "name": "Crack and Benchmark",
+      "from": "jtr_audit_engine",
+      "to": "recovered_principals",
+      "icon": "IconExploit",
+      "cli": "OMP_NUM_THREADS=4 john --format=krb5-23 --test",
+      "description": "Run cracking and performance benchmarking to quantify real credential exposure.",
+      "mitre": {
+        "id": "T1110.002",
+        "tactic": "Credential Access",
+        "technique": "Password Cracking"
+      }
+    },
+    {
+      "id": 6,
+      "type": "edge",
+      "name": "Deliver Audit Results",
+      "from": "recovered_principals",
+      "to": "operator_node",
+      "icon": "IconCheck",
+      "description": "Recovered credential findings are returned for remediation and audit reporting.",
+      "mitre": {
+        "id": "T1078",
+        "tactic": "Initial Access",
+        "technique": "Valid Accounts"
+      }
+    }
+  ],
+  "visibility": {
+    "kdc_collection": {
+      "start": 0,
+      "end": 100
+    },
+    "cracking_lab": {
+      "start": 0,
+      "end": 100
+    },
+    "kdc_host": {
+      "start": 0,
+      "end": 100
+    },
+    "operator_node": {
+      "start": 0,
+      "end": 100
+    },
+    "dump_stash_artifacts": {
+      "start": 1,
+      "end": 100
+    },
+    "decryption_pipeline": {
+      "start": 2,
+      "end": 100
+    },
+    "extracted_hash_file": {
+      "start": 3,
+      "end": 100
+    },
+    "jtr_audit_engine": {
+      "start": 4,
+      "end": 100
+    },
+    "recovered_principals": {
+      "start": 5,
+      "end": 100
+    }
+  },
+  "attackMatrixOpen": false,
+  "sizeControlsOpen": false
+}
